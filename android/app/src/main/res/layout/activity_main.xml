@@ -32,6 +32,6 @@
         android:id="@+id/leaderboardButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="showLeaderboard"
-        android:text="ShowLeaderboard" />
+        android:onClick="showLastTournamentLeaderboard"
+        android:text="Show Leaderboard" />
 </LinearLayout>

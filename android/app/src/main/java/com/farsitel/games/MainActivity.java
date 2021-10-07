@@ -21,6 +21,6 @@ public class MainActivity extends Activity {
     public void endTournamentMatch(View view) {
     }
 
-    public void showLeaderboard(View view) {
+    public void showLastTournamentLeaderboard(View view) {
     }
 }
