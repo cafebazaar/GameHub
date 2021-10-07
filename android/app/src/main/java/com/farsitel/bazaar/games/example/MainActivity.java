@@ -5,7 +5,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.farsitel.bazaar.games.GameServiceBridge;
+import com.farsitel.bazaar.games.GamesServiceConnection;
+import com.farsitel.bazaar.games.callbacks.IConnectionCallback;
+import com.farsitel.bazaar.games.callbacks.ITournamentMatchCallback;
+
 public class MainActivity extends Activity {
+
+    private GamesServiceConnection service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,13 +22,22 @@ public class MainActivity extends Activity {
 
     public void connect(View view) {
         Log.i(GameServiceBridge.TAG, "connect");
+        IConnectionCallback callback = (status, message, stackTrace) -> {
+        };
+//        service = new GamesServiceConnection(callback, this, callback);
     }
 
     public void startTournamentMatch(View view) {
+        ITournamentMatchCallback callback = (status, message, stackTrace) -> {
+        };
+//        service.startTournamentMatch(callback, "match_id", "extra");
         Log.i(GameServiceBridge.TAG, "startTournamentMatch");
     }
 
     public void endTournamentMatch(View view) {
+        ITournamentMatchCallback callback = (status, message, stackTrace) -> {
+        };
+//        service.endTournamentMatch(callback, "session_id", 0.5f);
         Log.i(GameServiceBridge.TAG, "endTournamentMatch");
     }
 
