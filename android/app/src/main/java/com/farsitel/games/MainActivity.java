@@ -12,4 +12,15 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
     }
 
+    public void login(View view) {
+    }
+
+    public void startTournamentMatch(View view) {
+    }
+
+    public void endTournamentMatch(View view) {
+    }
+
+    public void showLeaderboard(View view) {
+    }
 }
