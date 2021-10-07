@@ -1,5 +1,18 @@
 package com.farsitel.bazaar.games;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.ServiceConnection;
+import android.content.pm.PackageInfo;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
+import android.util.Log;
+
+import com.farsitel.bazaar.games.callbacks.IConnectionCallback;
+import com.farsitel.bazaar.games.callbacks.ITournamentMatchCallback;
+import com.farsitell.bazaar.games.GameService;
+
 
 public class GamesServiceConnection implements ServiceConnection {
     public static int STATUS_SUCCESS = 0;
@@ -24,6 +37,11 @@ public class GamesServiceConnection implements ServiceConnection {
             e.printStackTrace();
             callback.onFinish(STATUS_FAILURE, "Bazaar Game Service connection failed.", e.getMessage());
         }
+        if (needsUpdate()) {
+            // showUpdate();
+            callback.onFinish(STATUS_NEEDS_UPDATE, "Update Cafebazaar app.", "");
+            return;
+        }
 
         Log.e(GameServiceBridge.TAG, "onServiceConnected(): Connected");
         callback.onFinish(STATUS_SUCCESS, "Bazaar Game Service connected.", "");
@@ -37,6 +55,14 @@ public class GamesServiceConnection implements ServiceConnection {
     }
 
     public boolean needsUpdate() {
+        try {
+            PackageInfo pInfo = context.getPackageManager().getPackageInfo("com.farsitel.bazaar", 0);
+            if (pInfo == null || pInfo.versionCode < 1400700){
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
