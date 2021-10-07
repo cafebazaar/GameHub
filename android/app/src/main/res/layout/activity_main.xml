@@ -11,8 +11,8 @@
         android:id="@+id/loginButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="login"
-    android:text="Login"/>
+        android:onClick="connect"
+    android:text="Connect"/>
 
     <Button
         android:id="@+id/startButton"
