@@ -107,10 +107,26 @@ public class GameHubBridge extends AbstractGameHub {
         }
         }
         return connectionState = GHStatus.FAILURE;
+    }
 
+    @Override
+    public GHStatus isLogin(Context context) {
+        GHStatus status = GHStatus.SUCCESS;
+        try {
+            if (!gameHubService.isLogin()) {
+                status = GHStatus.LOGIN_CAFEBAZAAR;
+                startActionViewIntent(context, "bazaar://login", "com.farsitel.bazaar");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return status;
     }
 
     public void startTournamentMatch(Context context, ITournamentMatchCallback callback, String matchId, String metaData) {
+        // Check login to cafebazaar
+        GHStatus status = isLogin(context);
+
         if (status == GHStatus.SUCCESS) {
             logger.logDebug("Billing service connected.");
             callback.onFinish(status.getLevelCode(), "", "");
