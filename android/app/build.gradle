@@ -6,7 +6,7 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "com.farsitel.bazaar.games.example"
+        applicationId "com.farsitel.bazaar.game.example"
         minSdk 21
         targetSdk 30
         versionCode 1

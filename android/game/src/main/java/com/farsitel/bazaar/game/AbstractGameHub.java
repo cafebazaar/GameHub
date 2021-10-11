@@ -2,6 +2,8 @@ package com.farsitel.bazaar.game;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
@@ -27,9 +29,13 @@ public abstract class AbstractGameHub {
 
     }
 
-    boolean connect(Context context, IConnectionCallback callback) {
-        this.context = context;
-        return true;
+    void startActionViewIntent(Context context, String uri, String packageName) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(uri));
+        if (packageName != null) {
+            intent.setPackage(packageName);
+        }
+        context.startActivity(intent);
     }
 
     public abstract GHStatus isLogin(Context context);
