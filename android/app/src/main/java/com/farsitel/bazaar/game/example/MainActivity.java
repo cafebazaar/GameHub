@@ -1,17 +1,13 @@
-package com.farsitel.bazaar.games.example;
+package com.farsitel.bazaar.game.example;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
-import com.farsitel.bazaar.games.GameServiceBridge;
-import com.farsitel.bazaar.games.GamesServiceConnection;
-import com.farsitel.bazaar.games.callbacks.IConnectionCallback;
-import com.farsitel.bazaar.games.callbacks.ITournamentMatchCallback;
+import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
+import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 
 public class MainActivity extends Activity {
-
     private GamesServiceConnection service;
 
     @Override
