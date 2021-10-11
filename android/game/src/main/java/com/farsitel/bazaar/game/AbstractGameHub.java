@@ -13,6 +13,8 @@ import com.farsitel.bazaar.game.utils.GHStatus;
 
 public abstract class AbstractGameHub {
 
+    static final int MINIMUM_BAZAAR_VERSION = 1400700;
+
     GHLogger logger;
     boolean isDispose = false;
     GHStatus connectionState = GHStatus.UNKNOWN;
@@ -27,6 +29,22 @@ public abstract class AbstractGameHub {
 
     abstract GHStatus connect(Context context, IConnectionCallback callback);
 
+    GHStatus isCafebazaarInstalled(Context context) {
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = context.getPackageManager().getPackageInfo("com.farsitel.bazaar", 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (packageInfo == null) {
+            startActionViewIntent(context, "https://cafebazaar.ir/install", null);
+            return GHStatus.UPDATE_CAFEBAZAAR;
+        }
+        if (packageInfo.versionCode < MINIMUM_BAZAAR_VERSION) {
+            startActionViewIntent(context, "bazaar://details?id=com.farsitel.bazaar", "com.farsitel.bazaar");
+            return GHStatus.INSTALL_CAFEBAZAAR;
+        }
+        return GHStatus.SUCCESS;
     }
 
     void startActionViewIntent(Context context, String uri, String packageName) {

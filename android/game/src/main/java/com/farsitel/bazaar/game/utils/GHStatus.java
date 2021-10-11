@@ -1,6 +1,8 @@
 package com.farsitel.bazaar.game.utils;
 
 public enum GHStatus {
+    UPDATE_CAFEBAZAAR(-12),
+    INSTALL_CAFEBAZAAR(-11),
     FAILURE(-1),
 
     SUCCESS(0),

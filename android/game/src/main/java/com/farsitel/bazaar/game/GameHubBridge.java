@@ -70,7 +70,13 @@ public class GameHubBridge extends AbstractGameHub {
         if (context == null) {
             context = Objects.requireNonNull(getCurrentActivity()).getApplicationContext();
         }
-        super.connect(context, callback);
+
+        // Check cafebazaar application version
+        connectionState = isCafebazaarInstalled(context);
+        if (connectionState != GHStatus.SUCCESS) {
+            callback.onFinish(connectionState.getLevelCode(), "Install / Update new version of Cafebazaar.", "");
+            return connectionState;
+        }
 
         gameHubConnection = new ServiceConnection() {
             @Override
