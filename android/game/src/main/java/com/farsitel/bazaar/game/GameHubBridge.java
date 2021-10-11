@@ -1,18 +1,16 @@
 package com.farsitel.bazaar.game;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
@@ -24,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class GameHubBridge extends AbstractGameHub {
+    @SuppressLint("StaticFieldLeak")
     private static GameHubBridge instance;
 
     private Class<?> unityPlayerClass;
@@ -67,7 +66,7 @@ public class GameHubBridge extends AbstractGameHub {
     }
 
     @Override
-    public boolean connect(Context context, IConnectionCallback callback) {
+    public GHStatus connect(Context context, IConnectionCallback callback) {
         if (context == null) {
             context = Objects.requireNonNull(getCurrentActivity()).getApplicationContext();
         }
@@ -76,15 +75,16 @@ public class GameHubBridge extends AbstractGameHub {
         gameHubConnection = new ServiceConnection() {
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                callback.onFinish(GHStatus.DISCONNECT.getLevelCode(), "", "");
+                logger.logDebug("GameHub service disconnected.");
+                callback.onFinish(GHStatus.DISCONNECTED.getLevelCode(), "GameHub service disconnected.", "");
                 gameHubService = null;
             }
 
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 if (disposed()) return;
-                isSetupFinish = true;
                 gameHubService = GameHub.Stub.asInterface(service);
+                connectionState = GHStatus.SUCCESS;
             }
         };
 
@@ -96,14 +96,22 @@ public class GameHubBridge extends AbstractGameHub {
         List<ResolveInfo> intentServices = pm.queryIntentServices(serviceIntent, 0);
         if (!intentServices.isEmpty()) {
             // service available to handle that Intent
-            return context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
-        } else {
-            return false;
+            if (context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE)) {
+                return GHStatus.SUCCESS;
         }
-    }
+        }
+        return connectionState = GHStatus.FAILURE;
+
     }
 
-    public void startTournamentMatch(ITournamentMatchCallback callback, String matchId, String metaData) {
+    public void startTournamentMatch(Context context, ITournamentMatchCallback callback, String matchId, String metaData) {
+        if (status == GHStatus.SUCCESS) {
+            logger.logDebug("Billing service connected.");
+            callback.onFinish(status.getLevelCode(), "", "");
+        } else {
+            callback.onFinish(status.getLevelCode(), "Login to Cafebazaar app", "");
+    }
+
         Bundle bundle = null;
         try {
             bundle = gameHubService.startTournamentMatch(context.getPackageName(), matchId, metaData);
