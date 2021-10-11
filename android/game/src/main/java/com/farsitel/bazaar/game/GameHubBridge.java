@@ -32,6 +32,7 @@ public class GameHubBridge extends AbstractGameHub {
     private GameHub gameHubService;
 
     public GameHubBridge() {
+        super(new GHLogger());
     }
 
     public static GameHubBridge getInstance() {
@@ -39,14 +40,14 @@ public class GameHubBridge extends AbstractGameHub {
             instance = new GameHubBridge();
             try {
                 // Using reflection to remove reference to Unity library.
-                mUnityPlayerClass = Class.forName("com.unity3d.player.UnityPlayer");
-                mUnityPlayerActivityField = mUnityPlayerClass.getField("currentActivity");
+                instance.unityPlayerClass = Class.forName("com.unity3d.player.UnityPlayer");
+                instance.unityPlayerActivityField = instance.unityPlayerClass.getField("currentActivity");
             } catch (ClassNotFoundException e) {
-                Log.i(TAG, "Could not find UnityPlayer class: " + e.getMessage());
+                instance.logger.logError("Could not find UnityPlayer class: " + e.getMessage());
             } catch (NoSuchFieldException e) {
-                Log.i(TAG, "Could not find currentActivity field: " + e.getMessage());
+                instance.logger.logError("Could not find currentActivity field: " + e.getMessage());
             } catch (Exception e) {
-                Log.i(TAG, "Unknown exception occurred locating UnitySendMessage(): " + e.getMessage());
+                instance.logger.logError("Unknown exception occurred locating UnitySendMessage(): " + e.getMessage());
             }
         }
         return instance;
@@ -60,25 +61,70 @@ public class GameHubBridge extends AbstractGameHub {
                     logger.logError("The Unity Activity does not exist. This could be due to a low memory situation");
                 return activity;
             } catch (Exception e) {
-                logger.logInfo("Error getting currentActivity: " + e.getMessage());
+                logger.logError("Error getting currentActivity: " + e.getMessage());
             }
         return null;
     }
 
+    @Override
+    public boolean connect(Context context, IConnectionCallback callback) {
+        if (context == null) {
+            context = Objects.requireNonNull(getCurrentActivity()).getApplicationContext();
+        }
+        super.connect(context, callback);
 
-    public void connect(IConnectionCallback callback) {
-        Log.i(GameServiceBridge.TAG, "connect");
-        gameHubService = new GamesServiceConnection(callback, getCurrentActivity(), callback);
+        gameHubConnection = new ServiceConnection() {
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                callback.onFinish(GHStatus.DISCONNECT.getLevelCode(), "", "");
+                gameHubService = null;
+            }
+
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                if (disposed()) return;
+                isSetupFinish = true;
+                gameHubService = GameHub.Stub.asInterface(service);
+            }
+        };
+
+        // Bind to bazaar game hub
+        Intent serviceIntent = new Intent("com.farsitel.bazaar.Game.BIND");
+        serviceIntent.setPackage("com.farsitel.bazaar");
+
+        PackageManager pm = context.getPackageManager();
+        List<ResolveInfo> intentServices = pm.queryIntentServices(serviceIntent, 0);
+        if (!intentServices.isEmpty()) {
+            // service available to handle that Intent
+            return context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
+        } else {
+            return false;
+        }
+    }
     }
 
     public void startTournamentMatch(ITournamentMatchCallback callback, String matchId, String metaData) {
-        Log.i(GameServiceBridge.TAG, "startTournamentMatch");
-        gameHubService.startTournamentMatch(callback, matchId, metaData);
+        Bundle bundle = null;
+        try {
+            bundle = gameHubService.startTournamentMatch(context.getPackageName(), matchId, metaData);
+        } catch (RemoteException e) {
+            callback.onFinish(GHStatus.FAILURE.getLevelCode(), "Error on startTournamentMatch", e.getMessage());
+            e.printStackTrace();
+        }
+
+        callback.onFinish(GHStatus.SUCCESS.getLevelCode(), "no data", "");
     }
 
     public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float coefficient) {
-        Log.i(GameServiceBridge.TAG, "endTournamentMatch");
-        gameHubService.endTournamentMatch(callback, sessionId, coefficient);
+        Bundle bundle = null;
+        try {
+            bundle = gameHubService.endTournamentMatch(sessionId, coefficient);
+        } catch (RemoteException e) {
+            callback.onFinish(GHStatus.FAILURE.getLevelCode(), "Error on endTournamentMatch", e.getMessage());
+            e.printStackTrace();
+        }
+
+        callback.onFinish(GHStatus.SUCCESS.getLevelCode(), "no data", "");
     }
 
     public void showLastTournamentLeaderboard() {

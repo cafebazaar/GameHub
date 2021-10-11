@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.farsitel.bazaar.games.example">
+    package="com.farsitel.bazaar.game.example">
+
+    <queries>
+        <package android:name="com.farsitel.bazaar" />
+    </queries>
+    <uses-permission android:name="com.farsitel.bazaar.GameServicePermission"/>
 
     <application
         android:allowBackup="true"
@@ -10,7 +15,7 @@
         android:supportsRtl="true">
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.farsitel.bazaar.game.example.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
