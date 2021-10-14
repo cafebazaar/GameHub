@@ -1,40 +1,40 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using Bazaar;
 
-public class GameServiceExample : MonoBehaviour
+public class GameHubExample : MonoBehaviour
 {
     public Text ConsoleText;
 
-    private GameService gameService;
+    private GameHub gameHub;
 
     void Start()
     {
         Log("Plugin Version: " + PluginVersion.VersionString);
-        gameService = new GameService();
+        gameHub = new GameHub();
     }
 
     public async void Connect()
     {
-        var result = await gameService.Connect();
+        var result = await gameHub.Connect();
         Log($"{result.message}, {result.stackTrace}");
     }
 
     public async void StartTournamentMatch()
     {
-        var result = await gameService.StartTournamentMatch("match_id", "metadata");
+        var result = await gameHub.StartTournamentMatch("match_id", "metadata");
         Log($"{result.message}, {result.stackTrace}");
     }
 
     public async void EndTournamentMatch()
     {
-        var result = await gameService.EndTournamentMatch("session_id", 0.4f);
+        var result = await gameHub.EndTournamentMatch("session_id", 0.4f);
         Log($"{result.message}, {result.stackTrace}");
     }
 
     public void ShowLastTournamentLeaderboard()
     {
-        gameService.ShowLastTournamentLeaderboard();
+        gameHub.ShowLastTournamentLeaderboard();
     }
 
     public void Log(string message)
@@ -44,6 +44,6 @@ public class GameServiceExample : MonoBehaviour
 
     // void OnApplicationQuit()
     // {
-    //     gameService.Disconnect();
+    //     gameHub.Disconnect();
     // }
 }

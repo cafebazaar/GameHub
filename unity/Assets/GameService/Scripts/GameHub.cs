@@ -6,16 +6,16 @@ using Bazaar.Data;
 
 namespace Bazaar
 {
-    public class GameService
+    public class GameHub
     {
-        private AndroidJavaObject gameServiceClass;
-        public GameService()
+        private AndroidJavaObject gameHubClass;
+        public GameHub()
         {
-            using (var pluginClass = new AndroidJavaClass("com.farsitel.bazaar.games.GameServiceBridge"))
+            using (var pluginClass = new AndroidJavaClass("com.farsitel.bazaar.game.GameHubBridge"))
             {
                 if (pluginClass != null)
                 {
-                    gameServiceClass = pluginClass.CallStatic<AndroidJavaObject>("getInstance");
+                    gameHubClass = pluginClass.CallStatic<AndroidJavaObject>("getInstance");
                 }
             }
         }
@@ -23,7 +23,7 @@ namespace Bazaar
         public async Task<Result> Connect(Action<Result> onComplete = null)
         {
             var callback = new ConnectionCallbackProxy();
-            gameServiceClass.Call("connect", callback);
+            gameHubClass.Call("connect", callback);
             var result = await callback.WaitForResult();
             onComplete?.Invoke(result);
             return result;
@@ -32,7 +32,7 @@ namespace Bazaar
         public async Task<Result> StartTournamentMatch(string matchId, string metaData = "", Action<Result> onComplete = null)
         {
             var callback = new TournamentMatchCallbackProxy();
-            gameServiceClass.Call("startTournamentMatch", callback, matchId, metaData);
+            gameHubClass.Call("startTournamentMatch", callback, matchId, metaData);
             var result = await callback.WaitForResult();
             onComplete?.Invoke(result);
             return result;
@@ -41,7 +41,7 @@ namespace Bazaar
         public async Task<Result> EndTournamentMatch(string sessionId, float coefficient, Action<Result> onComplete = null)
         {
             var callback = new TournamentMatchCallbackProxy();
-            gameServiceClass.Call("endTournamentMatch", callback, sessionId, coefficient);
+            gameHubClass.Call("endTournamentMatch", callback, sessionId, coefficient);
             var result = await callback.WaitForResult();
             onComplete?.Invoke(result);
             return result;
@@ -49,7 +49,7 @@ namespace Bazaar
 
         public void ShowLastTournamentLeaderboard()
         {
-            gameServiceClass.Call("showLastTournamentLeaderboard");
+            gameHubClass.Call("showLastTournamentLeaderboard");
         }
     }
 }

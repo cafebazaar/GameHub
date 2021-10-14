@@ -2,7 +2,7 @@ package com.farsitel.bazaar.game;
 
 import android.os.Bundle;
 
-interface GameHub {
+interface IGameHub {
 
     boolean isLogin();
 

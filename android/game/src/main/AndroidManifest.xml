@@ -2,9 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.farsitel.bazaar.game">
 
-    <uses-permission android:name="com.farsitel.bazaar.GameServicePermission"/>
     <queries>
         <package android:name="com.farsitel.bazaar" />
     </queries>
+    <uses-permission android:name="com.farsitel.bazaar.GAME_HUB_PERMISSION"/>
 
 </manifest>
