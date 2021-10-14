@@ -22,11 +22,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class GameHubBridge extends AbstractGameHub {
-    @SuppressLint("StaticFieldLeak")
     private static GameHubBridge instance;
 
-    private Class<?> unityPlayerClass;
-    private Field unityPlayerActivityField;
     private ServiceConnection gameHubConnection;
     private GameHub gameHubService;
 
@@ -37,45 +34,18 @@ public class GameHubBridge extends AbstractGameHub {
     public static GameHubBridge getInstance() {
         if (instance == null) {
             instance = new GameHubBridge();
-            try {
-                // Using reflection to remove reference to Unity library.
-                instance.unityPlayerClass = Class.forName("com.unity3d.player.UnityPlayer");
-                instance.unityPlayerActivityField = instance.unityPlayerClass.getField("currentActivity");
-            } catch (ClassNotFoundException e) {
-                instance.logger.logError("Could not find UnityPlayer class: " + e.getMessage());
-            } catch (NoSuchFieldException e) {
-                instance.logger.logError("Could not find currentActivity field: " + e.getMessage());
-            } catch (Exception e) {
-                instance.logger.logError("Unknown exception occurred locating UnitySendMessage(): " + e.getMessage());
-            }
         }
         return instance;
     }
 
-    private Activity getCurrentActivity() {
-        if (unityPlayerActivityField != null)
-            try {
-                Activity activity = (Activity) unityPlayerActivityField.get(unityPlayerClass);
-                if (activity == null)
-                    logger.logError("The Unity Activity does not exist. This could be due to a low memory situation");
-                return activity;
-            } catch (Exception e) {
-                logger.logError("Error getting currentActivity: " + e.getMessage());
-            }
-        return null;
-    }
 
     @Override
-    public GHStatus connect(Context context, IConnectionCallback callback) {
-        if (context == null) {
-            context = Objects.requireNonNull(getCurrentActivity()).getApplicationContext();
-        }
-
+    public void connect(Context context, IConnectionCallback callback) {
         // Check cafebazaar application version
         connectionState = isCafebazaarInstalled(context);
         if (connectionState != GHStatus.SUCCESS) {
             callback.onFinish(connectionState.getLevelCode(), "Install / Update new version of Cafebazaar.", "");
-            return connectionState;
+            return;
         }
 
         gameHubConnection = new ServiceConnection() {
@@ -102,12 +72,9 @@ public class GameHubBridge extends AbstractGameHub {
         List<ResolveInfo> intentServices = pm.queryIntentServices(serviceIntent, 0);
         if (!intentServices.isEmpty()) {
             // service available to handle that Intent
-            if (context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE)) {
-                return GHStatus.SUCCESS;
+            context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
         }
         }
-        return connectionState = GHStatus.FAILURE;
-    }
 
     @Override
     public GHStatus isLogin(Context context) {

@@ -23,7 +23,7 @@ namespace Bazaar
         public async Task<Result> Connect(Action<Result> onComplete = null)
         {
             var callback = new ConnectionCallbackProxy();
-            gameHubClass.Call("connect", callback);
+            gameHubClass.Call("connect", UnityActivity.GetCurrentActivity(), callback);
             var result = await callback.WaitForResult();
             onComplete?.Invoke(result);
             return result;
@@ -32,7 +32,7 @@ namespace Bazaar
         public async Task<Result> StartTournamentMatch(string matchId, string metaData = "", Action<Result> onComplete = null)
         {
             var callback = new TournamentMatchCallbackProxy();
-            gameHubClass.Call("startTournamentMatch", callback, matchId, metaData);
+            gameHubClass.Call("startTournamentMatch", UnityActivity.GetCurrentActivity(), callback, matchId, metaData);
             var result = await callback.WaitForResult();
             onComplete?.Invoke(result);
             return result;
@@ -49,7 +49,7 @@ namespace Bazaar
 
         public void ShowLastTournamentLeaderboard()
         {
-            gameHubClass.Call("showLastTournamentLeaderboard");
+            gameHubClass.Call("showLastTournamentLeaderboard", UnityActivity.GetCurrentActivity());
         }
     }
 }

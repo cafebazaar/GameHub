@@ -1,10 +1,10 @@
 package com.farsitel.bazaar.game;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
-import android.os.Bundle;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
@@ -27,7 +27,7 @@ public abstract class AbstractGameHub {
         return logger;
     }
 
-    abstract GHStatus connect(Context context, IConnectionCallback callback);
+    abstract void connect(Context context, IConnectionCallback callback);
 
     GHStatus isCafebazaarInstalled(Context context) {
         PackageInfo packageInfo = null;

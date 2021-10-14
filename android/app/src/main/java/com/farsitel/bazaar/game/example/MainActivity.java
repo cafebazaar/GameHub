@@ -8,6 +8,8 @@ import com.farsitel.bazaar.game.GameHubBridge;
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 
+public class MainActivity extends Activity {
+
     private GameHubBridge gameHubBridge;
 
     @Override
