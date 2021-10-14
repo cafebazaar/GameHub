@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="connect"
-    android:text="Connect"/>
+        android:text="Connect" />
 
     <Button
         android:id="@+id/startButton"
