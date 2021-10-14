@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using Bazaar;
 
@@ -17,19 +17,19 @@ public class GameHubExample : MonoBehaviour
     public async void Connect()
     {
         var result = await gameHub.Connect();
-        Log($"{result.message}, {result.stackTrace}");
+        Log(result.toString());
     }
 
     public async void StartTournamentMatch()
     {
         var result = await gameHub.StartTournamentMatch("match_id", "metadata");
-        Log($"{result.message}, {result.stackTrace}");
+        Log(result.toString());
     }
 
     public async void EndTournamentMatch()
     {
-        var result = await gameHub.EndTournamentMatch("session_id", 0.4f);
-        Log($"{result.message}, {result.stackTrace}");
+        var result = await gameHub.EndTournamentMatch("my_session_id", 0.4f);
+        Log(result.toString());
     }
 
     public void ShowLastTournamentLeaderboard()
@@ -44,6 +44,6 @@ public class GameHubExample : MonoBehaviour
 
     // void OnApplicationQuit()
     // {
-    //     gameHub.Disconnect();
+    //     GameHub.Disconnect();
     // }
 }

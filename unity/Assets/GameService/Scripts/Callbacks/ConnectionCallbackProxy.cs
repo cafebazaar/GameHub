@@ -8,7 +8,7 @@ namespace Bazaar.Callbacks
 
         void onFinish(int status, string message, string stackTrace)
         {
-            result = new Result((Status)status, message, stackTrace);
+            result = new Result(status){message = message, stackTrace =stackTrace};
         }
     }
 }
