@@ -27,13 +27,13 @@ public class MainActivity extends Activity {
     }
 
     public void startTournamentMatch(View view) {
-        ITournamentMatchCallback callback = (status, message, stackTrace) -> {
+        ITournamentMatchCallback callback = (status, message, stackTrace, data) -> {
         };
         gameHubBridge.startTournamentMatch(this, callback, "match_id", "extra");
     }
 
     public void endTournamentMatch(View view) {
-        ITournamentMatchCallback callback = (status, message, stackTrace) -> {
+        ITournamentMatchCallback callback = (status, message, stackTrace, data) -> {
         };
         gameHubBridge.endTournamentMatch(callback, "session_id", 0.5f);
     }

@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class GHLogger {
 
-    boolean mDebugLog = true;
+    boolean mDebugLog = false;
     String mDebugTag = "GameHub";
 
     public void logInfo(String msg) {

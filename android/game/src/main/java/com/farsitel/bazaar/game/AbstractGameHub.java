@@ -56,9 +56,9 @@ public abstract class AbstractGameHub {
         context.startActivity(intent);
     }
 
-    public abstract GHStatus isLogin(Context context);
+    public abstract boolean isLogin(Context context, ITournamentMatchCallback callback);
 
-    public abstract void startTournamentMatch(Context context, ITournamentMatchCallback callback, String matchId, String metaData);
+    public abstract void startTournamentMatch(Activity activity, ITournamentMatchCallback callback, String matchId, String metaData);
 
     public abstract void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float coefficient);
 

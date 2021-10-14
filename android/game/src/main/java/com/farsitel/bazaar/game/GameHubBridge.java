@@ -9,7 +9,9 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
@@ -18,6 +20,7 @@ import com.farsitel.bazaar.game.utils.GHLogger;
 import com.farsitel.bazaar.game.utils.GHStatus;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,7 +28,7 @@ public class GameHubBridge extends AbstractGameHub {
     private static GameHubBridge instance;
 
     private ServiceConnection gameHubConnection;
-    private GameHub gameHubService;
+    private IGameHub gameHubService;
 
     public GameHubBridge() {
         super(new GHLogger());
@@ -48,19 +51,23 @@ public class GameHubBridge extends AbstractGameHub {
             return;
         }
 
+        logger.logDebug("GameHub service started.");
         gameHubConnection = new ServiceConnection() {
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 logger.logDebug("GameHub service disconnected.");
-                callback.onFinish(GHStatus.DISCONNECTED.getLevelCode(), "GameHub service disconnected.", "");
                 gameHubService = null;
+                connectionState = GHStatus.SUCCESS;
+                callback.onFinish(connectionState.getLevelCode(), "GameHub service disconnected.", "");
             }
 
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 if (disposed()) return;
-                gameHubService = GameHub.Stub.asInterface(service);
+                logger.logDebug("GameHub service connected.");
+                gameHubService = IGameHub.Stub.asInterface(service);
                 connectionState = GHStatus.SUCCESS;
+                callback.onFinish(connectionState.getLevelCode(), "GameHub service connected.", "");
             }
         };
 
@@ -74,57 +81,83 @@ public class GameHubBridge extends AbstractGameHub {
             // service available to handle that Intent
             context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
         }
-        }
+    }
 
     @Override
-    public GHStatus isLogin(Context context) {
-        GHStatus status = GHStatus.SUCCESS;
+    public boolean isLogin(Context context, ITournamentMatchCallback callback) {
         try {
-            if (!gameHubService.isLogin()) {
-                status = GHStatus.LOGIN_CAFEBAZAAR;
-                startActionViewIntent(context, "bazaar://login", "com.farsitel.bazaar");
+            if (gameHubService.isLogin()) {
+                return true;
             }
+            callback.onFinish(GHStatus.LOGIN_CAFEBAZAAR.getLevelCode(), "Login before start match", "", "");
         } catch (Exception e) {
             e.printStackTrace();
+            callback.onFinish(GHStatus.LOGIN_CAFEBAZAAR.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
         }
-        return status;
+        startActionViewIntent(context, "bazaar://login", "com.farsitel.bazaar");
+        return false;
     }
 
-    public void startTournamentMatch(Context context, ITournamentMatchCallback callback, String matchId, String metaData) {
+    public void startTournamentMatch(Activity activity, ITournamentMatchCallback callback, String matchId, String metaData) {
         // Check login to cafebazaar
-        GHStatus status = isLogin(context);
-
-        if (status == GHStatus.SUCCESS) {
-            logger.logDebug("Billing service connected.");
-            callback.onFinish(status.getLevelCode(), "", "");
-        } else {
-            callback.onFinish(status.getLevelCode(), "Login to Cafebazaar app", "");
-    }
+        final boolean[] isLogin = {false};
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                isLogin[0] = isLogin(activity, callback);
+            }
+        });
+        if (!isLogin[0]) {
+            return;
+        }
 
         Bundle bundle = null;
+        logger.logDebug("startTournamentMatch");
         try {
-            bundle = gameHubService.startTournamentMatch(context.getPackageName(), matchId, metaData);
+            bundle = gameHubService.startTournamentMatch(activity.getPackageName(), matchId, metaData);
         } catch (RemoteException e) {
-            callback.onFinish(GHStatus.FAILURE.getLevelCode(), "Error on startTournamentMatch", e.getMessage());
+            callback.onFinish(GHStatus.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
             e.printStackTrace();
         }
+        // for (String key : bundle.keySet()) {
+        //     logger.logInfo("start  " + key + " : " + (bundle.get(key) != null ? bundle.get(key) : "NULL"));
+        // }
 
-        callback.onFinish(GHStatus.SUCCESS.getLevelCode(), "no data", "");
+        int statusCode = bundle.getInt("statusCode");
+        if (statusCode != GHStatus.SUCCESS.getLevelCode()) {
+            callback.onFinish(statusCode, "Error on startTournamentMatch", "", "");
+            return;
+        }
+        String sessionId = bundle.containsKey("sessionId") ? bundle.getString("sessionId") : "sessionId";
+        callback.onFinish(statusCode, sessionId, matchId, metaData);
     }
 
     public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float coefficient) {
+        logger.logDebug("endTournamentMatch");
         Bundle bundle = null;
         try {
             bundle = gameHubService.endTournamentMatch(sessionId, coefficient);
         } catch (RemoteException e) {
-            callback.onFinish(GHStatus.FAILURE.getLevelCode(), "Error on endTournamentMatch", e.getMessage());
+            callback.onFinish(GHStatus.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
             e.printStackTrace();
         }
+        // for (String key : bundle.keySet()) {
+        //     logger.logInfo("end  " + key + " : " + (bundle.get(key) != null ? bundle.get(key) : "NULL"));
+        // }
 
-        callback.onFinish(GHStatus.SUCCESS.getLevelCode(), "no data", "");
+        int statusCode = bundle.getInt("statusCode");
+        if (statusCode != GHStatus.SUCCESS.getLevelCode()) {
+            callback.onFinish(statusCode, "Error on endTournamentMatch", "", "");
+            return;
+        }
+        String matchId = bundle.containsKey("matchId") ? bundle.getString("matchId") : "matchId";
+        String metaData = bundle.containsKey("metaData") ? bundle.getString("metaData") : "metaData";
+        callback.onFinish(statusCode, sessionId, matchId, metaData);
     }
 
-    public void showLastTournamentLeaderboard() {
-        Log.i(GameServiceBridge.TAG, "endTournamentMatch");
+    public void showLastTournamentLeaderboard(Context context) {
+        logger.logDebug("showLastTournamentLeaderboard");
+        String data = "bazaar://tournament_leaderboard?packageName=" + context.getPackageName();
+        startActionViewIntent(context, data, "com.farsitel.bazaar");
     }
 }
