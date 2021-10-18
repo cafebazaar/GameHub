@@ -1,82 +1,14 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="128"
-   height="128"
-   viewBox="0 0 33.866666 33.866666"
-   version="1.1"
-   id="svg1100"
-   sodipodi:docname="android-logo.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
-  <defs
-     id="defs1094" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="61.404582"
-     inkscape:cy="83.761577"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
-     units="px" />
-  <metadata
-     id="metadata1097">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(0,-263.13334)">
-    <rect
-       style="opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:0.26666667;stroke:#000000;stroke-width:0.87295848;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.60784314;paint-order:normal"
-       id="rect1716"
-       width="32.808334"
-       height="32.808334"
-       x="0.52916616"
-       y="263.66251"
-       ry="1.5875" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.98366833px;line-height:0;font-family:Quicksand;-inkscape-font-specification:Quicksand;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.87295854"
-       x="17.094645"
-       y="292.90067"
-       id="text1720"><tspan
-         sodipodi:role="line"
-         id="tspan1718"
-         x="17.094645"
-         y="292.90067"
-         style="font-size:7.05555534px;stroke-width:0.87295854">android</tspan></text>
-    <path
-       inkscape:connector-curvature="0"
-       id="path1722"
-       d="m 9.3622315,268.7999 c -0.0739,0.0101 -0.14781,0.0337 -0.21644,0.0732 -0.27483,0.15879 -0.3684,0.50773 -0.20984,0.78261 l 1.8959495,3.28382 c -5.4379591,2.97375 -5.9282691,9.44737 -5.9282691,9.44737 l 24.1700291,0.0546 c 0,0 -0.557,-6.53896 -5.88736,-9.51726 l 1.85504,-3.2139 c 0.1587,-0.27477 0.065,-0.62395 -0.20984,-0.78264 -0.27484,-0.1588 -0.62392,-0.0651 -0.78258,0.2097 l -1.89595,3.28386 c -1.38501,-0.58494 -3.03994,-0.94626 -5.02805,-0.94626 -2.0883,0 -3.81822,0.36887 -5.25652,0.96669 l -1.9402601,-3.35881 c -0.1191097,-0.20633 -0.3445297,-0.31084 -0.5660794,-0.2832 z m 2.0033795,8.37664 a 0.87295845,0.87295845 0 0 1 0.87634,0.86787 v 0.007 a 0.87295845,0.87295845 0 0 1 -0.87122,0.87292 0.87295845,0.87295845 0 0 1 -0.87467,-0.86955 0.87295845,0.87295845 0 0 1 0.86955,-0.87637 z m 11.07565,0 a 0.87295849,0.87295848 0 0 1 0.87639,0.86787 v 0.007 a 0.87295849,0.87295848 0 0 1 -0.87127,0.87292 0.87295849,0.87295848 0 0 1 -0.87467,-0.87124 0.87295849,0.87295848 0 0 1 0.86955,-0.87468 z"
-       style="fill:#00df7f;fill-opacity:1;stroke:none;stroke-width:0.87295848;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 33.867 33.867">
+   <g transform="translate(0 -263.133)">
+      <rect width="32.808" height="32.808" x=".529" y="263.663" ry="1.587" fill="#fff" fill-opacity=".267" stroke="#000"
+         stroke-width=".873" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".608" /><text
+         style="line-height:0;-inkscape-font-specification:Quicksand;text-align:center" x="17.095" y="292.901"
+         font-weight="400" font-size="6.984" font-family="Quicksand" letter-spacing="0" word-spacing="0"
+         text-anchor="middle" stroke-width=".873">
+         <tspan x="17.095" y="292.901" font-size="7.056">android</tspan>
+      </text>
+      <path
+         d="M9.362 268.8a.572.572 0 00-.426.856l1.896 3.284c-5.438 2.973-5.928 9.447-5.928 9.447l24.17.054s-.557-6.538-5.888-9.517l1.855-3.214a.572.572 0 10-.992-.573l-1.896 3.284c-1.385-.585-3.04-.946-5.028-.946-2.088 0-3.818.369-5.257.967l-1.94-3.36a.571.571 0 00-.566-.282zm2.004 8.377a.873.873 0 01.876.867v.007a.873.873 0 01-.871.873.873.873 0 01-.875-.87.873.873 0 01.87-.876zm11.075 0a.873.873 0 01.877.867v.007a.873.873 0 01-.872.873.873.873 0 01-.874-.87.873.873 0 01.87-.876z"
+         fill="#00df7f" />
+   </g>
 </svg>

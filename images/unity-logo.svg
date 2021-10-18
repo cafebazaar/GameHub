@@ -1,83 +1,15 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="128"
-   height="128"
-   viewBox="0 0 33.866666 33.866666"
-   version="1.1"
-   id="svg1100"
-   sodipodi:docname="unity-logo.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
-  <defs
-     id="defs1094" />
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="61.404582"
-     inkscape:cy="83.761577"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
-     showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
-     units="px" />
-  <metadata
-     id="metadata1097">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(0,-263.13334)">
-    <rect
-       style="opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:0.26666667;stroke:#000000;stroke-width:0.87295848;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.60784314;paint-order:normal"
-       id="rect1716"
-       width="32.808334"
-       height="32.808334"
-       x="0.52916616"
-       y="263.66251"
-       ry="1.5875" />
-    <path
-       sodipodi:nodetypes="ccccccccccccccccccccccccccccccc"
-       inkscape:connector-curvature="0"
-       id="path1734"
-       d="m 22.209391,268.32759 -6.4892,1.7357 -0.84398,1.68796 -1.93518,-0.15012 -4.63248,4.79105 4.74842,4.75182 1.87381,-0.12109 0.87635,1.75444 6.46535,1.61633 1.74081,-6.4892 -1.05197,-1.56008 1.08094,-1.61125 z m -2.20625,2.254 -2.70437,4.63796 -0.39767,0.35676 -5.50992,0.0386 3.51743,-3.80556 z m 1.33842,0.80307 1.54813,4.95129 -1.46631,5.01782 -2.84904,-4.83879 0.01,-0.38362 z m -9.97595,5.79188 5.53444,0.0459 0.51489,0.24052 2.64445,4.64954 -5.09792,-1.15429 z"
-       style="fill:#020000;fill-opacity:1;stroke:none;stroke-width:0.87295854px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-    <text
-       id="text1738"
-       y="293.12479"
-       x="16.270279"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.14761353px;line-height:0;font-family:Bahnschrift;-inkscape-font-specification:'Bahnschrift Bold';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.87295854"
-       xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.11388874px;font-family:Bahnschrift;-inkscape-font-specification:'Bahnschrift Bold';stroke-width:0.87295854"
-         y="293.12479"
-         x="16.270279"
-         id="tspan1736"
-         sodipodi:role="line">unity</tspan></text>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 33.867 33.867">
+   <g transform="translate(0 -263.133)">
+      <rect width="32.808" height="32.808" x=".529" y="263.663" ry="1.587" fill="#fff" fill-opacity=".267" stroke="#000"
+         stroke-width=".873" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".608" />
+      <path
+         d="M22.21 268.328l-6.49 1.735-.844 1.688-1.935-.15-4.632 4.791 4.748 4.752 1.874-.121.876 1.754 6.465 1.617 1.741-6.49-1.052-1.56 1.081-1.61zm-2.207 2.254L17.3 275.22l-.398.356-5.51.039 3.518-3.806zm1.339.803l1.548 4.951-1.467 5.018-2.849-4.839.01-.384zm-9.976 5.792l5.534.045.515.241 2.644 4.65-5.098-1.155z"
+         fill="#020000" /><text y="293.125" x="16.27"
+         style="line-height:0;-inkscape-font-specification:'Bahnschrift Bold';text-align:center" font-weight="700"
+         font-size="8.148" font-family="Bahnschrift" letter-spacing="0" word-spacing="0" text-anchor="middle"
+         stroke-width=".873">
+         <tspan style="-inkscape-font-specification:'Bahnschrift Bold'" y="293.125" x="16.27" font-size="8.114">unity
+         </tspan>
+      </text>
+   </g>
 </svg>
