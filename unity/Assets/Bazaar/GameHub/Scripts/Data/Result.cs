@@ -1,4 +1,4 @@
-namespace Bazaar.Data
+namespace Bazaar.GameHub.Data
 {
     public enum Status
     {

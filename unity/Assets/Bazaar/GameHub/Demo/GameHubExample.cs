@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using Bazaar;
+using Bazaar.GameHub;
 
 public class GameHubExample : MonoBehaviour
 {
@@ -28,7 +28,7 @@ public class GameHubExample : MonoBehaviour
 
     public async void EndTournamentMatch()
     {
-        var result = await gameHub.EndTournamentMatch("my_session_id", 0.4f);
+        var result = await gameHub.EndTournamentMatch("session_id", 0.4f);
         Log(result.toString());
     }
 

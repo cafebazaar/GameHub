@@ -1,10 +1,10 @@
 using UnityEngine;
 using System.Threading.Tasks;
 using System;
-using Bazaar.Callbacks;
-using Bazaar.Data;
+using Bazaar.GameHub.Callbacks;
+using Bazaar.GameHub.Data;
 
-namespace Bazaar
+namespace Bazaar.GameHub
 {
     public class GameHub
     {
@@ -38,10 +38,10 @@ namespace Bazaar
             return result;
         }
 
-        public async Task<Result> EndTournamentMatch(string sessionId, float coefficient, Action<Result> onComplete = null)
+        public async Task<Result> EndTournamentMatch(string sessionId, float score, Action<Result> onComplete = null)
         {
             var callback = new TournamentMatchCallbackProxy();
-            gameHubClass.Call("endTournamentMatch", callback, sessionId, coefficient);
+            gameHubClass.Call("endTournamentMatch", callback, sessionId, score);
             var result = await callback.WaitForResult();
             onComplete?.Invoke(result);
             return result;

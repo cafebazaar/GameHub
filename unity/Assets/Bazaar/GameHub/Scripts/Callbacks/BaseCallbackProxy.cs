@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using Bazaar.Data;
+using Bazaar.GameHub.Data;
 using UnityEngine;
 
-namespace Bazaar.Callbacks
+namespace Bazaar.GameHub.Callbacks
 {
     public class BaseCallbackProxy : AndroidJavaProxy
     {

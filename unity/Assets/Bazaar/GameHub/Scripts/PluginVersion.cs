@@ -1,4 +1,4 @@
-namespace Bazaar
+namespace Bazaar.GameHub
 {
     public class PluginVersion
     {

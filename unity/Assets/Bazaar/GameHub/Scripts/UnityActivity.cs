@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Bazaar
+namespace Bazaar.GameHub
 {
     class UnityActivity
     {

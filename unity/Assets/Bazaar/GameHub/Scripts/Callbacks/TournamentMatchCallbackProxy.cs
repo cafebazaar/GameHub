@@ -1,6 +1,6 @@
-using Bazaar.Data;
+using Bazaar.GameHub.Data;
 
-namespace Bazaar.Callbacks
+namespace Bazaar.GameHub.Callbacks
 {
     public class TournamentMatchCallbackProxy : BaseCallbackProxy
     {
