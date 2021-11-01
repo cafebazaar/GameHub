@@ -144,7 +144,7 @@ public class GameHubBridge extends AbstractGameHub {
 
     public void showLastTournamentLeaderboard(Context context) {
         logger.logDebug("showLastTournamentLeaderboard");
-        String data = "bazaar://tournament_leaderboard?packageName=" + context.getPackageName();
+        String data = "bazaar://tournament_leaderboard?id=-1";
         startActionViewIntent(context, data, "com.farsitel.bazaar");
     }
 }
