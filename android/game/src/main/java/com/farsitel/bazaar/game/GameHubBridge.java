@@ -1,6 +1,5 @@
 package com.farsitel.bazaar.game;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -19,10 +18,8 @@ import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.utils.GHLogger;
 import com.farsitel.bazaar.game.utils.GHStatus;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class GameHubBridge extends AbstractGameHub {
     private static GameHubBridge instance;
@@ -86,10 +83,16 @@ public class GameHubBridge extends AbstractGameHub {
     }
 
     @Override
-    public void isLogin(Context context, ITournamentMatchCallback callback) {
+    public void isLogin(Context context, IConnectionCallback callback) {
+        Bundle resultBundle = null;
+        Bundle argsBundle = new Bundle();
+        argsBundle.putString("methodName", "isLogin");
         try {
-            if (gameHubService.isLogin()) {
-                return true;
+            resultBundle = gameHubService.callMethod(argsBundle);
+            boolean isLogin = resultBundle.containsKey("isLogin") && resultBundle.getBoolean("isLogin");
+            if (isLogin) {
+                callback.onFinish(GHStatus.SUCCESS.getLevelCode(), "GameHub service connected.", "");
+                return;
             }
             callback.onFinish(GHStatus.LOGIN_CAFEBAZAAR.getLevelCode(), "Login before start match", "");
         } catch (Exception e) {
@@ -100,47 +103,57 @@ public class GameHubBridge extends AbstractGameHub {
     }
 
     public void startTournamentMatch(Activity activity, ITournamentMatchCallback callback, String matchId, String metaData) {
-        Bundle bundle = null;
+        Bundle resultBundle = null;
+        Bundle argsBundle = new Bundle();
+        argsBundle.putString("methodName", "startTournamentMatch");
+        argsBundle.putString("packageName", activity.getPackageName());
+        argsBundle.putString("matchId", matchId);
+        argsBundle.putString("metaData", metaData);
         logger.logDebug("startTournamentMatch");
         try {
-            bundle = gameHubService.startTournamentMatch(activity.getPackageName(), matchId, metaData);
+            resultBundle = gameHubService.callMethod(argsBundle);
         } catch (RemoteException e) {
             callback.onFinish(GHStatus.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
             e.printStackTrace();
         }
-        // for (String key : bundle.keySet()) {
-        //     logger.logInfo("start  " + key + " : " + (bundle.get(key) != null ? bundle.get(key) : "NULL"));
+        // for (String key : resultBundle.keySet()) {
+        //     logger.logInfo("start  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
         // }
 
-        int statusCode = bundle.getInt("statusCode");
+        int statusCode = resultBundle.getInt("statusCode");
         if (statusCode != GHStatus.SUCCESS.getLevelCode()) {
             callback.onFinish(statusCode, "Error on startTournamentMatch", "", "");
             return;
         }
-        String sessionId = bundle.containsKey("sessionId") ? bundle.getString("sessionId") : "sessionId";
+        String sessionId = resultBundle.containsKey("sessionId") ? resultBundle.getString("sessionId") : "sessionId";
         callback.onFinish(statusCode, sessionId, matchId, metaData);
     }
 
-    public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float coefficient) {
+    public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float score) {
         logger.logDebug("endTournamentMatch");
-        Bundle bundle = null;
+        Bundle resultBundle = null;
+        Bundle argsBundle = new Bundle();
+        argsBundle.putString("methodName", "endTournamentMatch");
+        argsBundle.putString("sessionId", sessionId);
+        argsBundle.putFloat("score", score);
+
         try {
-            bundle = gameHubService.endTournamentMatch(sessionId, coefficient);
+            resultBundle = gameHubService.callMethod(argsBundle);
         } catch (RemoteException e) {
             callback.onFinish(GHStatus.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
             e.printStackTrace();
         }
-        // for (String key : bundle.keySet()) {
-        //     logger.logInfo("end  " + key + " : " + (bundle.get(key) != null ? bundle.get(key) : "NULL"));
+        // for (String key : resultBundle.keySet()) {
+        //     logger.logInfo("end  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
         // }
 
-        int statusCode = bundle.getInt("statusCode");
+        int statusCode = resultBundle.getInt("statusCode");
         if (statusCode != GHStatus.SUCCESS.getLevelCode()) {
             callback.onFinish(statusCode, "Error on endTournamentMatch", "", "");
             return;
         }
-        String matchId = bundle.containsKey("matchId") ? bundle.getString("matchId") : "matchId";
-        String metaData = bundle.containsKey("metaData") ? bundle.getString("metaData") : "metaData";
+        String matchId = resultBundle.containsKey("matchId") ? resultBundle.getString("matchId") : "matchId";
+        String metaData = resultBundle.containsKey("metadata") ? resultBundle.getString("metadata") : "metadata";
         callback.onFinish(statusCode, sessionId, matchId, metaData);
     }
 
