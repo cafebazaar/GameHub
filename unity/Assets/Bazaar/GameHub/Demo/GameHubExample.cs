@@ -1,12 +1,14 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using Bazaar.GameHub;
+using Bazaar.GameHub.Data;
 
 public class GameHubExample : MonoBehaviour
 {
     public Text ConsoleText;
 
     private GameHub gameHub;
+    private string reservedSessionId;
 
     void Start()
     {
@@ -23,12 +25,21 @@ public class GameHubExample : MonoBehaviour
     public async void StartTournamentMatch()
     {
         var result = await gameHub.StartTournamentMatch("match_id", "metadata");
+        if (result.status == Result.Status.Success)
+        {
+            reservedSessionId = result.sessionId;
+        }
         Log(result.toString());
     }
 
     public async void EndTournamentMatch()
     {
-        var result = await gameHub.EndTournamentMatch("session_id", 0.4f);
+        if (reservedSessionId == null)
+        {
+            Log("Call `StartTournamentMatch` before!");
+            return;
+        }
+        var result = await gameHub.EndTournamentMatch(reservedSessionId, 0.4f);
         Log(result.toString());
     }
 
