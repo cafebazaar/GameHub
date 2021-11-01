@@ -1,19 +1,20 @@
 namespace Bazaar.GameHub.Data
 {
-    public enum Status
-    {
-
-        Failure = -1,
-
-        Success = 0,
-        Disconnected = 1,
-        LoginBazaar = 3,
-        UpdateBazaar = 4,
-        InstallBazaar = 5,
-        Unknown = 6
-    }
     public class Result
     {
+
+        public enum Status
+        {
+            Failure = -1,
+
+            Success = 0,
+            Disconnected = 1,
+            LoginBazaar = 3,
+            UpdateBazaar = 4,
+            InstallBazaar = 5,
+            Unknown = 6
+        }
+
         public Status status;
         public string message;
         public string stackTrace;
@@ -23,7 +24,7 @@ namespace Bazaar.GameHub.Data
 
         public Result(int status)
         {
-            this.status = (Status)status; 
+            this.status = (Status)status;
         }
 
         public string toString()
@@ -39,7 +40,7 @@ namespace Bazaar.GameHub.Data
                 text += $"matchId: {matchId}, ";
             if (metadata != null)
                 text += $"metadata: {metadata}";
-            return text;
+            return text + "]";
         }
     }
 }
