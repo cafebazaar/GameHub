@@ -84,33 +84,20 @@ public class GameHubBridge extends AbstractGameHub {
     }
 
     @Override
-    public boolean isLogin(Context context, ITournamentMatchCallback callback) {
+    public void isLogin(Context context, ITournamentMatchCallback callback) {
         try {
             if (gameHubService.isLogin()) {
                 return true;
             }
-            callback.onFinish(GHStatus.LOGIN_CAFEBAZAAR.getLevelCode(), "Login before start match", "", "");
+            callback.onFinish(GHStatus.LOGIN_CAFEBAZAAR.getLevelCode(), "Login before start match", "");
         } catch (Exception e) {
             e.printStackTrace();
-            callback.onFinish(GHStatus.LOGIN_CAFEBAZAAR.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
+            callback.onFinish(GHStatus.LOGIN_CAFEBAZAAR.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()));
         }
         startActionViewIntent(context, "bazaar://login", "com.farsitel.bazaar");
-        return false;
     }
 
     public void startTournamentMatch(Activity activity, ITournamentMatchCallback callback, String matchId, String metaData) {
-        // Check login to cafebazaar
-        final boolean[] isLogin = {false};
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                isLogin[0] = isLogin(activity, callback);
-            }
-        });
-        if (!isLogin[0]) {
-            return;
-        }
-
         Bundle bundle = null;
         logger.logDebug("startTournamentMatch");
         try {
