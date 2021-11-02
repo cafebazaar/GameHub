@@ -5,10 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.utils.GHLogger;
+import com.farsitel.bazaar.game.utils.GHResult;
 import com.farsitel.bazaar.game.utils.GHStatus;
 
 public abstract class AbstractGameHub {
@@ -17,7 +20,7 @@ public abstract class AbstractGameHub {
 
     GHLogger logger;
     boolean isDispose = false;
-    GHStatus connectionState = GHStatus.UNKNOWN;
+    GHResult connectionState;
 
     public AbstractGameHub(GHLogger logger) {
         this.logger = logger;
@@ -27,9 +30,20 @@ public abstract class AbstractGameHub {
         return logger;
     }
 
-    abstract void connect(Context context, IConnectionCallback callback);
 
-    GHStatus isCafebazaarInstalled(Context context) {
+    GHResult isAvailable(Context context) {
+
+        // Check cafebazaar application version
+        connectionState = isCafebazaarInstalled(context);
+        if (connectionState.status != GHStatus.SUCCESS) {
+            return connectionState;
+        }
+
+        // Check login to cafebazaar
+        return isLogin(context);
+    }
+
+    GHResult isCafebazaarInstalled(Context context) {
         PackageInfo packageInfo = null;
         try {
             packageInfo = context.getPackageManager().getPackageInfo("com.farsitel.bazaar", 0);
@@ -38,14 +52,16 @@ public abstract class AbstractGameHub {
         }
         if (packageInfo == null) {
             startActionViewIntent(context, "https://cafebazaar.ir/install", null);
-            return GHStatus.UPDATE_CAFEBAZAAR;
+            return new GHResult(GHStatus.INSTALL_CAFEBAZAAR, "Install cafebazaar to support GameHub!");
         }
         if (packageInfo.versionCode < MINIMUM_BAZAAR_VERSION) {
             startActionViewIntent(context, "bazaar://details?id=com.farsitel.bazaar", "com.farsitel.bazaar");
-            return GHStatus.INSTALL_CAFEBAZAAR;
+            return new GHResult(GHStatus.UPDATE_CAFEBAZAAR, "Install new version of cafebazaar to support GameHub!");
         }
-        return GHStatus.SUCCESS;
+        return new GHResult(GHStatus.SUCCESS, "");
     }
+
+    abstract GHResult isLogin(Context context);
 
     void startActionViewIntent(Context context, String uri, String packageName) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -56,20 +72,20 @@ public abstract class AbstractGameHub {
         context.startActivity(intent);
     }
 
-    public abstract Object[] isLogin(Context context);
+    abstract void connect(Context context, IConnectionCallback callback);
 
-    public abstract void startTournamentMatch(Activity activity, ITournamentMatchCallback callback, String matchId, String metaData);
+    abstract void startTournamentMatch(Activity activity, ITournamentMatchCallback callback, String matchId, String metaData);
 
-    public abstract void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float coefficient);
+    abstract void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float coefficient);
 
-    public abstract void showLastTournamentLeaderboard(Context context, IConnectionCallback callback);
+    abstract void showLastTournamentLeaderboard(Context context, IConnectionCallback callback);
 
     boolean disposed() {
         return isDispose;
     }
 
     void dispose() {
-        connectionState = GHStatus.DISCONNECTED;
+        connectionState.status = GHStatus.DISCONNECTED;
         isDispose = true;
     }
 }
