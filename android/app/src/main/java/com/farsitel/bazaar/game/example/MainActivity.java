@@ -52,6 +52,8 @@ public class MainActivity extends Activity {
     }
 
     public void showLastTournamentLeaderboard(View view) {
-        gameHubBridge.showLastTournamentLeaderboard(this);
+        gameHubBridge.showLastTournamentLeaderboard(this, (status, message, stackTrace) -> {
+            Log.i("TAG", String.format("showLeaderboard => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
+        });
     }
 }

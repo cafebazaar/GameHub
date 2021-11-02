@@ -45,7 +45,7 @@ public class GameHubExample : MonoBehaviour
 
     public void ShowLastTournamentLeaderboard()
     {
-        gameHub.ShowLastTournamentLeaderboard();
+        _ = gameHub.ShowLastTournamentLeaderboard();
     }
 
     public void Log(string message)

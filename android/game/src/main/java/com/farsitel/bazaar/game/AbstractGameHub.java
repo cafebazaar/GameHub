@@ -56,13 +56,13 @@ public abstract class AbstractGameHub {
         context.startActivity(intent);
     }
 
-    public abstract void isLogin(Context context, IConnectionCallback callback);
+    public abstract Object[] isLogin(Context context);
 
     public abstract void startTournamentMatch(Activity activity, ITournamentMatchCallback callback, String matchId, String metaData);
 
     public abstract void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float coefficient);
 
-    public abstract void showLastTournamentLeaderboard(Context context);
+    public abstract void showLastTournamentLeaderboard(Context context, IConnectionCallback callback);
 
     boolean disposed() {
         return isDispose;

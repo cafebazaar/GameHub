@@ -47,9 +47,13 @@ namespace Bazaar.GameHub
             return result;
         }
 
-        public void ShowLastTournamentLeaderboard()
+        public async Task<Result> ShowLastTournamentLeaderboard(Action<Result> onComplete = null)
         {
-            gameHubClass.Call("showLastTournamentLeaderboard", UnityActivity.GetCurrentActivity());
+            var callback = new ConnectionCallbackProxy();
+            gameHubClass.Call("showLastTournamentLeaderboard", UnityActivity.GetCurrentActivity(), callback);
+            var result = await callback.WaitForResult();
+            onComplete?.Invoke(result);
+            return result;
         }
     }
 }

@@ -20,6 +20,7 @@ import com.farsitel.bazaar.game.utils.GHStatus;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class GameHubBridge extends AbstractGameHub {
     private static GameHubBridge instance;
@@ -63,10 +64,16 @@ public class GameHubBridge extends AbstractGameHub {
                 if (disposed()) return;
                 logger.logDebug("GameHub service connected.");
                 gameHubService = IGameHub.Stub.asInterface(service);
-                connectionState = GHStatus.SUCCESS;
 
                 // Check login to cafebazaar
-                new Handler(Looper.getMainLooper()).post(() -> isLogin(context, callback));
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Object[] results = isLogin(context);
+                    connectionState = ((GHStatus) results[0]);
+                    if (connectionState == GHStatus.SUCCESS) {
+                        results[1] = "GameHub service connected.";
+                    }
+                    callback.onFinish(connectionState.getLevelCode(), (String) results[1], (String) results[2]);
+                });
             }
         };
 
@@ -83,29 +90,35 @@ public class GameHubBridge extends AbstractGameHub {
     }
 
     @Override
-    public void isLogin(Context context, IConnectionCallback callback) {
+    public Object[] isLogin(Context context) {
         Bundle resultBundle = null;
         Bundle argsBundle = new Bundle();
-        argsBundle.putString("methodName", "isLogin");
+        argsBundle.putString("methodName", "isLoginMethod");
+        String message = "Login before start match";
+        String stackTrace = "";
         try {
             resultBundle = gameHubService.callMethod(argsBundle);
             boolean isLogin = resultBundle.containsKey("isLogin") && resultBundle.getBoolean("isLogin");
             if (isLogin) {
-                callback.onFinish(GHStatus.SUCCESS.getLevelCode(), "GameHub service connected.", "");
-                return;
+                return new Object[]{
+                        GHStatus.SUCCESS, "", ""
+                };
             }
-            callback.onFinish(GHStatus.LOGIN_CAFEBAZAAR.getLevelCode(), "Login before start match", "");
         } catch (Exception e) {
             e.printStackTrace();
-            callback.onFinish(GHStatus.LOGIN_CAFEBAZAAR.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()));
+            message = e.getMessage();
+            stackTrace = Arrays.toString(e.getStackTrace());
         }
         startActionViewIntent(context, "bazaar://login", "com.farsitel.bazaar");
+        return new Object[]{
+                GHStatus.LOGIN_CAFEBAZAAR, message, stackTrace
+        };
     }
 
     public void startTournamentMatch(Activity activity, ITournamentMatchCallback callback, String matchId, String metaData) {
         Bundle resultBundle = null;
         Bundle argsBundle = new Bundle();
-        argsBundle.putString("methodName", "startTournamentMatch");
+        argsBundle.putString("methodName", "startTournamentMatchMethod");
         argsBundle.putString("packageName", activity.getPackageName());
         argsBundle.putString("matchId", matchId);
         argsBundle.putString("metaData", metaData);
@@ -116,9 +129,9 @@ public class GameHubBridge extends AbstractGameHub {
             callback.onFinish(GHStatus.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
             e.printStackTrace();
         }
-        // for (String key : resultBundle.keySet()) {
-        //     logger.logInfo("start  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
-        // }
+        //  for (String key : Objects.requireNonNull(resultBundle).keySet()) {
+        //      logger.logInfo("start  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
+        //  }
 
         int statusCode = resultBundle.getInt("statusCode");
         if (statusCode != GHStatus.SUCCESS.getLevelCode()) {
@@ -133,7 +146,7 @@ public class GameHubBridge extends AbstractGameHub {
         logger.logDebug("endTournamentMatch");
         Bundle resultBundle = null;
         Bundle argsBundle = new Bundle();
-        argsBundle.putString("methodName", "endTournamentMatch");
+        argsBundle.putString("methodName", "endTournamentMatchMethod");
         argsBundle.putString("sessionId", sessionId);
         argsBundle.putFloat("score", score);
 
@@ -143,9 +156,9 @@ public class GameHubBridge extends AbstractGameHub {
             callback.onFinish(GHStatus.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
             e.printStackTrace();
         }
-        // for (String key : resultBundle.keySet()) {
-        //     logger.logInfo("end  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
-        // }
+        //  for (String key : Objects.requireNonNull(resultBundle).keySet()) {
+        //      logger.logInfo("end  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
+        //  }
 
         int statusCode = resultBundle.getInt("statusCode");
         if (statusCode != GHStatus.SUCCESS.getLevelCode()) {
@@ -157,9 +170,24 @@ public class GameHubBridge extends AbstractGameHub {
         callback.onFinish(statusCode, sessionId, matchId, metaData);
     }
 
-    public void showLastTournamentLeaderboard(Context context) {
+    public void showLastTournamentLeaderboard(Context context, IConnectionCallback callback) {
         logger.logDebug("showLastTournamentLeaderboard");
-        String data = "bazaar://tournament_leaderboard?id=-1";
-        startActionViewIntent(context, data, "com.farsitel.bazaar");
+        GHStatus statusCode = isCafebazaarInstalled(context);
+        if (statusCode != GHStatus.SUCCESS) {
+            callback.onFinish(statusCode.getLevelCode(), "Install / Update new version of Cafebazaar.", "");
+            return;
+        }
+
+        // Check login to cafebazaar
+        new Handler(Looper.getMainLooper()).post(() -> {
+            Object[] results = isLogin(context);
+            connectionState = ((GHStatus) results[0]);
+            if (connectionState == GHStatus.SUCCESS) {
+                results[1] = "GameHub service connected.";
+                String data = "bazaar://tournament_leaderboard?id=-1";
+                startActionViewIntent(context, data, "com.farsitel.bazaar");
+            }
+            callback.onFinish(connectionState.getLevelCode(), (String) results[1], (String) results[2]);
+        });
     }
 }
