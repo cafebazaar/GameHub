@@ -16,8 +16,8 @@ import android.os.RemoteException;
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.utils.GHLogger;
-import com.farsitel.bazaar.game.utils.GHResult;
-import com.farsitel.bazaar.game.utils.GHStatus;
+import com.farsitel.bazaar.game.data.Result;
+import com.farsitel.bazaar.game.data.Status;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +42,12 @@ public class GameHubBridge extends AbstractGameHub {
 
     @Override
     public Result isLogin(Context context, boolean showPrompts) {
+        Result result = new Result(Status.SUCCESS, "");
+        if(gameHubService == null){
+            result.status = Status.DISCONNECTED;
+            result.message = "Connect to service before!";
+            return result;
+        }
         try {
             if (gameHubService.isLogin()) {
                 return result;
@@ -62,6 +68,7 @@ public class GameHubBridge extends AbstractGameHub {
     @Override
     public void connect(Context context, boolean showPrompts, IConnectionCallback callback) {
         connectionState = isCafebazaarInstalled(context, showPrompts);
+        if (connectionState.status != Status.SUCCESS) {
                 connectionState.call(callback);
                 return;
             }
@@ -71,7 +78,7 @@ public class GameHubBridge extends AbstractGameHub {
                 public void onServiceDisconnected(ComponentName name) {
                     logger.logDebug("GameHub service disconnected.");
                     gameHubService = null;
-                    connectionState = new GHResult(GHStatus.DISCONNECTED, "GameHub service disconnected.", "");
+                connectionState = new Result(Status.DISCONNECTED, "GameHub service disconnected.", "");
                     connectionState.call(callback);
                 }
 
@@ -80,10 +87,16 @@ public class GameHubBridge extends AbstractGameHub {
                     if (disposed()) return;
                     logger.logDebug("GameHub service connected.");
                     gameHubService = IGameHub.Stub.asInterface(service);
-                    connectionState.status = GHStatus.SUCCESS;
+                connectionState.status = Status.SUCCESS;
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    // Check login to cafebazaar
+                    connectionState = isLogin(context, showPrompts);
+                    if (connectionState.status == Status.SUCCESS) {
                     connectionState.message = "GameHub service connected.";
                     connectionState.call(callback);
                 }
+                });
+            }
             };
 
             // Bind to bazaar game hub
@@ -114,7 +127,7 @@ public class GameHubBridge extends AbstractGameHub {
 //        }
 
         int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");
-        if (statusCode != GHStatus.SUCCESS.getLevelCode()) {
+        if (statusCode != Status.SUCCESS.getLevelCode()) {
             callback.onFinish(statusCode, "Error on startTournamentMatch", "", "");
             return;
         }
@@ -122,13 +135,14 @@ public class GameHubBridge extends AbstractGameHub {
         callback.onFinish(statusCode, sessionId, matchId, metaData);
     }
 
-    public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float coefficient) {
+    public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId,
+                                   float score) {
         logger.logDebug("endTournamentMatch");
         Bundle resultBundle = null;
         try {
-            resultBundle = gameHubService.endTournamentMatch(sessionId, coefficient);
+            resultBundle = gameHubService.endTournamentMatch(sessionId, score);
         } catch (RemoteException e) {
-            callback.onFinish(GHStatus.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
+            callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
             e.printStackTrace();
         }
 //        for (String key : Objects.requireNonNull(resultBundle).keySet()) {
@@ -136,7 +150,7 @@ public class GameHubBridge extends AbstractGameHub {
 //        }
 
         int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");
-        if (statusCode != GHStatus.SUCCESS.getLevelCode()) {
+        if (statusCode != Status.SUCCESS.getLevelCode()) {
             callback.onFinish(statusCode, "Error on endTournamentMatch", "", "");
             return;
         }

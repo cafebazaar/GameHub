@@ -20,10 +20,10 @@ namespace Bazaar.GameHub
             }
         }
 
-        public async Task<Result> Connect(Action<Result> onComplete = null)
+        public async Task<Result> Connect(bool showPrompts = true, Action<Result> onComplete = null)
         {
             var callback = new ConnectionCallbackProxy();
-            gameHubClass.Call("connect", UnityActivity.GetCurrentActivity(), callback);
+            gameHubClass.Call("connect", UnityActivity.GetCurrentActivity(), showPrompts, callback);
             var result = await callback.WaitForResult();
             onComplete?.Invoke(result);
             return result;

@@ -66,7 +66,7 @@ public abstract class AbstractGameHub {
 
     abstract void startTournamentMatch(Activity activity, ITournamentMatchCallback callback, String matchId, String metaData);
 
-    abstract void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float coefficient);
+    abstract void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float score);
 
     abstract void showLastTournamentLeaderboard(Context context, IConnectionCallback callback);
 
