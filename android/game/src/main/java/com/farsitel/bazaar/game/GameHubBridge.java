@@ -41,8 +41,7 @@ public class GameHubBridge extends AbstractGameHub {
     }
 
     @Override
-    public GHResult isLogin(Context context) {
-        GHResult result = new GHResult(GHStatus.SUCCESS, "");
+    public Result isLogin(Context context, boolean showPrompts) {
         try {
             if (gameHubService.isLogin()) {
                 return result;
@@ -53,16 +52,16 @@ public class GameHubBridge extends AbstractGameHub {
             result.message = e.getMessage();
             result.stackTrace = Arrays.toString(e.getStackTrace());
         }
-        result.status = GHStatus.LOGIN_CAFEBAZAAR;
+        result.status = Status.LOGIN_CAFEBAZAAR;
+        if (showPrompts) {
         startActionViewIntent(context, "bazaar://login", "com.farsitel.bazaar");
+        }
         return result;
     }
 
     @Override
-    public void connect(Context context, IConnectionCallback callback) {
-        new Handler(Looper.getMainLooper()).post(() -> {
-            connectionState = isAvailable(context);
-            if (connectionState.status != GHStatus.SUCCESS) {
+    public void connect(Context context, boolean showPrompts, IConnectionCallback callback) {
+        connectionState = isCafebazaarInstalled(context, showPrompts);
                 connectionState.call(callback);
                 return;
             }

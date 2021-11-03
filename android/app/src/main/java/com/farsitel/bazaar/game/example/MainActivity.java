@@ -6,9 +6,8 @@ import android.util.Log;
 import android.view.View;
 
 import com.farsitel.bazaar.game.GameHubBridge;
-import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
-import com.farsitel.bazaar.game.utils.GHStatus;
+import com.farsitel.bazaar.game.data.Status;
 
 public class MainActivity extends Activity {
 
