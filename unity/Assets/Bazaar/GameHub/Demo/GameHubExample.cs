@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using Bazaar.GameHub;
 using Bazaar.GameHub.Data;
@@ -52,9 +52,4 @@ public class GameHubExample : MonoBehaviour
     {
         ConsoleText.text += message + "\n";
     }
-
-    // void OnApplicationQuit()
-    // {
-    //     GameHub.Disconnect();
-    // }
 }

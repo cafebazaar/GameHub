@@ -1,6 +1,6 @@
-package com.farsitel.bazaar.game.utils;
+package com.farsitel.bazaar.game.data;
 
-public enum GHStatus {
+public enum Status {
     FAILURE(-1),
 
     SUCCESS(0),
@@ -12,7 +12,7 @@ public enum GHStatus {
 
     private final int levelCode;
 
-    GHStatus(int levelCode) {
+    Status(int levelCode) {
         this.levelCode = levelCode;
     }
 

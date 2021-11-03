@@ -1,19 +1,19 @@
-package com.farsitel.bazaar.game.utils;
+package com.farsitel.bazaar.game.data;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 
-public class GHResult {
-    public GHStatus status;
+public class Result {
+    public Status status;
     public String message;
     public String stackTrace;
 
-    public GHResult(GHStatus status, String message){
+    public Result(Status status, String message){
         this.status = status;
         this.message = message;
         this.stackTrace = "";
     }
 
-    public GHResult(GHStatus status, String message, String stackTrace){
+    public Result(Status status, String message, String stackTrace){
         this.status = status;
         this.message = message;
         this.stackTrace = stackTrace;
