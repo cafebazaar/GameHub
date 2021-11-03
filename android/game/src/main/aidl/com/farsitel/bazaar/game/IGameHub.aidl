@@ -4,9 +4,9 @@ interface IGameHub {
 
     boolean isLogin();
 
+    Bundle getTournamentTimes(String packagename);
+
     Bundle startTournamentMatch(String packagename, String matchId, String metaData);
 
-    Bundle endTournamentMatch(String sessionId, float coefficient);
-    
-    Bundle callMethod(in Bundle data);
+    Bundle endTournamentMatch(String sessionId, float score);
 }

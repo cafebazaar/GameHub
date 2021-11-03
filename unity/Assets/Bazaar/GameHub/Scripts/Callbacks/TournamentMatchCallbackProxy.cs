@@ -9,14 +9,12 @@ namespace Bazaar.GameHub.Callbacks
 
         void onFinish(int status, string arg1, string arg2, string arg3)
         {
-            if (status == 0)
+            if (status != (int)Result.Status.Success)
             {
-                result = new Result(status) { sessionId = arg1, matchId = arg2, metadata = arg3 };
+                result = new TournamentMatchResult(status) { message = arg1, stackTrace = arg2 };
+                return;
             }
-            else
-            {
-                result = new Result(status) { message = arg1, stackTrace = arg2 };
-            }
+            result = new TournamentMatchResult(status) { sessionId = arg1, matchId = arg2, metadata = arg3 };
         }
     }
 }

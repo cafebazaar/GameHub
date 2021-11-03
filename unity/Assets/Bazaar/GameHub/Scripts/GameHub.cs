@@ -29,11 +29,22 @@ namespace Bazaar.GameHub
             return result;
         }
 
-        public async Task<Result> StartTournamentMatch(string matchId, string metaData = "", Action<Result> onComplete = null)
+        public async Task<TournamentsResult> GetTournaments(Action<TournamentsResult> onComplete = null)
+        {
+            var callback = new TournamentsCallbackProxy();
+            gameHubClass.Call("getTournaments", UnityActivity.GetCurrentActivity(), callback);
+            var data = await callback.WaitForResult();
+            var result = (TournamentsResult)data;
+            onComplete?.Invoke(result);
+            return result;
+        }
+
+        public async Task<TournamentMatchResult> StartTournamentMatch(string matchId, string metaData = "", Action<TournamentMatchResult> onComplete = null)
         {
             var callback = new TournamentMatchCallbackProxy();
             gameHubClass.Call("startTournamentMatch", UnityActivity.GetCurrentActivity(), callback, matchId, metaData);
-            var result = await callback.WaitForResult();
+            var data = await callback.WaitForResult();
+            var result = (TournamentMatchResult)data;
             onComplete?.Invoke(result);
             return result;
         }

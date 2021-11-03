@@ -15,10 +15,13 @@ import android.os.RemoteException;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
+import com.farsitel.bazaar.game.callbacks.ITournamentsCallback;
+import com.farsitel.bazaar.game.data.Tournament;
 import com.farsitel.bazaar.game.utils.GHLogger;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -109,17 +112,52 @@ public class GameHubBridge extends AbstractGameHub {
                 // service available to handle that Intent
                 context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
             }
-        });
-
     }
 
-    public void startTournamentMatch(Activity activity, ITournamentMatchCallback callback, String matchId, String metaData) {
+
+    public void getTournaments(Activity activity, ITournamentsCallback callback) {
+        if(gameHubService == null){
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+            return;
+    }
+
         Bundle resultBundle = null;
+        try {
+            resultBundle = gameHubService.getTournamentTimes(activity.getPackageName());
+        } catch (RemoteException e) {
+            callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), null);
+            e.printStackTrace();
+        }
+//        for (String key : Objects.requireNonNull(resultBundle).keySet()) {
+//            logger.logInfo("start  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
+//        }
+
+        int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");
+        if (statusCode != Status.SUCCESS.getLevelCode()) {
+            callback.onFinish(statusCode, "Error on endTournaments method", "", null);
+            return;
+        }
+
+        long startAt = resultBundle.containsKey("startTimeStamp") ? resultBundle.getLong("startTimeStamp") : 0;
+        long endAt = resultBundle.containsKey("endTimeStamp") ? resultBundle.getLong("endTimeStamp") : 0;
+        List<Tournament> tournaments = new ArrayList<>();
+        tournaments.add(new Tournament("-1", "Tournament -1", startAt, endAt));
+        callback.onFinish(Status.SUCCESS.getLevelCode(), "Get Tournaments", "", tournaments);
+    }
+
+    public void startTournamentMatch(Activity activity, ITournamentMatchCallback
+            callback, String matchId, String metaData) {
         logger.logDebug("startTournamentMatch");
+        if (gameHubService == null) {
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+            return;
+        }
+
+        Bundle resultBundle = null;
         try {
             resultBundle = gameHubService.startTournamentMatch(activity.getPackageName(), matchId, metaData);
         } catch (RemoteException e) {
-            callback.onFinish(GHStatus.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
+            callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
             e.printStackTrace();
         }
 //        for (String key : Objects.requireNonNull(resultBundle).keySet()) {

@@ -15,6 +15,13 @@
         android:text="Connect" />
 
     <Button
+        android:id="@+id/getTournametsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="getTournaments"
+        android:text="Get Tournaments" />
+
+    <Button
         android:id="@+id/startButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

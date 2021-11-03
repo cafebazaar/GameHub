@@ -8,6 +8,8 @@ import android.view.View;
 import com.farsitel.bazaar.game.GameHubBridge;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.data.Status;
+import com.farsitel.bazaar.game.data.Tournament;
+import com.farsitel.bazaar.game.utils.GHLogger;
 
 public class MainActivity extends Activity {
 
@@ -26,6 +28,11 @@ public class MainActivity extends Activity {
         gameHubBridge.connect(this, true, (status, message, stackTrace) -> {
             Log.i(GHLogger.TAG, String.format("Connect => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
+    }
+
+    public void getTournaments(View view) {
+        gameHubBridge.getTournaments(this, (status, message, stackTrace, tournaments) -> {
+            Log.i(GHLogger.TAG, String.format("Tournaments => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
 
@@ -52,8 +59,7 @@ public class MainActivity extends Activity {
     }
 
     public void showLastTournamentLeaderboard(View view) {
-        gameHubBridge.showLastTournamentLeaderboard(this, (status, message, stackTrace) -> {
-            Log.i("TAG", String.format("showLeaderboard => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
+            Log.i(GHLogger.TAG, String.format("showLeaderboard => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
 }

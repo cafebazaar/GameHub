@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using Bazaar.GameHub;
 using Bazaar.GameHub.Data;
@@ -19,6 +19,12 @@ public class GameHubExample : MonoBehaviour
     public async void Connect()
     {
         var result = await gameHub.Connect();
+        Log(result.toString());
+    }
+
+    public async void GetTournaments()
+    {
+        var result = await gameHub.GetTournaments();
         Log(result.toString());
     }
 

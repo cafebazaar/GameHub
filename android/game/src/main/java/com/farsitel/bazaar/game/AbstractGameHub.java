@@ -8,6 +8,7 @@ import android.net.Uri;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
+import com.farsitel.bazaar.game.callbacks.ITournamentsCallback;
 import com.farsitel.bazaar.game.utils.GHLogger;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
@@ -63,6 +64,7 @@ public abstract class AbstractGameHub {
 
     abstract void connect(Context context, boolean showPrompts, IConnectionCallback callback);
 
+    abstract void getTournaments(Activity activity, ITournamentsCallback callback);
 
     abstract void startTournamentMatch(Activity activity, ITournamentMatchCallback callback, String matchId, String metaData);
 
