@@ -23,15 +23,16 @@ public class MainActivity extends Activity {
     }
 
     public void connect(View view) {
-        gameHubBridge.connect(this, (status, message, stackTrace) -> {
-            Log.i("TAG", String.format("Connect => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
+        gameHubBridge.connect(this, true, (status, message, stackTrace) -> {
+            Log.i(GHLogger.TAG, String.format("Connect => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
+        });
         });
     }
 
     public void startTournamentMatch(View view) {
         ITournamentMatchCallback callback = (status, sessionId, matchId, metaData) -> {
-            Log.i("TAG", String.format("Start => Status: %d, SessionId: %s, MatchId: %s, MetaData: %s", status, sessionId, matchId, metaData));
-            if (status == GHStatus.SUCCESS.getLevelCode()) {
+            Log.i(GHLogger.TAG, String.format("Start => Status: %d, SessionId: %s, MatchId: %s, MetaData: %s", status, sessionId, matchId, metaData));
+            if (status == Status.SUCCESS.getLevelCode()) {
                 reservedSessionId = sessionId;
             }
         };
@@ -40,11 +41,11 @@ public class MainActivity extends Activity {
 
     public void endTournamentMatch(View view) {
         if (reservedSessionId == null) {
-            Log.e("TAG", "Call startTournamentMatch before!");
+            Log.e(GHLogger.TAG, "Call startTournamentMatch before!");
             return;
         }
         ITournamentMatchCallback callback = (status, sessionId, matchId, metaData) -> {
-            Log.i("TAG", String.format("End => Status: %d, SessionId: %s, MatchId: %s, MetaData: %s", status, sessionId, matchId, metaData));
+            Log.i(GHLogger.TAG, String.format("End => Status: %d, SessionId: %s, MatchId: %s, MetaData: %s", status, sessionId, matchId, metaData));
             reservedSessionId = null;
         };
         gameHubBridge.endTournamentMatch(callback, reservedSessionId, 0.5f);

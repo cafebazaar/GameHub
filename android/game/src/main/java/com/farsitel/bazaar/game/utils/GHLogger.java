@@ -4,22 +4,22 @@ import android.util.Log;
 
 public class GHLogger {
 
-    boolean mDebugLog = false;
-    String mDebugTag = "GameHub";
+    public static String TAG = "GameHub";
+    public static boolean debugMode = true;
 
     public void logInfo(String msg) {
-        if (mDebugLog) Log.i(mDebugTag, msg);
+        if (debugMode) Log.i(TAG, msg);
     }
 
     public void logDebug(String msg) {
-        if (mDebugLog) Log.d(mDebugTag, msg);
+        if (debugMode) Log.d(TAG, msg);
     }
 
     public void logError(String msg) {
-        Log.e(mDebugTag, "In-app billing error: " + msg);
+        Log.e(TAG, "In-app billing error: " + msg);
     }
 
     public void logWarn(String msg) {
-        Log.w(mDebugTag, "In-app billing warning: " + msg);
+        Log.w(TAG, "In-app billing warning: " + msg);
     }
 }
