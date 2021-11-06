@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using Bazaar.GameHub;
 using Bazaar.GameHub.Data;
@@ -49,10 +49,15 @@ public class GameHubExample : MonoBehaviour
         Log(result.toString());
     }
 
-    public void ShowLastTournamentLeaderboard()
+    public void ShowLastTournamentRanking()
     {
-        _ = gameHub.ShowLastTournamentLeaderboard();
+        _ = gameHub.ShowLastTournamentRanking();
     }
+
+    public async void GetLastTournamentRanking()
+    {
+        var result = await gameHub.GetLastTournamentRanking();
+        Log(result.toString());    }
 
     public void Log(string message)
     {
