@@ -197,19 +197,27 @@ public class GameHubBridge extends AbstractGameHub {
         callback.onFinish(statusCode, sessionId, matchId, metaData);
     }
 
-    public void showLastTournamentLeaderboard(Context context, IConnectionCallback callback) {
+    public void showTournamentLeaderboard(Context context, String tournamentId, IConnectionCallback callback) {
         logger.logDebug("showLastTournamentLeaderboard");
-        new Handler(Looper.getMainLooper()).post(() -> {
-
-            connectionState = isAvailable(context);
-            if (connectionState.status != GHStatus.SUCCESS) {
+        // Check cafebazaar application version
+        connectionState = isCafebazaarInstalled(context, true);
+        if (connectionState.status != Status.SUCCESS) {
                 connectionState.call(callback);
                 return;
             }
 
-            String data = "bazaar://tournament_leaderboard?id=-1";
+        // Check login to cafebazaar
+        new Handler(Looper.getMainLooper()).post(() -> {
+            connectionState = isLogin(context, true);
+            if (connectionState.status == Status.SUCCESS) {
+                connectionState.message = "Last tournament leaderboard shown.";
+                String data = "bazaar://tournament_leaderboard?package_name=" + context.getPackageName();
+                logger.logInfo(data);
             startActionViewIntent(context, data, "com.farsitel.bazaar");
+            }
             connectionState.call(callback);
         });
     }
+
+    public void getTournamentLeaderboardData(Context context, String tournamentId, IConnectionCallback callback) {    }
 }

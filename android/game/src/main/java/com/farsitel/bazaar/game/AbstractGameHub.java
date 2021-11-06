@@ -38,14 +38,14 @@ public abstract class AbstractGameHub {
         }
         if (packageInfo == null) {
             if (showPrompts) {
-            startActionViewIntent(context, "https://cafebazaar.ir/install", null);
+                startActionViewIntent(context, "https://cafebazaar.ir/install", null);
             }
             return new Result(Status.INSTALL_CAFEBAZAAR, "Install cafebazaar to support GameHub!");
         }
         if (packageInfo.versionCode < MINIMUM_BAZAAR_VERSION) {
             if (showPrompts) {
-            startActionViewIntent(context, "bazaar://details?id=com.farsitel.bazaar", "com.farsitel.bazaar");
-        }
+                startActionViewIntent(context, "bazaar://details?id=com.farsitel.bazaar", "com.farsitel.bazaar");
+            }
             return new Result(Status.UPDATE_CAFEBAZAAR, "Install new version of cafebazaar to support GameHub!");
         }
         return new Result(Status.SUCCESS, "");
@@ -70,7 +70,7 @@ public abstract class AbstractGameHub {
 
     abstract void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float score);
 
-    abstract void showLastTournamentLeaderboard(Context context, IConnectionCallback callback);
+    abstract void showTournamentLeaderboard(Context context, String tournamentId, IConnectionCallback callback);
 
     boolean disposed() {
         return isDispose;

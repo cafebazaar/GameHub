@@ -58,13 +58,19 @@ namespace Bazaar.GameHub
             return result;
         }
 
-        public async Task<Result> ShowLastTournamentLeaderboard(Action<Result> onComplete = null)
+        public async Task<Result> ShowTournamentLeaderboard(String tournamentId, Action<Result> onComplete = null)
         {
             var callback = new ConnectionCallbackProxy();
-            gameHubClass.Call("showLastTournamentLeaderboard", UnityActivity.GetCurrentActivity(), callback);
+            gameHubClass.Call("showTournamentLeaderboard", UnityActivity.GetCurrentActivity(), tournamentId, callback);
             var result = await callback.WaitForResult();
             onComplete?.Invoke(result);
             return result;
         }
+
+        public async Task<Result> ShowLastTournamentLeaderboard(Action<Result> onComplete = null)
+        { 
+            return await ShowTournamentLeaderboard("-1", onComplete);
+        }
+
     }
 }
