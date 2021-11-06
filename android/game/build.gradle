@@ -2,6 +2,9 @@ plugins {
     id 'com.android.library'
     id 'maven-publish'
 }
+def gameHubVersion = '1.0.0'
+def gameHubArtifact = 'alpha-2'
+def gameHubArtifactDebug = 'alpha-2-debug'
 
 android {
     compileSdk 30
@@ -16,8 +19,12 @@ android {
     }
 
     buildTypes {
+        debug{
+            buildConfigField "String", "GAMEHUB_VERSION", '"' + gameHubVersion + '-' + gameHubArtifactDebug + '"'
+        }
         release {
             minifyEnabled false
+            buildConfigField "String", "GAMEHUB_VERSION", '"' + gameHubVersion + '-' + gameHubArtifact + '"'
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -42,8 +49,8 @@ afterEvaluate {
 
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'com.farsitel.bazaar.gamehub'
-                artifactId = 'alpha'
-                version = '1.0.0'
+                artifactId = gameHubArtifact
+                version = gameHubVersion
             }
             // Creates a Maven publication called “debug”.
             debug(MavenPublication) {
@@ -51,8 +58,8 @@ afterEvaluate {
                 from components.debug
 
                 groupId = 'com.farsitel.bazaar.gamehub'
-                artifactId = 'alpha-debug'
-                version = '1.0.0'
+                artifactId = gameHubArtifactDebug
+                version = gameHubVersion
             }
         }
     }

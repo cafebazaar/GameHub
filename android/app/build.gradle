@@ -29,4 +29,5 @@ android {
 
 dependencies {
     implementation project(path: ':game')
+//    implementation 'com.github.manjav:GameHub:v1.0.0-alpha2'
 }

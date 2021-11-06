@@ -9,6 +9,7 @@ namespace Bazaar.GameHub
     public class GameHub
     {
         private AndroidJavaObject gameHubClass;
+
         public GameHub()
         {
             using (var pluginClass = new AndroidJavaClass("com.farsitel.bazaar.game.GameHubBridge"))
@@ -18,6 +19,10 @@ namespace Bazaar.GameHub
                     gameHubClass = pluginClass.CallStatic<AndroidJavaObject>("getInstance");
                 }
             }
+        }
+        public string version
+        {
+            get { return gameHubClass.Call<String>("getVersion"); }
         }
 
         public async Task<Result> Connect(bool showPrompts = true, Action<Result> onComplete = null)
@@ -75,7 +80,7 @@ namespace Bazaar.GameHub
         public async Task<RankingResult> GetLastTournamentRanking(Action<RankingResult> onComplete = null)
         {
             var callback = new RankingCallbackProxy();
-            gameHubClass.Call("getTournamentRanking", UnityActivity.GetCurrentActivity(), callback);
+            gameHubClass.Call("getTournamentRanking", UnityActivity.GetCurrentActivity(), "-1", callback);
             var data = await callback.WaitForResult();
             var result = (RankingResult)data;
             onComplete?.Invoke(result);

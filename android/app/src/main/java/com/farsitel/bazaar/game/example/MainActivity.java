@@ -20,8 +20,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         gameHubBridge = new GameHubBridge();
+        Log.i(GHLogger.TAG, String.format("Version => %s", gameHubBridge.getVersion()));
     }
 
     public void connect(View view) {

@@ -74,6 +74,8 @@ public class GameHubBridge extends AbstractGameHub {
         return result;
     }
 
+    public String getVersion() {  return BuildConfig.GAMEHUB_VERSION; }
+
     @Override
     public void connect(Context context, boolean showPrompts, IConnectionCallback callback) {
         connectionState = isCafebazaarInstalled(context, showPrompts);
@@ -231,12 +233,14 @@ public class GameHubBridge extends AbstractGameHub {
         Bundle resultBundle = null;
         try {
             resultBundle = gameHubService.getCurrentLeaderboard(context.getPackageName());
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), null);
             e.printStackTrace();
         }
-        for (String key : Objects.requireNonNull(resultBundle).keySet()) {
-            logger.logInfo("Leaderboard =>  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
+
+        assert resultBundle != null;
+        for (String key : resultBundle.keySet()) {
+            logger.logInfo("Ranking =>  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
         }
 
         int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");

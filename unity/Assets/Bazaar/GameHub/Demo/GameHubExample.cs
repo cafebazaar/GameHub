@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using Bazaar.GameHub;
 using Bazaar.GameHub.Data;
@@ -12,8 +12,8 @@ public class GameHubExample : MonoBehaviour
 
     void Start()
     {
-        Log("Plugin Version: " + PluginVersion.VersionString);
         gameHub = new GameHub();
+        Log("Plugin Version: " + gameHub.version);
     }
 
     public async void Connect()
