@@ -14,13 +14,18 @@ import android.os.Looper;
 import android.os.RemoteException;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
-import com.farsitel.bazaar.game.callbacks.ILeaderboardCallback;
+import com.farsitel.bazaar.game.callbacks.IRankingCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentsCallback;
+import com.farsitel.bazaar.game.data.RankItem;
 import com.farsitel.bazaar.game.data.Tournament;
 import com.farsitel.bazaar.game.utils.GHLogger;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +52,7 @@ public class GameHubBridge extends AbstractGameHub {
     @Override
     public Result isLogin(Context context, boolean showPrompts) {
         Result result = new Result(Status.SUCCESS, "");
-        if(gameHubService == null){
+        if (gameHubService == null) {
             result.status = Status.DISCONNECTED;
             result.message = "Connect to service before!";
             return result;
@@ -64,7 +69,7 @@ public class GameHubBridge extends AbstractGameHub {
         }
         result.status = Status.LOGIN_CAFEBAZAAR;
         if (showPrompts) {
-        startActionViewIntent(context, "bazaar://login", "com.farsitel.bazaar");
+            startActionViewIntent(context, "bazaar://login", "com.farsitel.bazaar");
         }
         return result;
     }
@@ -73,54 +78,54 @@ public class GameHubBridge extends AbstractGameHub {
     public void connect(Context context, boolean showPrompts, IConnectionCallback callback) {
         connectionState = isCafebazaarInstalled(context, showPrompts);
         if (connectionState.status != Status.SUCCESS) {
-                connectionState.call(callback);
-                return;
-            }
-            logger.logDebug("GameHub service started.");
-            gameHubConnection = new ServiceConnection() {
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                    logger.logDebug("GameHub service disconnected.");
-                    gameHubService = null;
+            connectionState.call(callback);
+            return;
+        }
+        logger.logDebug("GameHub service started.");
+        gameHubConnection = new ServiceConnection() {
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                logger.logDebug("GameHub service disconnected.");
+                gameHubService = null;
                 connectionState = new Result(Status.DISCONNECTED, "GameHub service disconnected.", "");
-                    connectionState.call(callback);
-                }
+                connectionState.call(callback);
+            }
 
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    if (disposed()) return;
-                    logger.logDebug("GameHub service connected.");
-                    gameHubService = IGameHub.Stub.asInterface(service);
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                if (disposed()) return;
+                logger.logDebug("GameHub service connected.");
+                gameHubService = IGameHub.Stub.asInterface(service);
                 connectionState.status = Status.SUCCESS;
                 new Handler(Looper.getMainLooper()).post(() -> {
                     // Check login to cafebazaar
                     connectionState = isLogin(context, showPrompts);
                     if (connectionState.status == Status.SUCCESS) {
-                    connectionState.message = "GameHub service connected.";
-                    connectionState.call(callback);
-                }
+                        connectionState.message = "GameHub service connected.";
+                        connectionState.call(callback);
+                    }
                 });
             }
-            };
+        };
 
-            // Bind to bazaar game hub
-            Intent serviceIntent = new Intent("com.farsitel.bazaar.Game.BIND");
-            serviceIntent.setPackage("com.farsitel.bazaar");
+        // Bind to bazaar game hub
+        Intent serviceIntent = new Intent("com.farsitel.bazaar.Game.BIND");
+        serviceIntent.setPackage("com.farsitel.bazaar");
 
-            PackageManager pm = context.getPackageManager();
-            List<ResolveInfo> intentServices = pm.queryIntentServices(serviceIntent, 0);
-            if (!intentServices.isEmpty()) {
-                // service available to handle that Intent
-                context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
-            }
+        PackageManager pm = context.getPackageManager();
+        List<ResolveInfo> intentServices = pm.queryIntentServices(serviceIntent, 0);
+        if (!intentServices.isEmpty()) {
+            // service available to handle that Intent
+            context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
+        }
     }
 
 
     public void getTournaments(Activity activity, ITournamentsCallback callback) {
-        if(gameHubService == null){
+        if (gameHubService == null) {
             callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
-    }
+        }
 
         Bundle resultBundle = null;
         try {
@@ -130,7 +135,7 @@ public class GameHubBridge extends AbstractGameHub {
             e.printStackTrace();
         }
         for (String key : Objects.requireNonNull(resultBundle).keySet()) {
-            logger.logInfo("start  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
+            logger.logInfo("times  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
         }
 
         int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");
@@ -198,49 +203,67 @@ public class GameHubBridge extends AbstractGameHub {
         callback.onFinish(statusCode, sessionId, matchId, metaData);
     }
 
-    public void showTournamentLeaderboard(Context context, String tournamentId, IConnectionCallback callback) {
-        logger.logDebug("showLastTournamentLeaderboard");
+    public void showTournamentRanking(Context context, String tournamentId, IConnectionCallback callback) {
+        logger.logDebug("showTournamentRanking");
         // Check cafebazaar application version
         connectionState = isCafebazaarInstalled(context, true);
         if (connectionState.status != Status.SUCCESS) {
-                connectionState.call(callback);
-                return;
-            }
+            connectionState.call(callback);
+            return;
+        }
 
         // Check login to cafebazaar
         new Handler(Looper.getMainLooper()).post(() -> {
             connectionState = isLogin(context, true);
             if (connectionState.status == Status.SUCCESS) {
-                connectionState.message = "Last tournament leaderboard shown.";
+                connectionState.message = "Last tournament ranking table shown.";
                 String data = "bazaar://tournament_leaderboard?package_name=" + context.getPackageName();
                 logger.logInfo(data);
-            startActionViewIntent(context, data, "com.farsitel.bazaar");
+                startActionViewIntent(context, data, "com.farsitel.bazaar");
             }
             connectionState.call(callback);
         });
     }
 
     @Override
-    public void getCurrentLeaderboard(Context context, ILeaderboardCallback callback) {
-        logger.logDebug("endTournamentMatch");
+    public void getTournamentRanking(Context context, String tournamentId, IRankingCallback callback) {
+        logger.logDebug("getTournamentRanking");
         Bundle resultBundle = null;
         try {
             resultBundle = gameHubService.getCurrentLeaderboard(context.getPackageName());
         } catch (RemoteException e) {
-            callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()));
+            callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), null);
             e.printStackTrace();
         }
         for (String key : Objects.requireNonNull(resultBundle).keySet()) {
-            logger.logInfo("end  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
+            logger.logInfo("Leaderboard =>  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
         }
 
         int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");
         if (statusCode != Status.SUCCESS.getLevelCode()) {
-            callback.onFinish(statusCode, "Error on getCurrentLeaderboard", "");
+            callback.onFinish(statusCode, "Error on getTournamentRanking", "", null);
+            return;
+        }
+        List<RankItem> rankItems = new ArrayList<>();
+        JSONArray rankData = null;
+        String jsonString = resultBundle.getString("leaderboardData");
+        try {
+            rankData = new JSONArray(jsonString);
+            for (int i = 0; i < rankData.length(); i++) {
+                JSONObject obj = rankData.getJSONObject(i);
+                rankItems.add(new RankItem(obj.getString("nickname"),
+                        obj.getString("score"),
+                        obj.getString("award"),
+                        obj.getBoolean("hasFollowingEllipsis"),
+                        obj.getBoolean("isCurrentUser"),
+                        obj.getBoolean("isWinner")));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            callback.onFinish(statusCode, "Error on Ranking data parsing!", "", null);
             return;
         }
 
-        callback.onFinish(statusCode, "data1", "data2, data3");
+        callback.onFinish(statusCode, "getTournamentRanking", jsonString, rankItems);
     }
-
 }

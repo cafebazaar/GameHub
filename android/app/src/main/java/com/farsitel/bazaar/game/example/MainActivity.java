@@ -58,15 +58,15 @@ public class MainActivity extends Activity {
         gameHubBridge.endTournamentMatch(callback, reservedSessionId, 0.5f);
     }
 
-    public void showLastTournamentLeaderboard(View view) {
-        gameHubBridge.showTournamentLeaderboard(this, "-1", (status, message, stackTrace) -> {
-            Log.i(GHLogger.TAG, String.format("showLeaderboard => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
+    public void showTournamentRanking(View view) {
+        gameHubBridge.showTournamentRanking(this, "-1", (status, message, stackTrace) -> {
+            Log.i(GHLogger.TAG, String.format("showTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
 
-    public void getLeaderboard(View view) {
-        gameHubBridge.getCurrentLeaderboard(this, (status, message, stackTrace) -> {
-            Log.i(GHLogger.TAG, String.format("getLeaderboard => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
+    public void getTournamentRanking(View view) {
+        gameHubBridge.getTournamentRanking(this, "-1", (status, message, stackTrace, rankItems) -> {
+            Log.i(GHLogger.TAG, String.format("getTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
 }

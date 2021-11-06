@@ -4,7 +4,6 @@ namespace Bazaar.GameHub.Data
 {
     public class Result
     {
-
         public enum Status
         {
             Failure = -1,
@@ -20,7 +19,6 @@ namespace Bazaar.GameHub.Data
         public Status status;
         public string message;
         public string stackTrace;
-
 
         public Result(int status)
         {
@@ -45,9 +43,7 @@ namespace Bazaar.GameHub.Data
         public string matchId;
         public string metadata;
 
-        public TournamentMatchResult(int status) : base(status)
-        {
-        }
+        public TournamentMatchResult(int status) : base(status) { }
 
         override public string toString()
         {
@@ -70,7 +66,6 @@ namespace Bazaar.GameHub.Data
     {
         public List<Tournament> tournaments;
 
-
         public TournamentsResult(int status, List<Tournament> tournaments) : base(status)
         {
             this.status = (Status)status;
@@ -90,4 +85,27 @@ namespace Bazaar.GameHub.Data
         }
     }
 
+    public class RankingResult : Result
+    {
+        public List<RankItem> rankItems;
+        public string jsonString { get => stackTrace; }
+
+        public RankingResult(int status, List<RankItem> rankItems) : base(status)
+        {
+            this.status = (Status)status;
+            this.rankItems = rankItems;
+        }
+
+        override public string toString()
+        {
+            var text = $"Result [ status: {status}, ";
+            if (message != null)
+                text += $"message: {message}, ";
+            if (status == Status.Success)
+                text += $"rankItems: {jsonString}";
+            else
+                text += $"stackTrace: {stackTrace} ";
+            return text + "]";
+        }
+    }
 }

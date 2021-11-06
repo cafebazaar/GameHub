@@ -7,7 +7,7 @@ import android.content.pm.PackageInfo;
 import android.net.Uri;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
-import com.farsitel.bazaar.game.callbacks.ILeaderboardCallback;
+import com.farsitel.bazaar.game.callbacks.IRankingCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentsCallback;
 import com.farsitel.bazaar.game.utils.GHLogger;
@@ -71,9 +71,9 @@ public abstract class AbstractGameHub {
 
     abstract void endTournamentMatch(ITournamentMatchCallback callback, String sessionId, float score);
 
-    abstract void showTournamentLeaderboard(Context context, String tournamentId, IConnectionCallback callback);
+    abstract void showTournamentRanking(Context context, String tournamentId, IConnectionCallback callback);
 
-    abstract void getCurrentLeaderboard(Context context, ILeaderboardCallback callback);
+    abstract void getTournamentRanking(Context context, String tournamentId, IRankingCallback callback);
 
     boolean disposed() {
         return isDispose;
