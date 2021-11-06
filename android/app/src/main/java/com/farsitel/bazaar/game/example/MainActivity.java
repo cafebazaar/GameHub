@@ -63,4 +63,10 @@ public class MainActivity extends Activity {
             Log.i(GHLogger.TAG, String.format("showLeaderboard => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
+
+    public void getLeaderboard(View view) {
+        gameHubBridge.getCurrentLeaderboard(this, (status, message, stackTrace) -> {
+            Log.i(GHLogger.TAG, String.format("getLeaderboard => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
+        });
+    }
 }

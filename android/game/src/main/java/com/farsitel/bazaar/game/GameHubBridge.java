@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
+import com.farsitel.bazaar.game.callbacks.ILeaderboardCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentsCallback;
 import com.farsitel.bazaar.game.data.Tournament;
@@ -128,9 +129,9 @@ public class GameHubBridge extends AbstractGameHub {
             callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), null);
             e.printStackTrace();
         }
-//        for (String key : Objects.requireNonNull(resultBundle).keySet()) {
-//            logger.logInfo("start  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
-//        }
+        for (String key : Objects.requireNonNull(resultBundle).keySet()) {
+            logger.logInfo("start  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
+        }
 
         int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");
         if (statusCode != Status.SUCCESS.getLevelCode()) {
@@ -219,5 +220,27 @@ public class GameHubBridge extends AbstractGameHub {
         });
     }
 
-    public void getTournamentLeaderboardData(Context context, String tournamentId, IConnectionCallback callback) {    }
+    @Override
+    public void getCurrentLeaderboard(Context context, ILeaderboardCallback callback) {
+        logger.logDebug("endTournamentMatch");
+        Bundle resultBundle = null;
+        try {
+            resultBundle = gameHubService.getCurrentLeaderboard(context.getPackageName());
+        } catch (RemoteException e) {
+            callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()));
+            e.printStackTrace();
+        }
+        for (String key : Objects.requireNonNull(resultBundle).keySet()) {
+            logger.logInfo("end  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
+        }
+
+        int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");
+        if (statusCode != Status.SUCCESS.getLevelCode()) {
+            callback.onFinish(statusCode, "Error on getCurrentLeaderboard", "");
+            return;
+        }
+
+        callback.onFinish(statusCode, "data1", "data2, data3");
+    }
+
 }
