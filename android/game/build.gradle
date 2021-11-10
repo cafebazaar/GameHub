@@ -3,8 +3,8 @@ plugins {
     id 'maven-publish'
 }
 def gameHubVersion = '1.0.0'
-def gameHubArtifact = 'alpha-2'
-def gameHubArtifactDebug = 'alpha-2-debug'
+def gameHubArtifact = 'alpha-3'
+def gameHubArtifactDebug = 'alpha-3-debug'
 
 android {
     compileSdk 30
