@@ -74,7 +74,9 @@ public class GameHubBridge extends AbstractGameHub {
         return result;
     }
 
-    public String getVersion() {  return BuildConfig.GAMEHUB_VERSION; }
+    public String getVersion() {
+        return BuildConfig.GAMEHUB_VERSION;
+    }
 
     @Override
     public void connect(Context context, boolean showPrompts, IConnectionCallback callback) {
@@ -136,9 +138,9 @@ public class GameHubBridge extends AbstractGameHub {
             callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), null);
             e.printStackTrace();
         }
-        for (String key : Objects.requireNonNull(resultBundle).keySet()) {
-            logger.logInfo("times  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
-        }
+//        for (String key : Objects.requireNonNull(resultBundle).keySet()) {
+//            logger.logInfo("times  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
+//        }
 
         int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");
         if (statusCode != Status.SUCCESS.getLevelCode()) {
