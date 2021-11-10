@@ -223,7 +223,12 @@ public class GameHubBridge extends AbstractGameHub {
                 connectionState.message = "Last tournament ranking table shown.";
                 String data = "bazaar://tournament_leaderboard?package_name=" + context.getPackageName();
                 logger.logInfo(data);
-                startActionViewIntent(context, data, "com.farsitel.bazaar");
+                try {
+                    startActionViewIntent(context, data, "com.farsitel.bazaar");
+                } catch (Exception e) {
+                    callback.onFinish(Status.UPDATE_CAFEBAZAAR.getLevelCode(), "Get Ranking-data needs to new version of CafeBazaar!", Arrays.toString(e.getStackTrace()));
+                    return;
+                }
             }
             connectionState.call(callback);
         });
@@ -240,12 +245,15 @@ public class GameHubBridge extends AbstractGameHub {
             e.printStackTrace();
         }
 
-        assert resultBundle != null;
+        if (resultBundle == null) {
+            callback.onFinish(Status.UPDATE_CAFEBAZAAR.getLevelCode(), "Get Ranking-data needs to new version of CafeBazaar!", "", null);
+            return;
+        }
         for (String key : resultBundle.keySet()) {
             logger.logInfo("Ranking =>  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
         }
 
-        int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");
+        int statusCode = resultBundle.getInt("statusCode");
         if (statusCode != Status.SUCCESS.getLevelCode()) {
             callback.onFinish(statusCode, "Error on getTournamentRanking", "", null);
             return;
