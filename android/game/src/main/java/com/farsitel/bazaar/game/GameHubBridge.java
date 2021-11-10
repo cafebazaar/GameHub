@@ -148,8 +148,8 @@ public class GameHubBridge extends AbstractGameHub {
             return;
         }
 
-        long startAt = resultBundle.containsKey("startTimeStamp") ? resultBundle.getLong("startTimeStamp") : 0;
-        long endAt = resultBundle.containsKey("endTimeStamp") ? resultBundle.getLong("endTimeStamp") : 0;
+        long startAt = resultBundle.containsKey("startTimestamp") ? resultBundle.getLong("startTimestamp") : 0;
+        long endAt = resultBundle.containsKey("endTimestamp") ? resultBundle.getLong("endTimestamp") : 0;
         List<Tournament> tournaments = new ArrayList<>();
         tournaments.add(new Tournament("-1", "Tournament -1", startAt, endAt));
         callback.onFinish(Status.SUCCESS.getLevelCode(), "Get Tournaments", "", tournaments);

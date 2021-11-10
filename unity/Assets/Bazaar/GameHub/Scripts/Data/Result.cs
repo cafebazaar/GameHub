@@ -80,7 +80,13 @@ namespace Bazaar.GameHub.Data
             if (stackTrace != null)
                 text += $"stackTrace: {stackTrace} ";
             if (tournaments != null)
-                text += $"tournaments: {tournaments}";
+            {
+                text += $"tournaments: ";
+                foreach (var tournament in tournaments)
+                {
+                    text += $"[{tournament.ToString()}]";
+                }
+            }
             return text + "]";
         }
     }
