@@ -22,6 +22,7 @@ import com.farsitel.bazaar.game.utils.Logger;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
 import com.farsitel.bazaar.game.utils.MainThread;
+import com.farsitel.bazaar.game.utils.ParamNames;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,7 +66,7 @@ public class GameHubBridge extends AbstractGameHub {
             connectionState.call(callback);
             return;
         }
-        
+
         logger.logDebug("GameHub service started.");
         gameHubConnection = new ServiceConnection() {
             @Override
@@ -95,7 +96,7 @@ public class GameHubBridge extends AbstractGameHub {
 
         // Bind to bazaar game hub
         Intent serviceIntent = new Intent("com.farsitel.bazaar.Game.BIND");
-        serviceIntent.setPackage("com.farsitel.bazaar");
+        serviceIntent.setPackage(BAZAAR_PACKAGE_NAME);
 
         PackageManager pm = context.getPackageManager();
         List<ResolveInfo> intentServices = pm.queryIntentServices(serviceIntent, 0);
@@ -144,7 +145,7 @@ public class GameHubBridge extends AbstractGameHub {
             MainThread.run(() -> {
                 callback.call(result);
                 if (showPrompts) {
-                    startActionViewIntent(context, "bazaar://login", "com.farsitel.bazaar");
+                    startActionViewIntent(context, "bazaar://login", BAZAAR_PACKAGE_NAME);
                 }
             });
         });
@@ -162,7 +163,7 @@ public class GameHubBridge extends AbstractGameHub {
         }
 
         // Check player is already logged-in
-       isLogin(activity, false, loginResult -> {
+        isLogin(activity, false, loginResult -> {
             if (loginResult.status != Status.SUCCESS) {
                 tournamentsCallback(loginResult, callback);
                 return;
@@ -200,8 +201,8 @@ public class GameHubBridge extends AbstractGameHub {
             return;
         }
 
-        long startAt = result.extras.containsKey("startTimestamp") ? result.extras.getLong("startTimestamp") : 0;
-        long endAt = result.extras.containsKey("endTimestamp") ? result.extras.getLong("endTimestamp") : 0;
+        long startAt = result.extras.containsKey(ParamNames.START_TIMESTAMP) ? result.extras.getLong(ParamNames.START_TIMESTAMP) : 0;
+        long endAt = result.extras.containsKey(ParamNames.END_TIMESTAMP) ? result.extras.getLong(ParamNames.END_TIMESTAMP) : 0;
         List<Tournament> tournaments = new ArrayList<>();
         tournaments.add(new Tournament("-1", "Tournament -1", startAt, endAt));
         callback.onFinish(Status.SUCCESS.getLevelCode(), "Get Tournaments", "", tournaments);
@@ -254,7 +255,7 @@ public class GameHubBridge extends AbstractGameHub {
             callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
             return;
         }
-        String sessionId = result.extras.containsKey("sessionId") ? result.extras.getString("sessionId") : "sessionId";
+        String sessionId = result.extras.containsKey(ParamNames.SESSION_ID) ? result.extras.getString(ParamNames.SESSION_ID) : ParamNames.SESSION_ID;
         callback.onFinish(result.status.getLevelCode(), sessionId, matchId, metadata);
     }
 
@@ -297,8 +298,8 @@ public class GameHubBridge extends AbstractGameHub {
             callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
             return;
         }
-        String matchId = result.extras.containsKey("matchId") ? result.extras.getString("matchId") : "matchId";
-        String metaData = result.extras.containsKey("metadata") ? result.extras.getString("metadata") : "metadata";
+        String matchId = result.extras.containsKey(ParamNames.MATCH_ID) ? result.extras.getString(ParamNames.MATCH_ID) : ParamNames.MATCH_ID;
+        String metaData = result.extras.containsKey(ParamNames.META_DATA) ? result.extras.getString(ParamNames.META_DATA) : ParamNames.META_DATA;
         callback.onFinish(result.status.getLevelCode(), sessionId, matchId, metaData);
     }
 
@@ -323,7 +324,7 @@ public class GameHubBridge extends AbstractGameHub {
             String data = "bazaar://tournament_leaderboard?package_name=" + context.getPackageName();
             logger.logInfo(data);
             try {
-                startActionViewIntent(context, data, "com.farsitel.bazaar");
+                startActionViewIntent(context, data, BAZAAR_PACKAGE_NAME);
             } catch (Exception e) {
                 callback.onFinish(Status.UPDATE_CAFEBAZAAR.getLevelCode(), "Get Ranking-data needs to new version of CafeBazaar!", Arrays.toString(e.getStackTrace()));
                 return;
@@ -383,19 +384,19 @@ public class GameHubBridge extends AbstractGameHub {
 
         List<RankItem> rankItems = new ArrayList<>();
         JSONArray participants = null;
-        String jsonString = result.extras.getString("leaderboardData");
+        String jsonString = result.extras.getString(ParamNames.LEADERBOARD_DATA);
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
-            participants = jsonObject.optJSONArray("participants");
+            participants = jsonObject.optJSONArray(ParamNames.PARTICIPANTS);
             int participantsCount = participants != null ? participants.length() : 0;
             for (int i = 0; i < participantsCount; i++) {
                 JSONObject obj = participants.getJSONObject(i);
-                rankItems.add(new RankItem(obj.getString("nickname"),
-                        obj.getString("score"),
-                        obj.getString("award"),
-                        obj.getBoolean("hasFollowingEllipsis"),
-                        obj.getBoolean("isCurrentUser"),
-                        obj.getBoolean("isWinner")));
+                rankItems.add(new RankItem(obj.getString(ParamNames.NICKNAME),
+                        obj.getString(ParamNames.SCORE),
+                        obj.getString(ParamNames.AWARD),
+                        obj.getBoolean(ParamNames.HAS_FOLLOWING_ELLIPSIS),
+                        obj.getBoolean(ParamNames.IS_CURRENT_USER),
+                        obj.getBoolean(ParamNames.IS_WINNER)));
             }
         } catch (JSONException e) {
             e.printStackTrace();

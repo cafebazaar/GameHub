@@ -18,6 +18,7 @@ import com.farsitel.bazaar.game.data.Status;
 public abstract class AbstractGameHub {
 
     static final int MINIMUM_BAZAAR_VERSION = 1400700;
+    static final String BAZAAR_PACKAGE_NAME = "com.farsitel.bazaar";
 
     Logger logger;
     Result connectionState;
@@ -30,7 +31,7 @@ public abstract class AbstractGameHub {
     Result isCafebazaarInstalled(Context context, boolean showPrompts) {
         PackageInfo packageInfo = null;
         try {
-            packageInfo = context.getPackageManager().getPackageInfo("com.farsitel.bazaar", 0);
+            packageInfo = context.getPackageManager().getPackageInfo(BAZAAR_PACKAGE_NAME, 0);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -42,7 +43,7 @@ public abstract class AbstractGameHub {
         }
         if (packageInfo.versionCode < MINIMUM_BAZAAR_VERSION) {
             if (showPrompts) {
-                startActionViewIntent(context, "bazaar://details?id=com.farsitel.bazaar", "com.farsitel.bazaar");
+                startActionViewIntent(context, "bazaar://details?id=com.farsitel.bazaar", BAZAAR_PACKAGE_NAME);
             }
             return new Result(Status.UPDATE_CAFEBAZAAR, "Install new version of cafebazaar to support GameHub!");
         }

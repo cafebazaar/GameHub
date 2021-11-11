@@ -10,6 +10,7 @@ import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
 import com.farsitel.bazaar.game.utils.Logger;
+import com.farsitel.bazaar.game.utils.ParamNames;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -54,7 +55,7 @@ public class GameHubBroadcast {
                 if (callbacks.containsKey(action)) {
                     Result result = new Result();
                     if (action.equals(IS_LOGIN)) {
-                        boolean isLogin = intent.getBooleanExtra("isLogin", false);
+                        boolean isLogin = intent.getBooleanExtra(ParamNames.IS_LOGIN, false);
                         result.status = isLogin ? Status.SUCCESS : Status.LOGIN_CAFEBAZAAR;
                         result.message = isLogin ? "" : "Login to Cafebazaar before!";
                         callbacks.get(action).call(result);
@@ -78,10 +79,10 @@ public class GameHubBroadcast {
     }
 
     private void sendBroadcast(String action, Bundle extras) {
-        extras.putString("packageName", context.getPackageName());
+        extras.putString(ParamNames.PACKAGE_NAME, context.getPackageName());
 
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setPackage("com.farsitel.bazaar");
+        broadcastIntent.setPackage(AbstractGameHub.BAZAAR_PACKAGE_NAME);
         broadcastIntent.putExtras(extras);
         broadcastIntent.setAction(action);
         context.sendBroadcast(broadcastIntent);
@@ -99,16 +100,16 @@ public class GameHubBroadcast {
 
     public void startTournamentMatch(String matchId, String metadata, IBroadcastCallback callback) {
         Bundle extras = new Bundle();
-        extras.putString("matchId", matchId);
-        extras.putString("metaData", metadata);
+        extras.putString(ParamNames.MATCH_ID, matchId);
+        extras.putString(ParamNames.META_DATA, metadata);
         callbacks.put(START_TOURNAMENT_MATCH, callback);
         sendBroadcast(START_TOURNAMENT_MATCH, extras);
     }
 
     public void endTournamentMatch(String sessionId, float score, IBroadcastCallback callback) {
         Bundle extras = new Bundle();
-        extras.putString("sessionId", sessionId);
-        extras.putFloat("score", score);
+        extras.putString(ParamNames.SESSION_ID, sessionId);
+        extras.putFloat(ParamNames.SCORE, score);
         callbacks.put(END_TOURNAMENT_MATCH, callback);
         sendBroadcast(END_TOURNAMENT_MATCH, extras);
     }
