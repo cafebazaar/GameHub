@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
                 reservedSessionId = sessionId;
             }
         };
-        gameHubBridge.startTournamentMatch(this, callback, "-1", "extra");
+        gameHubBridge.startTournamentMatch(this, callback, "OgMSbLOC", "extra");
     }
 
     public void endTournamentMatch(View view) {
