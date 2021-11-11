@@ -53,12 +53,14 @@ public class GameHubBroadcast {
                 }
 
                 if (callbacks.containsKey(action)) {
+                    Result result = new Result();
                     if (action.equals(IS_LOGIN)) {
                         boolean isLogin = intent.getBooleanExtra("isLogin", false);
-                        Status status  = isLogin ? Status.SUCCESS : Status.LOGIN_CAFEBAZAAR;
-                        callbacks.get(action).call(new Result(status));
+                        result.status = isLogin ? Status.SUCCESS : Status.LOGIN_CAFEBAZAAR;
+                        result.message = isLogin ? "" : "Login to Cafebazaar before!";
+                        callbacks.get(action).call(result);
                     } else {
-                        callbacks.get(action).call(Result.fromBundle(intent.getExtras()));
+                        callbacks.get(action).call(result.setBundle(intent.getExtras()));
                     }
                     callbacks.remove(action);
                 }

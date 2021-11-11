@@ -30,14 +30,13 @@ public class Result {
         this.stackTrace = stackTrace;
     }
 
-    public static Result fromBundle(Bundle extras) {
-        Result result = new Result();
+    public Result setBundle(Bundle extras) {
         if (extras.containsKey("statusCode")) {
-            result.status = Status.fromLevelCode(extras.getInt("statusCode"));
+            status = Status.fromLevelCode(extras.getInt("statusCode"));
             extras.remove("statusCode");
         }
-        result.extras = extras;
-        return result;
+        this.extras = extras;
+        return this;
     }
 
     public void call(IConnectionCallback callback) {
