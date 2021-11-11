@@ -100,7 +100,7 @@ public class GameHubBridge extends AbstractGameHub {
     }
 
     @Override
-    public Result isLogin(Context context, boolean showPrompts) {
+    public void isLogin(Context context, boolean showPrompts, IBroadcastCallback callback) {
         Result result = new Result(Status.SUCCESS, "");
         if (gameHubService == null) {
             result.status = Status.DISCONNECTED;
@@ -109,11 +109,13 @@ public class GameHubBridge extends AbstractGameHub {
         }
         try {
             if (gameHubService.isLogin()) {
-                return result;
+                callback.call(result);
+                return;
             }
             result.message = "Login to Cafebazaar before!";
         } catch (Exception e) {
             e.printStackTrace();
+            result.status = Status.FAILURE;
             result.message = e.getMessage();
             result.stackTrace = Arrays.toString(e.getStackTrace());
         }
@@ -121,93 +123,109 @@ public class GameHubBridge extends AbstractGameHub {
         if (showPrompts) {
             startActionViewIntent(context, "bazaar://login", "com.farsitel.bazaar");
         }
-        return result;
+        callback.call(result);
     }
 
     public void getTournaments(Activity activity, ITournamentsCallback callback) {
+        logger.logDebug("getTournaments");
         if (gameHubService == null) {
             callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
         }
 
-        Bundle resultBundle = null;
+        Result result = new Result();
         try {
-            resultBundle = gameHubService.getTournamentTimes(activity.getPackageName());
+            Bundle resultBundle = gameHubService.getTournamentTimes(activity.getPackageName());
+            result = Result.fromBundle(resultBundle);
         } catch (RemoteException e) {
-            callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), null);
             e.printStackTrace();
+            result.status = Status.FAILURE;
+            result.message = e.getMessage();
+            result.stackTrace = Arrays.toString(e.getStackTrace());
         }
-//        for (String key : Objects.requireNonNull(resultBundle).keySet()) {
-//            logger.logInfo("times  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
-//        }
+        tournamentsCallback(result, callback);
+    }
 
-        int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");
-        if (statusCode != Status.SUCCESS.getLevelCode()) {
-            callback.onFinish(statusCode, "Error on endTournaments method", "", null);
+    void tournamentsCallback(Result result, ITournamentsCallback callback) {
+        if (result.status != Status.SUCCESS) {
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
             return;
         }
 
-        long startAt = resultBundle.containsKey("startTimestamp") ? resultBundle.getLong("startTimestamp") : 0;
-        long endAt = resultBundle.containsKey("endTimestamp") ? resultBundle.getLong("endTimestamp") : 0;
+        long startAt = result.extras.containsKey("startTimestamp") ? result.extras.getLong("startTimestamp") : 0;
+        long endAt = result.extras.containsKey("endTimestamp") ? result.extras.getLong("endTimestamp") : 0;
         List<Tournament> tournaments = new ArrayList<>();
         tournaments.add(new Tournament("-1", "Tournament -1", startAt, endAt));
         callback.onFinish(Status.SUCCESS.getLevelCode(), "Get Tournaments", "", tournaments);
     }
 
     public void startTournamentMatch(Activity activity, ITournamentMatchCallback
-            callback, String matchId, String metaData) {
+            callback, String matchId, String metadata) {
         logger.logDebug("startTournamentMatch");
-        if (gameHubService == null) {
+        if (gameHubService == null && gameHubBroadcast == null) {
             callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
         }
 
-        Bundle resultBundle = null;
+        Result result = new Result();
         try {
-            resultBundle = gameHubService.startTournamentMatch(activity.getPackageName(), matchId, metaData);
+            Bundle bundle = gameHubService.startTournamentMatch(activity.getPackageName(), matchId, metadata);
+            result = Result.fromBundle(bundle);
         } catch (RemoteException e) {
-            callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
             e.printStackTrace();
+            result.status = Status.FAILURE;
+            result.message = e.getMessage();
+            result.stackTrace = Arrays.toString(e.getStackTrace());
         }
-//        for (String key : Objects.requireNonNull(resultBundle).keySet()) {
-//            logger.logInfo("start  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
-//        }
+        startTournamentMatchCallback(result, callback, matchId, metadata);
+    }
 
-        int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");
-        if (statusCode != Status.SUCCESS.getLevelCode()) {
-            callback.onFinish(statusCode, "Error on startTournamentMatch", "", "");
+    void startTournamentMatchCallback(Result result, ITournamentMatchCallback callback, String matchId, String metadata) {
+        for (String key : Objects.requireNonNull(result.extras).keySet()) {
+            logger.logDebug("start  " + key + " : " + (result.extras.get(key) != null ? result.extras.get(key) : "NULL"));
+        }
+
+        if (result.status != Status.SUCCESS) {
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
             return;
         }
-        String sessionId = resultBundle.containsKey("sessionId") ? resultBundle.getString("sessionId") : "sessionId";
-        callback.onFinish(statusCode, sessionId, matchId, metaData);
+        String sessionId = result.extras.containsKey("sessionId") ? result.extras.getString("sessionId") : "sessionId";
+        callback.onFinish(result.status.getLevelCode(), sessionId, matchId, metadata);
     }
 
     public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId,
                                    float score) {
         logger.logDebug("endTournamentMatch");
-        Bundle resultBundle = null;
+        Result result = new Result();
         try {
-            resultBundle = gameHubService.endTournamentMatch(sessionId, score);
+            Bundle bundle = gameHubService.endTournamentMatch(sessionId, score);
+            result = Result.fromBundle(bundle);
         } catch (RemoteException e) {
-            callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), "");
             e.printStackTrace();
+            result.status = Status.FAILURE;
+            result.message = e.getMessage();
+            result.stackTrace = Arrays.toString(e.getStackTrace());
         }
-//        for (String key : Objects.requireNonNull(resultBundle).keySet()) {
-//            logger.logInfo("end  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
-//        }
+        endTournamentMatchCallback(result, callback, sessionId);
+    }
 
-        int statusCode = Objects.requireNonNull(resultBundle).getInt("statusCode");
-        if (statusCode != Status.SUCCESS.getLevelCode()) {
-            callback.onFinish(statusCode, "Error on endTournamentMatch", "", "");
+    void endTournamentMatchCallback(Result result, ITournamentMatchCallback callback, String sessionId) {
+        for (String key : Objects.requireNonNull(result.extras).keySet()) {
+            logger.logDebug("end  " + key + " : " + (result.extras.get(key) != null ? result.extras.get(key) : "NULL"));
+        }
+
+        if (result.status != Status.SUCCESS) {
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
             return;
         }
-        String matchId = resultBundle.containsKey("matchId") ? resultBundle.getString("matchId") : "matchId";
-        String metaData = resultBundle.containsKey("metadata") ? resultBundle.getString("metadata") : "metadata";
-        callback.onFinish(statusCode, sessionId, matchId, metaData);
+        String matchId = result.extras.containsKey("matchId") ? result.extras.getString("matchId") : "matchId";
+        String metaData = result.extras.containsKey("metadata") ? result.extras.getString("metadata") : "metadata";
+        callback.onFinish(result.status.getLevelCode(), sessionId, matchId, metaData);
     }
 
     public void showTournamentRanking(Context context, String tournamentId, IConnectionCallback callback) {
         logger.logDebug("showTournamentRanking");
+
         // Check cafebazaar application version
         connectionState = isCafebazaarInstalled(context, true);
         if (connectionState.status != Status.SUCCESS) {
@@ -216,9 +234,12 @@ public class GameHubBridge extends AbstractGameHub {
         }
 
         // Check login to cafebazaar
-        new Handler(Looper.getMainLooper()).post(() -> {
-            connectionState = isLogin(context, true);
-            if (connectionState.status == Status.SUCCESS) {
+        isLogin(context, true, loginResult -> {
+            if (loginResult.status != Status.SUCCESS) {
+                callback.onFinish(loginResult.status.getLevelCode(), loginResult.message, loginResult.stackTrace);
+                return;
+            }
+
                 connectionState.message = "Last tournament ranking table shown.";
                 String data = "bazaar://tournament_leaderboard?package_name=" + context.getPackageName();
                 logger.logInfo(data);
@@ -227,39 +248,47 @@ public class GameHubBridge extends AbstractGameHub {
                 } catch (Exception e) {
                     callback.onFinish(Status.UPDATE_CAFEBAZAAR.getLevelCode(), "Get Ranking-data needs to new version of CafeBazaar!", Arrays.toString(e.getStackTrace()));
                     return;
-                }
             }
             connectionState.call(callback);
         });
     }
 
     @Override
-    public void getTournamentRanking(Context context, String tournamentId, IRankingCallback callback) {
+    public void getTournamentRanking(Context context, String tournamentId, IRankingCallback
+            callback) {
         logger.logDebug("getTournamentRanking");
-        Bundle resultBundle = null;
+
+        Result result = new Result();
         try {
-            resultBundle = gameHubService.getCurrentLeaderboard(context.getPackageName());
+            Bundle bundle = gameHubService.getCurrentLeaderboard(context.getPackageName());
+            result = Result.fromBundle(bundle);
         } catch (Exception e) {
-            callback.onFinish(Status.FAILURE.getLevelCode(), e.getMessage(), Arrays.toString(e.getStackTrace()), null);
             e.printStackTrace();
+            result.status = Status.FAILURE;
+            result.message = e.getMessage();
+            result.stackTrace = Arrays.toString(e.getStackTrace());
+        }
+        getTournamentRankingCallback(result, callback);
         }
 
-        if (resultBundle == null) {
+    void getTournamentRankingCallback(Result result, IRankingCallback callback) {
+
+        if (result.extras == null) {
             callback.onFinish(Status.UPDATE_CAFEBAZAAR.getLevelCode(), "Get Ranking-data needs to new version of CafeBazaar!", "", null);
             return;
         }
-        for (String key : resultBundle.keySet()) {
-            logger.logInfo("Ranking =>  " + key + " : " + (resultBundle.get(key) != null ? resultBundle.get(key) : "NULL"));
+        for (String key : result.extras.keySet()) {
+            logger.logDebug("Ranking =>  " + key + " : " + (result.extras.get(key) != null ? result.extras.get(key) : "NULL"));
         }
 
-        int statusCode = resultBundle.getInt("statusCode");
-        if (statusCode != Status.SUCCESS.getLevelCode()) {
-            callback.onFinish(statusCode, "Error on getTournamentRanking", "", null);
+        if (result.status != Status.SUCCESS) {
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
             return;
         }
+
         List<RankItem> rankItems = new ArrayList<>();
         JSONArray rankData = null;
-        String jsonString = resultBundle.getString("leaderboardData");
+        String jsonString = result.extras.getString("leaderboardData");
         try {
             rankData = new JSONArray(jsonString);
             for (int i = 0; i < rankData.length(); i++) {
@@ -273,10 +302,10 @@ public class GameHubBridge extends AbstractGameHub {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            callback.onFinish(statusCode, "Error on Ranking data parsing!", "", null);
+            callback.onFinish(Status.FAILURE.getLevelCode(), "Error on Ranking data parsing!", "", null);
             return;
         }
 
-        callback.onFinish(statusCode, "getTournamentRanking", jsonString, rankItems);
+        callback.onFinish(result.status.getLevelCode(), "getTournamentRanking", jsonString, rankItems);
     }
 }
