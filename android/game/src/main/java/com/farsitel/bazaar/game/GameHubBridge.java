@@ -30,7 +30,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -405,5 +404,18 @@ public class GameHubBridge extends AbstractGameHub {
         }
 
         callback.onFinish(result.status.getLevelCode(), "getTournamentRanking", jsonString, rankItems);
+    }
+
+    @Override
+    public boolean disposed() {
+        if (gameHubBroadcast != null) {
+            gameHubBroadcast.dispose();
+        }
+
+        if (executorService != null) {
+            executorService.shutdown();
+        }
+
+        return super.disposed();
     }
 }

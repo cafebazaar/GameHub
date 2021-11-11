@@ -68,4 +68,10 @@ public class MainActivity extends Activity {
             Log.i(Logger.TAG, String.format("getTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
+
+    @Override
+    protected void onDestroy() {
+        gameHubBridge.dispose();
+        super.onDestroy();
+    }
 }

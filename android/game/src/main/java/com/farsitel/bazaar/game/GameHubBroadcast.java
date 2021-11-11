@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
 import com.farsitel.bazaar.game.data.Result;
@@ -123,7 +122,7 @@ public class GameHubBroadcast {
         return mDisposed;
     }
 
-    void dispose(Context context) {
+    void dispose() {
         callbacks.clear();
         mDisposed = true;
     }

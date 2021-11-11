@@ -76,7 +76,7 @@ public abstract class AbstractGameHub {
         return isDispose;
     }
 
-    void dispose() {
+    public void dispose() {
         connectionState.status = Status.DISCONNECTED;
         isDispose = true;
     }

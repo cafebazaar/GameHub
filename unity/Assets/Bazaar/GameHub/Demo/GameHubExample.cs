@@ -30,7 +30,7 @@ public class GameHubExample : MonoBehaviour
 
     public async void StartTournamentMatch()
     {
-        var result = await gameHub.StartTournamentMatch("match_id", "metadata");
+        var result = await gameHub.StartTournamentMatch("OgMSbLOC", "metadata");
         if (result.status == Result.Status.Success)
         {
             reservedSessionId = result.sessionId;
