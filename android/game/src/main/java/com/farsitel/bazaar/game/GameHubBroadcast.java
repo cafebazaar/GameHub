@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
 import com.farsitel.bazaar.game.data.Result;
+import com.farsitel.bazaar.game.data.Status;
 import com.farsitel.bazaar.game.utils.GHLogger;
 
 import java.util.Map;
@@ -52,7 +53,13 @@ public class GameHubBroadcast {
                 }
 
                 if (callbacks.containsKey(action)) {
-                    callbacks.get(action).call(Result.fromBundle(intent.getExtras()));
+                    if (action.equals(IS_LOGIN)) {
+                        boolean isLogin = intent.getBooleanExtra("isLogin", false);
+                        Status status  = isLogin ? Status.SUCCESS : Status.LOGIN_CAFEBAZAAR;
+                        callbacks.get(action).call(new Result(status));
+                    } else {
+                        callbacks.get(action).call(Result.fromBundle(intent.getExtras()));
+                    }
                     callbacks.remove(action);
                 }
             }

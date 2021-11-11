@@ -147,6 +147,12 @@ public class GameHubBridge extends AbstractGameHub {
             return;
         }
 
+        isLogin(activity, false, loginResult -> {
+            if (loginResult.status != Status.SUCCESS) {
+                tournamentsCallback(loginResult, callback);
+                return;
+            }
+
         if (isBroadcastMode) {
             gameHubBroadcast.getTournamentTimes(tournamentResult -> {
                 tournamentsCallback(tournamentResult, callback);
@@ -164,6 +170,7 @@ public class GameHubBridge extends AbstractGameHub {
             result.stackTrace = Arrays.toString(e.getStackTrace());
         }
         tournamentsCallback(result, callback);
+        });
     }
 
     void tournamentsCallback(Result result, ITournamentsCallback callback) {
@@ -188,6 +195,11 @@ public class GameHubBridge extends AbstractGameHub {
             callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
         }
+        isLogin(activity, false, loginResult -> {
+            if (loginResult.status != Status.SUCCESS) {
+                startTournamentMatchCallback(loginResult, callback, matchId, metadata);
+                return;
+            }
 
         if (isBroadcastMode) {
             gameHubBroadcast.startTournamentMatch(matchId, metadata, startResult -> {
@@ -206,6 +218,7 @@ public class GameHubBridge extends AbstractGameHub {
             result.stackTrace = Arrays.toString(e.getStackTrace());
         }
         startTournamentMatchCallback(result, callback, matchId, metadata);
+        });
     }
 
     void startTournamentMatchCallback(Result result, ITournamentMatchCallback callback, String matchId, String metadata) {
@@ -295,6 +308,11 @@ public class GameHubBridge extends AbstractGameHub {
             callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
         }
+        isLogin(context, false, loginResult -> {
+            if (loginResult.status != Status.SUCCESS) {
+                getTournamentRankingCallback(loginResult, callback);
+                return;
+            }
 
         if (isBroadcastMode) {
             gameHubBroadcast.getCurrentLeaderboard(rankResult -> {
@@ -313,6 +331,7 @@ public class GameHubBridge extends AbstractGameHub {
             result.stackTrace = Arrays.toString(e.getStackTrace());
         }
         getTournamentRankingCallback(result, callback);
+        });
         }
 
     void getTournamentRankingCallback(Result result, IRankingCallback callback) {

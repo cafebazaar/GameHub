@@ -8,11 +8,15 @@ import java.util.Objects;
 
 public class Result {
     public Status status;
-    public String message;
+    public String message = "";
     public String stackTrace = "";
     public Bundle extras;
 
     public Result() {
+    }
+
+    public Result(Status status) {
+        this.status = status;
     }
 
     public Result(Status status, String message) {
