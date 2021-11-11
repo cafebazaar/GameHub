@@ -297,12 +297,14 @@ public class GameHubBridge extends AbstractGameHub {
         }
 
         List<RankItem> rankItems = new ArrayList<>();
-        JSONArray rankData = null;
+        JSONArray participants = null;
         String jsonString = result.extras.getString("leaderboardData");
         try {
-            rankData = new JSONArray(jsonString);
-            for (int i = 0; i < rankData.length(); i++) {
-                JSONObject obj = rankData.getJSONObject(i);
+            JSONObject jsonObject = new JSONObject(jsonString);
+            participants = jsonObject.optJSONArray("participants");
+            int participantsCount = participants != null ? participants.length() : 0;
+            for (int i = 0; i < participantsCount; i++) {
+                JSONObject obj = participants.getJSONObject(i);
                 rankItems.add(new RankItem(obj.getString("nickname"),
                         obj.getString("score"),
                         obj.getString("award"),

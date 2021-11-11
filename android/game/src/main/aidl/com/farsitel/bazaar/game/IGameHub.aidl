@@ -10,5 +10,7 @@ interface IGameHub {
 
     Bundle endTournamentMatch(String sessionId, float score);
 
+    Bundle getLeaderboard(int tournamentId);
+
     Bundle getCurrentLeaderboard(String packagename);
 }
