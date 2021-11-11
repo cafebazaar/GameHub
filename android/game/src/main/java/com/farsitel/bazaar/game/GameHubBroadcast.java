@@ -10,7 +10,7 @@ import android.util.Log;
 import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
-import com.farsitel.bazaar.game.utils.GHLogger;
+import com.farsitel.bazaar.game.utils.Logger;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -22,14 +22,14 @@ public class GameHubBroadcast {
     public static final String END_TOURNAMENT_MATCH = "com.farsitel.bazaar.endTournamentMatch";
     public static final String GET_CURRENT_LEADERBOARD_DATA = "com.farsitel.bazaar.getCurrentLeaderboardData";
 
-    private final GHLogger logger;
+    private final Logger logger;
     private final Context context;
     private Map<String, IBroadcastCallback> callbacks = new WeakHashMap<>();
 
     private boolean mDisposed;
     private BroadcastReceiver receiver;
 
-    GameHubBroadcast(Context context, GHLogger logger) {
+    GameHubBroadcast(Context context, Logger logger) {
         this.context = context;
         this.logger = logger;
         createReceiver();

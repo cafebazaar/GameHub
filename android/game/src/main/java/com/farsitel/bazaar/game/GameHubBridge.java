@@ -18,7 +18,7 @@ import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentsCallback;
 import com.farsitel.bazaar.game.data.RankItem;
 import com.farsitel.bazaar.game.data.Tournament;
-import com.farsitel.bazaar.game.utils.GHLogger;
+import com.farsitel.bazaar.game.utils.Logger;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
 import com.farsitel.bazaar.game.utils.MainThread;
@@ -44,7 +44,7 @@ public class GameHubBridge extends AbstractGameHub {
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public GameHubBridge() {
-        super(new GHLogger());
+        super(new Logger());
     }
 
     public static GameHubBridge getInstance() {

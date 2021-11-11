@@ -2,17 +2,16 @@ package com.farsitel.bazaar.game.utils;
 
 import android.util.Log;
 
-public class GHLogger {
+public class Logger {
 
     public static String TAG = "GameHub";
-    public static boolean debugMode = true;
 
     public void logInfo(String msg) {
-        if (debugMode) Log.i(TAG, msg);
+        Log.i(TAG, msg);
     }
 
     public void logDebug(String msg) {
-        if (debugMode) Log.d(TAG, msg);
+        Log.d(TAG, msg);
     }
 
     public void logError(String msg) {

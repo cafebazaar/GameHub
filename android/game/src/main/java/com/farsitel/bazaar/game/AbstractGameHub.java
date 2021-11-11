@@ -11,7 +11,7 @@ import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.IRankingCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentsCallback;
-import com.farsitel.bazaar.game.utils.GHLogger;
+import com.farsitel.bazaar.game.utils.Logger;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
 
@@ -19,16 +19,12 @@ public abstract class AbstractGameHub {
 
     static final int MINIMUM_BAZAAR_VERSION = 1400700;
 
-    GHLogger logger;
-    boolean isDispose = false;
+    Logger logger;
     Result connectionState;
+    boolean isDispose = false;
 
-    public AbstractGameHub(GHLogger logger) {
+    public AbstractGameHub(Logger logger) {
         this.logger = logger;
-    }
-
-    public GHLogger getLogger() {
-        return logger;
     }
 
     Result isCafebazaarInstalled(Context context, boolean showPrompts) {
