@@ -16,6 +16,25 @@ public enum Status {
         this.levelCode = levelCode;
     }
 
+    public static Status fromLevelCode(int levelCode) {
+        switch (levelCode) {
+            case -1:
+                return FAILURE;
+            case 0:
+                return SUCCESS;
+            case 1:
+                return DISCONNECTED;
+            case 3:
+                return LOGIN_CAFEBAZAAR;
+            case 4:
+                return UPDATE_CAFEBAZAAR;
+            case 5:
+                return INSTALL_CAFEBAZAAR;
+            default:
+                return UNKNOWN;
+        }
+    }
+
     public int getLevelCode() {
         return this.levelCode;
     }

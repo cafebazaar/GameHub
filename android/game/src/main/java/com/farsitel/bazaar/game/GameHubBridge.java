@@ -12,6 +12,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
+import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
 import com.farsitel.bazaar.game.callbacks.IRankingCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentsCallback;
@@ -34,8 +35,10 @@ import java.util.Objects;
 public class GameHubBridge extends AbstractGameHub {
     private static GameHubBridge instance;
 
-    private ServiceConnection gameHubConnection;
     private IGameHub gameHubService;
+    private ServiceConnection gameHubConnection;
+    private GameHubBroadcast gameHubBroadcast;
+    private boolean isBroadcastMode;
 
     public GameHubBridge() {
         super(new GHLogger());
@@ -96,7 +99,10 @@ public class GameHubBridge extends AbstractGameHub {
         List<ResolveInfo> intentServices = pm.queryIntentServices(serviceIntent, 0);
         if (!intentServices.isEmpty()) {
             // service available to handle that Intent
-            context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
+            isBroadcastMode = !context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
+            if (isBroadcastMode) {
+                gameHubBroadcast = new GameHubBroadcast(context, logger);
+            }
         }
     }
 
@@ -109,6 +115,12 @@ public class GameHubBridge extends AbstractGameHub {
             callback.call(result);
             return;
         }
+
+        if (isBroadcastMode) {
+            gameHubBroadcast.isLogin(callback);
+            return;
+        }
+
         try {
             if (gameHubService.isLogin()) {
                 callback.call(result);
@@ -135,6 +147,12 @@ public class GameHubBridge extends AbstractGameHub {
             return;
         }
 
+        if (isBroadcastMode) {
+            gameHubBroadcast.getTournamentTimes(tournamentResult -> {
+                tournamentsCallback(tournamentResult, callback);
+            });
+            return;
+        }
         Result result = new Result();
         try {
             Bundle resultBundle = gameHubService.getTournamentTimes(activity.getPackageName());
@@ -171,6 +189,12 @@ public class GameHubBridge extends AbstractGameHub {
             return;
         }
 
+        if (isBroadcastMode) {
+            gameHubBroadcast.startTournamentMatch(matchId, metadata, startResult -> {
+                startTournamentMatchCallback(startResult, callback, matchId, metadata);
+            });
+            return;
+        }
         Result result = new Result();
         try {
             Bundle bundle = gameHubService.startTournamentMatch(activity.getPackageName(), matchId, metadata);
@@ -200,6 +224,12 @@ public class GameHubBridge extends AbstractGameHub {
         logger.logDebug("Call endTournamentMatch");
         if (gameHubService == null && gameHubBroadcast == null) {
             callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+            return;
+        }
+        if (isBroadcastMode) {
+            gameHubBroadcast.endTournamentMatch(sessionId, score, endResult -> {
+                endTournamentMatchCallback(endResult, callback, sessionId);
+            });
             return;
         }
         Result result = new Result();
@@ -266,6 +296,12 @@ public class GameHubBridge extends AbstractGameHub {
             return;
         }
 
+        if (isBroadcastMode) {
+            gameHubBroadcast.getCurrentLeaderboard(rankResult -> {
+                getTournamentRankingCallback(rankResult, callback);
+            });
+            return;
+        }
         Result result = new Result();
         try {
             Bundle bundle = gameHubService.getCurrentLeaderboard(context.getPackageName());
