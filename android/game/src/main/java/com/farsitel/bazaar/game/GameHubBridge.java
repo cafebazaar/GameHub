@@ -8,9 +8,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
@@ -22,6 +20,7 @@ import com.farsitel.bazaar.game.data.Tournament;
 import com.farsitel.bazaar.game.utils.GHLogger;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
+import com.farsitel.bazaar.game.utils.MainThread;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,11 +77,13 @@ public class GameHubBridge extends AbstractGameHub {
                 connectionState.status = Status.SUCCESS;
                 MainThread.run(() -> {
                     // Check login to cafebazaar
-                    connectionState = isLogin(context, showPrompts);
+                    isLogin(context, showPrompts, result -> {
+                        connectionState = result;
                     if (connectionState.status == Status.SUCCESS) {
                         connectionState.message = "GameHub service connected.";
                         connectionState.call(callback);
                     }
+                });
                 });
             }
         };
@@ -102,10 +103,11 @@ public class GameHubBridge extends AbstractGameHub {
     @Override
     public void isLogin(Context context, boolean showPrompts, IBroadcastCallback callback) {
         Result result = new Result(Status.SUCCESS, "");
-        if (gameHubService == null) {
+        if (gameHubService == null && gameHubBroadcast == null) {
             result.status = Status.DISCONNECTED;
             result.message = "Connect to service before!";
-            return result;
+            callback.call(result);
+            return;
         }
         try {
             if (gameHubService.isLogin()) {
@@ -128,7 +130,7 @@ public class GameHubBridge extends AbstractGameHub {
 
     public void getTournaments(Activity activity, ITournamentsCallback callback) {
         logger.logDebug("getTournaments");
-        if (gameHubService == null) {
+        if (gameHubService == null && gameHubBroadcast == null) {
             callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
         }
@@ -196,6 +198,10 @@ public class GameHubBridge extends AbstractGameHub {
     public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId,
                                    float score) {
         logger.logDebug("endTournamentMatch");
+        if (gameHubService == null && gameHubBroadcast == null) {
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+            return;
+        }
         Result result = new Result();
         try {
             Bundle bundle = gameHubService.endTournamentMatch(sessionId, score);
@@ -257,6 +263,10 @@ public class GameHubBridge extends AbstractGameHub {
     public void getTournamentRanking(Context context, String tournamentId, IRankingCallback
             callback) {
         logger.logDebug("getTournamentRanking");
+        if (gameHubService == null && gameHubBroadcast == null) {
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+            return;
+        }
 
         Result result = new Result();
         try {
