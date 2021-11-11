@@ -49,31 +49,6 @@ public class GameHubBridge extends AbstractGameHub {
         return instance;
     }
 
-    @Override
-    public Result isLogin(Context context, boolean showPrompts) {
-        Result result = new Result(Status.SUCCESS, "");
-        if (gameHubService == null) {
-            result.status = Status.DISCONNECTED;
-            result.message = "Connect to service before!";
-            return result;
-        }
-        try {
-            if (gameHubService.isLogin()) {
-                return result;
-            }
-            result.message = "Login to Cafebazaar before!";
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.message = e.getMessage();
-            result.stackTrace = Arrays.toString(e.getStackTrace());
-        }
-        result.status = Status.LOGIN_CAFEBAZAAR;
-        if (showPrompts) {
-            startActionViewIntent(context, "bazaar://login", "com.farsitel.bazaar");
-        }
-        return result;
-    }
-
     public String getVersion() {
         return BuildConfig.GAMEHUB_VERSION;
     }
@@ -124,6 +99,30 @@ public class GameHubBridge extends AbstractGameHub {
         }
     }
 
+    @Override
+    public Result isLogin(Context context, boolean showPrompts) {
+        Result result = new Result(Status.SUCCESS, "");
+        if (gameHubService == null) {
+            result.status = Status.DISCONNECTED;
+            result.message = "Connect to service before!";
+            return result;
+        }
+        try {
+            if (gameHubService.isLogin()) {
+                return result;
+            }
+            result.message = "Login to Cafebazaar before!";
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.message = e.getMessage();
+            result.stackTrace = Arrays.toString(e.getStackTrace());
+        }
+        result.status = Status.LOGIN_CAFEBAZAAR;
+        if (showPrompts) {
+            startActionViewIntent(context, "bazaar://login", "com.farsitel.bazaar");
+        }
+        return result;
+    }
 
     public void getTournaments(Activity activity, ITournamentsCallback callback) {
         if (gameHubService == null) {
