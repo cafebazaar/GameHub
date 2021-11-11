@@ -76,7 +76,7 @@ public class GameHubBridge extends AbstractGameHub {
                 logger.logDebug("GameHub service connected.");
                 gameHubService = IGameHub.Stub.asInterface(service);
                 connectionState.status = Status.SUCCESS;
-                new Handler(Looper.getMainLooper()).post(() -> {
+                MainThread.run(() -> {
                     // Check login to cafebazaar
                     connectionState = isLogin(context, showPrompts);
                     if (connectionState.status == Status.SUCCESS) {
