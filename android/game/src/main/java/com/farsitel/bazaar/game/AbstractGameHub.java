@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
 
+import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.IRankingCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
@@ -52,7 +53,7 @@ public abstract class AbstractGameHub {
         return new Result(Status.SUCCESS, "");
     }
 
-    abstract Result isLogin(Context context, boolean showPrompts);
+    abstract void isLogin(Context context, boolean showPrompts, IBroadcastCallback callback);
 
     void startActionViewIntent(Context context, String uri, String packageName) {
         Intent intent = new Intent(Intent.ACTION_VIEW);

@@ -129,7 +129,7 @@ public class GameHubBridge extends AbstractGameHub {
     }
 
     public void getTournaments(Activity activity, ITournamentsCallback callback) {
-        logger.logDebug("getTournaments");
+        logger.logDebug("Call getTournaments");
         if (gameHubService == null && gameHubBroadcast == null) {
             callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
@@ -149,6 +149,8 @@ public class GameHubBridge extends AbstractGameHub {
     }
 
     void tournamentsCallback(Result result, ITournamentsCallback callback) {
+        logger.logDebug("Tournaments: " + result.toString());
+
         if (result.status != Status.SUCCESS) {
             callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
             return;
@@ -163,7 +165,7 @@ public class GameHubBridge extends AbstractGameHub {
 
     public void startTournamentMatch(Activity activity, ITournamentMatchCallback
             callback, String matchId, String metadata) {
-        logger.logDebug("startTournamentMatch");
+        logger.logDebug("Call startTournamentMatch");
         if (gameHubService == null && gameHubBroadcast == null) {
             callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
@@ -183,9 +185,7 @@ public class GameHubBridge extends AbstractGameHub {
     }
 
     void startTournamentMatchCallback(Result result, ITournamentMatchCallback callback, String matchId, String metadata) {
-        for (String key : Objects.requireNonNull(result.extras).keySet()) {
-            logger.logDebug("start  " + key + " : " + (result.extras.get(key) != null ? result.extras.get(key) : "NULL"));
-        }
+        logger.logDebug("Start: " + result.toString());
 
         if (result.status != Status.SUCCESS) {
             callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
@@ -197,7 +197,7 @@ public class GameHubBridge extends AbstractGameHub {
 
     public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId,
                                    float score) {
-        logger.logDebug("endTournamentMatch");
+        logger.logDebug("Call endTournamentMatch");
         if (gameHubService == null && gameHubBroadcast == null) {
             callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
@@ -216,9 +216,7 @@ public class GameHubBridge extends AbstractGameHub {
     }
 
     void endTournamentMatchCallback(Result result, ITournamentMatchCallback callback, String sessionId) {
-        for (String key : Objects.requireNonNull(result.extras).keySet()) {
-            logger.logDebug("end  " + key + " : " + (result.extras.get(key) != null ? result.extras.get(key) : "NULL"));
-        }
+        logger.logDebug("End: " + result.toString());
 
         if (result.status != Status.SUCCESS) {
             callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
@@ -230,7 +228,7 @@ public class GameHubBridge extends AbstractGameHub {
     }
 
     public void showTournamentRanking(Context context, String tournamentId, IConnectionCallback callback) {
-        logger.logDebug("showTournamentRanking");
+        logger.logDebug("Call showTournamentRanking");
 
         // Check cafebazaar application version
         connectionState = isCafebazaarInstalled(context, true);
@@ -262,7 +260,7 @@ public class GameHubBridge extends AbstractGameHub {
     @Override
     public void getTournamentRanking(Context context, String tournamentId, IRankingCallback
             callback) {
-        logger.logDebug("getTournamentRanking");
+        logger.logDebug("Call getTournamentRanking");
         if (gameHubService == null && gameHubBroadcast == null) {
             callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
@@ -287,9 +285,7 @@ public class GameHubBridge extends AbstractGameHub {
             callback.onFinish(Status.UPDATE_CAFEBAZAAR.getLevelCode(), "Get Ranking-data needs to new version of CafeBazaar!", "", null);
             return;
         }
-        for (String key : result.extras.keySet()) {
-            logger.logDebug("Ranking =>  " + key + " : " + (result.extras.get(key) != null ? result.extras.get(key) : "NULL"));
-        }
+        logger.logDebug("Ranking: " + result.toString());
 
         if (result.status != Status.SUCCESS) {
             callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
