@@ -3,8 +3,9 @@ package com.farsitel.bazaar.game.data;
 import android.os.Bundle;
 
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
-
-import java.util.Objects;
+import com.farsitel.bazaar.game.callbacks.IRankingCallback;
+import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
+import com.farsitel.bazaar.game.callbacks.ITournamentsCallback;
 
 public class Result {
     public Status status;
@@ -41,6 +42,18 @@ public class Result {
 
     public void call(IConnectionCallback callback) {
         callback.onFinish(status.getLevelCode(), message, stackTrace);
+    }
+
+    public void call(ITournamentsCallback callback) {
+        callback.onFinish(status.getLevelCode(), message, stackTrace, null);
+    }
+
+    public void call(ITournamentMatchCallback callback) {
+        callback.onFinish(status.getLevelCode(), message, stackTrace, null);
+    }
+
+    public void call(IRankingCallback callback) {
+        callback.onFinish(status.getLevelCode(), message, stackTrace, null);
     }
 
     @Override

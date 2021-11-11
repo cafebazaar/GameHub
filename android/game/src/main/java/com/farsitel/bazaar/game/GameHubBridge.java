@@ -37,10 +37,10 @@ import java.util.concurrent.Executors;
 public class GameHubBridge extends AbstractGameHub {
     private static GameHubBridge instance;
 
-    private IGameHub gameHubService;
-    private ServiceConnection gameHubConnection;
-    private GameHubBroadcast gameHubBroadcast;
     private boolean isBroadcastMode;
+    private IGameHub gameHubService;
+    private GameHubBroadcast gameHubBroadcast;
+    private ServiceConnection gameHubConnection;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public GameHubBridge() {
@@ -60,11 +60,13 @@ public class GameHubBridge extends AbstractGameHub {
 
     @Override
     public void connect(Context context, boolean showPrompts, IConnectionCallback callback) {
+        // Check player has CafeBazaar app or  it`s already updated to the latest version
         connectionState = isCafebazaarInstalled(context, showPrompts);
         if (connectionState.status != Status.SUCCESS) {
             connectionState.call(callback);
             return;
         }
+        
         logger.logDebug("GameHub service started.");
         gameHubConnection = new ServiceConnection() {
             @Override
@@ -101,11 +103,15 @@ public class GameHubBridge extends AbstractGameHub {
         if (!intentServices.isEmpty()) {
             // service available to handle that Intent
             isBroadcastMode = !context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
-            isBroadcastMode = true;
             if (isBroadcastMode) {
                 gameHubBroadcast = new GameHubBroadcast(context, logger);
             }
         }
+    }
+
+    public Result areServicesAvailable() {
+        boolean isAvailable = gameHubService != null || gameHubBroadcast != null;
+        return new Result(isAvailable ? Status.SUCCESS : Status.DISCONNECTED, isAvailable ? "" : "Connect to service before!");
     }
 
     @Override
@@ -147,12 +153,17 @@ public class GameHubBridge extends AbstractGameHub {
 
     public void getTournaments(Activity activity, ITournamentsCallback callback) {
         logger.logDebug("Call getTournaments");
-        if (gameHubService == null && gameHubBroadcast == null) {
-            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+
+
+        // Check one of services is connected
+        Result serviceResult = areServicesAvailable();
+        if (serviceResult.status != Status.SUCCESS) {
+            serviceResult.call(callback);
             return;
         }
 
-        isLogin(activity, false, loginResult -> {
+        // Check player is already logged-in
+       isLogin(activity, false, loginResult -> {
             if (loginResult.status != Status.SUCCESS) {
                 tournamentsCallback(loginResult, callback);
                 return;
@@ -200,10 +211,15 @@ public class GameHubBridge extends AbstractGameHub {
     public void startTournamentMatch(Activity activity, ITournamentMatchCallback
             callback, String matchId, String metadata) {
         logger.logDebug("Call startTournamentMatch");
-        if (gameHubService == null && gameHubBroadcast == null) {
-            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+
+        // Check one of services is connected
+        Result serviceResult = areServicesAvailable();
+        if (serviceResult.status != Status.SUCCESS) {
+            serviceResult.call(callback);
             return;
         }
+
+        // Check player is already logged-in
         isLogin(activity, false, loginResult -> {
             if (loginResult.status != Status.SUCCESS) {
                 startTournamentMatchCallback(loginResult, callback, matchId, metadata);
@@ -246,8 +262,11 @@ public class GameHubBridge extends AbstractGameHub {
     public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId,
                                    float score) {
         logger.logDebug("Call endTournamentMatch");
-        if (gameHubService == null && gameHubBroadcast == null) {
-            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+
+        // Check one of services is connected
+        Result serviceResult = areServicesAvailable();
+        if (serviceResult.status != Status.SUCCESS) {
+            serviceResult.call(callback);
             return;
         }
 
@@ -287,14 +306,14 @@ public class GameHubBridge extends AbstractGameHub {
     public void showTournamentRanking(Context context, String tournamentId, IConnectionCallback callback) {
         logger.logDebug("Call showTournamentRanking");
 
-        // Check cafebazaar application version
+        // Check player has CafeBazaar app or  it`s already updated to the latest version
         connectionState = isCafebazaarInstalled(context, true);
         if (connectionState.status != Status.SUCCESS) {
             connectionState.call(callback);
             return;
         }
 
-        // Check login to cafebazaar
+        // Check player is already logged-in
         isLogin(context, true, loginResult -> {
             if (loginResult.status != Status.SUCCESS) {
                 callback.onFinish(loginResult.status.getLevelCode(), loginResult.message, loginResult.stackTrace);
@@ -318,11 +337,15 @@ public class GameHubBridge extends AbstractGameHub {
     public void getTournamentRanking(Context context, String tournamentId, IRankingCallback
             callback) {
         logger.logDebug("Call getTournamentRanking");
-        if (gameHubService == null && gameHubBroadcast == null) {
-            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+
+        // Check one of services is connected
+        Result serviceResult = areServicesAvailable();
+        if (serviceResult.status != Status.SUCCESS) {
+            serviceResult.call(callback);
             return;
         }
-        
+
+        // Check player is already logged-in
         isLogin(context, false, loginResult -> {
             if (loginResult.status != Status.SUCCESS) {
                 getTournamentRankingCallback(loginResult, callback);
