@@ -109,7 +109,7 @@ public class GameHubBridge {
         }
 
         logger.logDebug("GameHub service started.");
-        gameHubConnection = new ServiceConnection() {
+        ServiceConnection gameHubConnection = new ServiceConnection() {
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 logger.logDebug("GameHub service disconnected.");
@@ -137,7 +137,7 @@ public class GameHubBridge {
 
         // Bind to bazaar game hub
         Intent serviceIntent = new Intent("com.farsitel.bazaar.Game.BIND");
-        serviceIntent.setPackage(BAZAAR_PACKAGE_NAME);
+        serviceIntent.setPackage(Constant.BAZAAR_PACKAGE_NAME);
 
         PackageManager pm = context.getPackageManager();
         List<ResolveInfo> intentServices = pm.queryIntentServices(serviceIntent, 0);
@@ -185,15 +185,14 @@ public class GameHubBridge {
             MainThread.run(() -> {
                 callback.call(result);
                 if (showPrompts) {
-                    startActionViewIntent(context, "bazaar://login", BAZAAR_PACKAGE_NAME);
+                    startActionViewIntent(context, Constant.BAZAAR_LOGIN_URL, Constant.BAZAAR_PACKAGE_NAME);
                 }
             });
         });
     }
 
     public void getTournaments(Activity activity, ITournamentsCallback callback) {
-        logger.logDebug("Call getTournaments");
-
+        logger.logDebug("Call " + Method.GET_TOURNAMENTS);
 
         // Check one of services is connected
         Result serviceResult = areServicesAvailable();
@@ -241,8 +240,8 @@ public class GameHubBridge {
             return;
         }
 
-        long startAt = result.extras.containsKey(ParamNames.START_TIMESTAMP) ? result.extras.getLong(ParamNames.START_TIMESTAMP) : 0;
-        long endAt = result.extras.containsKey(ParamNames.END_TIMESTAMP) ? result.extras.getLong(ParamNames.END_TIMESTAMP) : 0;
+        long startAt = result.extras.containsKey(Param.START_TIMESTAMP) ? result.extras.getLong(Param.START_TIMESTAMP) : 0;
+        long endAt = result.extras.containsKey(Param.END_TIMESTAMP) ? result.extras.getLong(Param.END_TIMESTAMP) : 0;
         List<Tournament> tournaments = new ArrayList<>();
         tournaments.add(new Tournament("-1", "Tournament -1", startAt, endAt));
         callback.onFinish(Status.SUCCESS.getLevelCode(), "Get Tournaments", "", tournaments);
@@ -250,7 +249,7 @@ public class GameHubBridge {
 
     public void startTournamentMatch(Activity activity, ITournamentMatchCallback
             callback, String matchId, String metadata) {
-        logger.logDebug("Call startTournamentMatch");
+        logger.logDebug("Call " + Method.START_TOURNAMENT_MATCH);
 
         // Check one of services is connected
         Result serviceResult = areServicesAvailable();
@@ -295,13 +294,13 @@ public class GameHubBridge {
             callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
             return;
         }
-        String sessionId = result.extras.containsKey(ParamNames.SESSION_ID) ? result.extras.getString(ParamNames.SESSION_ID) : ParamNames.SESSION_ID;
+        String sessionId = result.extras.containsKey(Param.SESSION_ID) ? result.extras.getString(Param.SESSION_ID) : Param.SESSION_ID;
         callback.onFinish(result.status.getLevelCode(), sessionId, matchId, metadata);
     }
 
     public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId,
                                    float score) {
-        logger.logDebug("Call endTournamentMatch");
+        logger.logDebug("Call " + Method.END_TOURNAMENT_MATCH);
 
         // Check one of services is connected
         Result serviceResult = areServicesAvailable();
@@ -338,8 +337,8 @@ public class GameHubBridge {
             callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
             return;
         }
-        String matchId = result.extras.containsKey(ParamNames.MATCH_ID) ? result.extras.getString(ParamNames.MATCH_ID) : ParamNames.MATCH_ID;
-        String metaData = result.extras.containsKey(ParamNames.META_DATA) ? result.extras.getString(ParamNames.META_DATA) : ParamNames.META_DATA;
+        String matchId = result.extras.containsKey(Param.MATCH_ID) ? result.extras.getString(Param.MATCH_ID) : Param.MATCH_ID;
+        String metaData = result.extras.containsKey(Param.META_DATA) ? result.extras.getString(Param.META_DATA) : Param.META_DATA;
         callback.onFinish(result.status.getLevelCode(), sessionId, matchId, metaData);
     }
 
@@ -361,10 +360,10 @@ public class GameHubBridge {
             }
 
             connectionState.message = "Last tournament ranking table shown.";
-            String data = "bazaar://tournament_leaderboard?package_name=" + context.getPackageName();
+            String data = Constant.BAZAAR_TOURNAMENT_URL + context.getPackageName();
             logger.logInfo(data);
             try {
-                startActionViewIntent(context, data, BAZAAR_PACKAGE_NAME);
+                startActionViewIntent(context, data, Constant.BAZAAR_PACKAGE_NAME);
             } catch (Exception e) {
                 callback.onFinish(Status.UPDATE_CAFEBAZAAR.getLevelCode(), "Get Ranking-data needs to new version of CafeBazaar!", Arrays.toString(e.getStackTrace()));
                 return;
@@ -422,20 +421,19 @@ public class GameHubBridge {
         }
 
         List<RankItem> rankItems = new ArrayList<>();
-        JSONArray participants = null;
-        String jsonString = result.extras.getString(ParamNames.LEADERBOARD_DATA);
+        String jsonString = result.extras.getString(Key.LEADERBOARD_DATA);
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
-            participants = jsonObject.optJSONArray(ParamNames.PARTICIPANTS);
+            JSONArray participants = jsonObject.optJSONArray(Key.PARTICIPANTS);
             int participantsCount = participants != null ? participants.length() : 0;
             for (int i = 0; i < participantsCount; i++) {
                 JSONObject obj = participants.getJSONObject(i);
-                rankItems.add(new RankItem(obj.getString(ParamNames.NICKNAME),
-                        obj.getString(ParamNames.SCORE),
-                        obj.getString(ParamNames.AWARD),
-                        obj.getBoolean(ParamNames.HAS_FOLLOWING_ELLIPSIS),
-                        obj.getBoolean(ParamNames.IS_CURRENT_USER),
-                        obj.getBoolean(ParamNames.IS_WINNER)));
+                rankItems.add(new RankItem(obj.getString(Key.NICKNAME),
+                        obj.getString(Key.SCORE),
+                        obj.getString(Key.AWARD),
+                        obj.getBoolean(Key.HAS_FOLLOWING_ELLIPSIS),
+                        obj.getBoolean(Key.IS_CURRENT_USER),
+                        obj.getBoolean(Key.IS_WINNER)));
             }
         } catch (JSONException e) {
             e.printStackTrace();

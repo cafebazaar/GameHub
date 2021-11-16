@@ -7,24 +7,25 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 
 import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
+import com.farsitel.bazaar.game.constants.Constant;
+import com.farsitel.bazaar.game.constants.Method;
+import com.farsitel.bazaar.game.constants.Param;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
 import com.farsitel.bazaar.game.utils.Logger;
-import com.farsitel.bazaar.game.utils.ParamNames;
 
 import java.util.Map;
 import java.util.WeakHashMap;
 
 public class GameHubBroadcast {
-    public static final String IS_LOGIN = "com.farsitel.bazaar.isLogin";
-    public static final String GET_TOURNAMENTS = "com.farsitel.bazaar.getTournamentTimes";
-    public static final String START_TOURNAMENT_MATCH = "com.farsitel.bazaar.startTournamentMatch";
-    public static final String END_TOURNAMENT_MATCH = "com.farsitel.bazaar.endTournamentMatch";
-    public static final String GET_CURRENT_LEADERBOARD_DATA = "com.farsitel.bazaar.getCurrentLeaderboardData";
 
     private final Logger logger;
     private final Context context;
-    private Map<String, IBroadcastCallback> callbacks = new WeakHashMap<>();
+    private final Map<String, IBroadcastCallback> callbacks = new WeakHashMap<>();
+
+    private static String getAction(String methodName) {
+        return Constant.BAZAAR_PACKAGE_NAME + "." + methodName;
+    }
 
     private boolean mDisposed;
     private BroadcastReceiver receiver;
@@ -54,8 +55,8 @@ public class GameHubBroadcast {
 
                 if (callbacks.containsKey(action)) {
                     Result result = new Result();
-                    if (action.equals(IS_LOGIN)) {
-                        boolean isLogin = intent.getBooleanExtra(ParamNames.IS_LOGIN, false);
+                    if (action.equals(getAction(Method.IS_LOGIN))) {
+                        boolean isLogin = intent.getBooleanExtra(Method.IS_LOGIN, false);
                         result.status = isLogin ? Status.SUCCESS : Status.LOGIN_CAFEBAZAAR;
                         result.message = isLogin ? "" : "Login to Cafebazaar before!";
                         callbacks.get(action).call(result);
@@ -70,53 +71,53 @@ public class GameHubBroadcast {
 
     private void registerBroadcast(Context context) {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(IS_LOGIN);
-        intentFilter.addAction(GET_TOURNAMENTS);
-        intentFilter.addAction(START_TOURNAMENT_MATCH);
-        intentFilter.addAction(END_TOURNAMENT_MATCH);
-        intentFilter.addAction(GET_CURRENT_LEADERBOARD_DATA);
+        intentFilter.addAction(getAction(Method.IS_LOGIN));
+        intentFilter.addAction(getAction(Method.GET_TOURNAMENTS));
+        intentFilter.addAction(getAction(Method.START_TOURNAMENT_MATCH));
+        intentFilter.addAction(getAction(Method.END_TOURNAMENT_MATCH));
+        intentFilter.addAction(getAction(Method.GET_CURRENT_LEADERBOARD_DATA));
         context.registerReceiver(receiver, intentFilter);
     }
 
     private void sendBroadcast(String action, Bundle extras) {
-        extras.putString(ParamNames.PACKAGE_NAME, context.getPackageName());
+        extras.putString(Param.PACKAGE_NAME, context.getPackageName());
 
         Intent broadcastIntent = new Intent();
-        broadcastIntent.setPackage(AbstractGameHub.BAZAAR_PACKAGE_NAME);
+        broadcastIntent.setPackage(Constant.BAZAAR_PACKAGE_NAME);
         broadcastIntent.putExtras(extras);
         broadcastIntent.setAction(action);
         context.sendBroadcast(broadcastIntent);
     }
 
     public void isLogin(IBroadcastCallback callback) {
-        callbacks.put(IS_LOGIN, callback);
-        sendBroadcast(IS_LOGIN, new Bundle());
+        callbacks.put(getAction(Method.IS_LOGIN), callback);
+        sendBroadcast(getAction(Method.IS_LOGIN), new Bundle());
     }
 
     public void getTournamentTimes(IBroadcastCallback callback) {
-        callbacks.put(GET_TOURNAMENTS, callback);
-        sendBroadcast(GET_TOURNAMENTS, new Bundle());
+        callbacks.put(getAction(Method.GET_TOURNAMENTS), callback);
+        sendBroadcast(getAction(Method.GET_TOURNAMENTS), new Bundle());
     }
 
     public void startTournamentMatch(String matchId, String metadata, IBroadcastCallback callback) {
         Bundle extras = new Bundle();
-        extras.putString(ParamNames.MATCH_ID, matchId);
-        extras.putString(ParamNames.META_DATA, metadata);
-        callbacks.put(START_TOURNAMENT_MATCH, callback);
-        sendBroadcast(START_TOURNAMENT_MATCH, extras);
+        extras.putString(Param.MATCH_ID, matchId);
+        extras.putString(Param.META_DATA, metadata);
+        callbacks.put(getAction(Method.START_TOURNAMENT_MATCH), callback);
+        sendBroadcast(getAction(Method.START_TOURNAMENT_MATCH), extras);
     }
 
     public void endTournamentMatch(String sessionId, float score, IBroadcastCallback callback) {
         Bundle extras = new Bundle();
-        extras.putString(ParamNames.SESSION_ID, sessionId);
-        extras.putFloat(ParamNames.SCORE, score);
-        callbacks.put(END_TOURNAMENT_MATCH, callback);
-        sendBroadcast(END_TOURNAMENT_MATCH, extras);
+        extras.putString(Param.SESSION_ID, sessionId);
+        extras.putFloat(Param.SCORE, score);
+        callbacks.put(getAction(Method.END_TOURNAMENT_MATCH), callback);
+        sendBroadcast(getAction(Method.END_TOURNAMENT_MATCH), extras);
     }
 
     public void getCurrentLeaderboard(IBroadcastCallback callback) {
-        callbacks.put(GET_CURRENT_LEADERBOARD_DATA, callback);
-        sendBroadcast(GET_CURRENT_LEADERBOARD_DATA, new Bundle());
+        callbacks.put(getAction(Method.GET_CURRENT_LEADERBOARD_DATA), callback);
+        sendBroadcast(getAction(Method.GET_CURRENT_LEADERBOARD_DATA), new Bundle());
     }
 
     protected boolean disposed() {
