@@ -17,7 +17,7 @@ import com.farsitel.bazaar.game.utils.Logger;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class GameHubBroadcast {
+public class BroadcastService {
 
     private final Logger logger;
     private final Context context;
@@ -30,7 +30,7 @@ public class GameHubBroadcast {
     private boolean mDisposed;
     private BroadcastReceiver receiver;
 
-    GameHubBroadcast(Context context, Logger logger) {
+    BroadcastService(Context context, Logger logger) {
         this.context = context;
         this.logger = logger;
         createReceiver();

@@ -12,7 +12,7 @@ namespace Bazaar.GameHub
 
         public GameHub()
         {
-            using (var pluginClass = new AndroidJavaClass("com.farsitel.bazaar.game.GameHubBridge"))
+            using (var pluginClass = new AndroidJavaClass("com.farsitel.bazaar.game.GameHub"))
             {
                 if (pluginClass != null)
                 {

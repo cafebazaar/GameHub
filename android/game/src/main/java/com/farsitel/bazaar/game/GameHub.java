@@ -39,18 +39,18 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class GameHubBridge {
-    private static GameHubBridge instance;
+public class GameHub {
+    private static GameHub instance;
 
     private final Logger logger;
     private boolean isDisposed = false;
     private Result connectionState;
     private boolean isBroadcastMode;
     private IGameHub gameHubService;
-    private GameHubBroadcast gameHubBroadcast;
+    private BroadcastService gameHubBroadcast;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public GameHubBridge() {
+    public GameHub() {
         logger = new Logger();
     }
 
@@ -78,20 +78,20 @@ public class GameHubBridge {
             if (showPrompts) {
                 startActionViewIntent(context, Constant.BAZAAR_INSTALL_URL, null);
             }
-            return new Result(Status.INSTALL_CAFEBAZAAR, "Install cafebazaar to support GameHubBridge!");
+            return new Result(Status.INSTALL_CAFEBAZAAR, "Install cafebazaar to support GameHub!");
         }
         if (packageInfo.versionCode < Constant.MINIMUM_BAZAAR_VERSION) {
             if (showPrompts) {
                 startActionViewIntent(context, Constant.BAZAAR_DETAILS_URL, Constant.BAZAAR_PACKAGE_NAME);
             }
-            return new Result(Status.UPDATE_CAFEBAZAAR, "Install new version of cafebazaar to support GameHubBridge!");
+            return new Result(Status.UPDATE_CAFEBAZAAR, "Install new version of cafebazaar to support GameHub!");
         }
         return new Result(Status.SUCCESS, "");
     }
 
-    public static GameHubBridge getInstance() {
+    public static GameHub getInstance() {
         if (instance == null) {
-            instance = new GameHubBridge();
+            instance = new GameHub();
         }
         return instance;
     }
@@ -145,7 +145,7 @@ public class GameHubBridge {
             // service available to handle that Intent
             isBroadcastMode = !context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
             if (isBroadcastMode) {
-                gameHubBroadcast = new GameHubBroadcast(context, logger);
+                gameHubBroadcast = new BroadcastService(context, logger);
             }
         }
     }
@@ -243,7 +243,6 @@ public class GameHubBridge {
         long startAt = result.extras.containsKey(Param.START_TIMESTAMP) ? result.extras.getLong(Param.START_TIMESTAMP) : 0;
         long endAt = result.extras.containsKey(Param.END_TIMESTAMP) ? result.extras.getLong(Param.END_TIMESTAMP) : 0;
         List<Tournament> tournaments = new ArrayList<>();
-        tournaments.add(new Tournament("-1", "Tournament -1", startAt, endAt));
         callback.onFinish(Status.SUCCESS.getLevelCode(), "Get Tournaments", "", tournaments);
     }
 
