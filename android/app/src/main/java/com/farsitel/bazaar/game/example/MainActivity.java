@@ -5,32 +5,32 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.farsitel.bazaar.game.GameHubBridge;
+import com.farsitel.bazaar.game.GameHub;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.data.Status;
 import com.farsitel.bazaar.game.utils.Logger;
 
 public class MainActivity extends Activity {
 
-    private GameHubBridge gameHubBridge;
+    private GameHub gameHub;
     private String reservedSessionId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        gameHubBridge = new GameHubBridge();
-        Log.i(Logger.TAG, String.format("Version => %s", gameHubBridge.getVersion()));
+        gameHub = new GameHub();
+        Log.i(Logger.TAG, String.format("Version => %s", gameHub.getVersion()));
     }
 
     public void connect(View view) {
-        gameHubBridge.connect(this, true, (status, message, stackTrace) -> {
+        gameHub.connect(this, true, (status, message, stackTrace) -> {
             Log.i(Logger.TAG, String.format("Connect => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
 
     public void getTournaments(View view) {
-        gameHubBridge.getTournaments(this, (status, message, stackTrace, tournaments) -> {
+        gameHub.getTournaments(this, (status, message, stackTrace, tournaments) -> {
             Log.i(Logger.TAG, String.format("Tournaments => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
@@ -42,7 +42,7 @@ public class MainActivity extends Activity {
                 reservedSessionId = sessionId;
             }
         };
-        gameHubBridge.startTournamentMatch(this, callback, "OgMSbLOC", "extra");
+        gameHub.startTournamentMatch(this, callback, "OgMSbLOC", "extra");
     }
 
     public void endTournamentMatch(View view) {
@@ -54,24 +54,24 @@ public class MainActivity extends Activity {
             Log.i(Logger.TAG, String.format("End => Status: %d, SessionId: %s, MatchId: %s, MetaData: %s", status, sessionId, matchId, metaData));
             reservedSessionId = null;
         };
-        gameHubBridge.endTournamentMatch(callback, reservedSessionId, 0.5f);
+        gameHub.endTournamentMatch(callback, reservedSessionId, 0.5f);
     }
 
     public void showTournamentRanking(View view) {
-        gameHubBridge.showTournamentRanking(this, "-1", (status, message, stackTrace) -> {
+        gameHub.showTournamentRanking(this, "-1", (status, message, stackTrace) -> {
             Log.i(Logger.TAG, String.format("showTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
 
     public void getTournamentRanking(View view) {
-        gameHubBridge.getTournamentRanking(this, "-1", (status, message, stackTrace, rankItems) -> {
+        gameHub.getTournamentRanking(this, "-1", (status, message, stackTrace, rankItems) -> {
             Log.i(Logger.TAG, String.format("getTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
 
     @Override
     protected void onDestroy() {
-        gameHubBridge.dispose();
         super.onDestroy();
+        gameHub.dispose();
     }
 }

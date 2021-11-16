@@ -243,6 +243,7 @@ public class GameHub {
         long startAt = result.extras.containsKey(Param.START_TIMESTAMP) ? result.extras.getLong(Param.START_TIMESTAMP) : 0;
         long endAt = result.extras.containsKey(Param.END_TIMESTAMP) ? result.extras.getLong(Param.END_TIMESTAMP) : 0;
         List<Tournament> tournaments = new ArrayList<>();
+        tournaments.add(new Tournament(startAt, endAt));
         callback.onFinish(Status.SUCCESS.getLevelCode(), "Get Tournaments", "", tournaments);
     }
 

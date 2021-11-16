@@ -9,8 +9,6 @@ namespace Bazaar.GameHub.Data
         DateTime startAt, endAt;
         public Tournament(AndroidJavaObject entity)
         {
-            this.id = entity.Get<string>("id");
-            this.title = entity.Get<string>("title");
             this.startAt = DateTimeOffset.FromUnixTimeSeconds(entity.Get<long>("startAt")).DateTime;
             this.endAt = DateTimeOffset.FromUnixTimeSeconds(entity.Get<long>("endAt")).DateTime;
             Debug.Log("startAt " + entity.Get<long>("startAt"));
