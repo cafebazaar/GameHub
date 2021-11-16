@@ -5,24 +5,29 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
+import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.IRankingCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentsCallback;
+import com.farsitel.bazaar.game.constants.Constant;
+import com.farsitel.bazaar.game.constants.Key;
+import com.farsitel.bazaar.game.constants.Method;
+import com.farsitel.bazaar.game.constants.Param;
 import com.farsitel.bazaar.game.data.RankItem;
-import com.farsitel.bazaar.game.data.Tournament;
-import com.farsitel.bazaar.game.utils.Logger;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
+import com.farsitel.bazaar.game.data.Tournament;
+import com.farsitel.bazaar.game.utils.Logger;
 import com.farsitel.bazaar.game.utils.MainThread;
-import com.farsitel.bazaar.game.utils.ParamNames;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,17 +39,54 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class GameHubBridge extends AbstractGameHub {
+public class GameHubBridge {
     private static GameHubBridge instance;
 
+    private final Logger logger;
+    private boolean isDisposed = false;
+    private Result connectionState;
     private boolean isBroadcastMode;
     private IGameHub gameHubService;
     private GameHubBroadcast gameHubBroadcast;
-    private ServiceConnection gameHubConnection;
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public GameHubBridge() {
-        super(new Logger());
+        logger = new Logger();
+    }
+
+    boolean disposed() {
+        return isDisposed;
+    }
+
+    void startActionViewIntent(Context context, String uri, String packageName) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(uri));
+        if (packageName != null) {
+            intent.setPackage(packageName);
+        }
+        context.startActivity(intent);
+    }
+
+    Result isCafebazaarInstalled(Context context, boolean showPrompts) {
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = context.getPackageManager().getPackageInfo(Constant.BAZAAR_PACKAGE_NAME, 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (packageInfo == null) {
+            if (showPrompts) {
+                startActionViewIntent(context, Constant.BAZAAR_INSTALL_URL, null);
+            }
+            return new Result(Status.INSTALL_CAFEBAZAAR, "Install cafebazaar to support GameHubBridge!");
+        }
+        if (packageInfo.versionCode < Constant.MINIMUM_BAZAAR_VERSION) {
+            if (showPrompts) {
+                startActionViewIntent(context, Constant.BAZAAR_DETAILS_URL, Constant.BAZAAR_PACKAGE_NAME);
+            }
+            return new Result(Status.UPDATE_CAFEBAZAAR, "Install new version of cafebazaar to support GameHubBridge!");
+        }
+        return new Result(Status.SUCCESS, "");
     }
 
     public static GameHubBridge getInstance() {
@@ -58,7 +100,6 @@ public class GameHubBridge extends AbstractGameHub {
         return BuildConfig.GAMEHUB_VERSION;
     }
 
-    @Override
     public void connect(Context context, boolean showPrompts, IConnectionCallback callback) {
         // Check player has CafeBazaar app or  it`s already updated to the latest version
         connectionState = isCafebazaarInstalled(context, showPrompts);
@@ -114,7 +155,6 @@ public class GameHubBridge extends AbstractGameHub {
         return new Result(isAvailable ? Status.SUCCESS : Status.DISCONNECTED, isAvailable ? "" : "Connect to service before!");
     }
 
-    @Override
     public void isLogin(Context context, boolean showPrompts, IBroadcastCallback callback) {
         final Result result = new Result(Status.SUCCESS, "");
         if (gameHubService == null && gameHubBroadcast == null) {
@@ -333,7 +373,6 @@ public class GameHubBridge extends AbstractGameHub {
         });
     }
 
-    @Override
     public void getTournamentRanking(Context context, String tournamentId, IRankingCallback
             callback) {
         logger.logDebug("Call getTournamentRanking");
@@ -407,8 +446,10 @@ public class GameHubBridge extends AbstractGameHub {
         callback.onFinish(result.status.getLevelCode(), "getTournamentRanking", jsonString, rankItems);
     }
 
-    @Override
-    public boolean disposed() {
+    public void dispose() {
+        isDisposed = true;
+        connectionState.status = Status.DISCONNECTED;
+
         if (gameHubBroadcast != null) {
             gameHubBroadcast.dispose();
         }
@@ -416,7 +457,5 @@ public class GameHubBridge extends AbstractGameHub {
         if (executorService != null) {
             executorService.shutdown();
         }
-
-        return super.disposed();
     }
 }
