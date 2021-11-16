@@ -79,6 +79,10 @@ public class BroadcastService {
         context.registerReceiver(receiver, intentFilter);
     }
 
+    private void sendBroadcast(String action) {
+        sendBroadcast(action, new Bundle());
+    }
+
     private void sendBroadcast(String action, Bundle extras) {
         extras.putString(Param.PACKAGE_NAME, context.getPackageName());
 
@@ -91,12 +95,12 @@ public class BroadcastService {
 
     public void isLogin(IBroadcastCallback callback) {
         callbacks.put(getAction(Method.IS_LOGIN), callback);
-        sendBroadcast(getAction(Method.IS_LOGIN), new Bundle());
+        sendBroadcast(getAction(Method.IS_LOGIN));
     }
 
     public void getTournamentTimes(IBroadcastCallback callback) {
         callbacks.put(getAction(Method.GET_TOURNAMENTS), callback);
-        sendBroadcast(getAction(Method.GET_TOURNAMENTS), new Bundle());
+        sendBroadcast(getAction(Method.GET_TOURNAMENTS));
     }
 
     public void startTournamentMatch(String matchId, String metadata, IBroadcastCallback callback) {
@@ -117,7 +121,7 @@ public class BroadcastService {
 
     public void getCurrentLeaderboard(IBroadcastCallback callback) {
         callbacks.put(getAction(Method.GET_CURRENT_LEADERBOARD_DATA), callback);
-        sendBroadcast(getAction(Method.GET_CURRENT_LEADERBOARD_DATA), new Bundle());
+        sendBroadcast(getAction(Method.GET_CURRENT_LEADERBOARD_DATA));
     }
 
     protected boolean disposed() {
