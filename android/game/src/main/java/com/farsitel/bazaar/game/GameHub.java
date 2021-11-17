@@ -58,37 +58,6 @@ public class GameHub {
         return isDisposed;
     }
 
-    void startActionViewIntent(Context context, String uri, String packageName) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(uri));
-        if (packageName != null) {
-            intent.setPackage(packageName);
-        }
-        context.startActivity(intent);
-    }
-
-    Result getBazaarInstallationState(Context context, boolean showPrompts) {
-        PackageInfo packageInfo = null;
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(Constant.BAZAAR_PACKAGE_NAME, 0);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (packageInfo == null) {
-            if (showPrompts) {
-                startActionViewIntent(context, Constant.BAZAAR_INSTALL_URL, null);
-            }
-            return new Result(Status.INSTALL_CAFEBAZAAR, "Install cafebazaar to support GameHub!");
-        }
-        if (packageInfo.versionCode < Constant.MINIMUM_BAZAAR_VERSION) {
-            if (showPrompts) {
-                startActionViewIntent(context, Constant.BAZAAR_DETAILS_URL, Constant.BAZAAR_PACKAGE_NAME);
-            }
-            return new Result(Status.UPDATE_CAFEBAZAAR, "Install new version of cafebazaar to support GameHub!");
-        }
-        return new Result(Status.SUCCESS, "");
-    }
-
     public static GameHub getInstance() {
         if (instance == null) {
             instance = new GameHub();
@@ -122,11 +91,14 @@ public class GameHub {
                 if (disposed()) return;
                 logger.logDebug("GameHub service connected.");
                 gameHubService = IGameHub.Stub.asInterface(service);
-                connectionState.status = Status.SUCCESS;
                 // Check login to cafebazaar
-                isLogin(context, showPrompts, result -> {
+                getLoginState(result -> {
                     if (result.status == Status.SUCCESS) {
                         callback.onFinish(result.getLevelCode(), "GameHub service connected.", "");
+                    } else {
+                        if (showPrompts) {
+                            showLoginPrompt(context);
+                        }
                     }
                 });
             }
@@ -147,12 +119,11 @@ public class GameHub {
         }
     }
 
-    public Result areServicesAvailable() {
-        boolean isAvailable = gameHubService != null || gameHubBroadcast != null;
-        return new Result(isAvailable ? Status.SUCCESS : Status.DISCONNECTED, isAvailable ? "" : "Connect to service before!");
+    boolean areServicesUnavailable() {
+        return gameHubService != null && gameHubBroadcast != null;
     }
 
-    public void isLogin(Context context, boolean showPrompts, IBroadcastCallback callback) {
+    public void getLoginState(IBroadcastCallback callback) {
         final Result result = new Result(Status.SUCCESS, "");
         if (gameHubService == null && gameHubBroadcast == null) {
             result.status = Status.DISCONNECTED;
@@ -181,25 +152,57 @@ public class GameHub {
             }
             MainThread.run(() -> {
                 callback.call(result);
-                if (showPrompts) {
-                    startActionViewIntent(context, Constant.BAZAAR_LOGIN_URL, Constant.BAZAAR_PACKAGE_NAME);
-                }
             });
         });
+    }
+
+    void showLoginPrompt(Context context) {
+        startActionViewIntent(context, Constant.BAZAAR_LOGIN_URL, Constant.BAZAAR_PACKAGE_NAME);
+    }
+
+    void startActionViewIntent(Context context, String uri, String packageName) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setData(Uri.parse(uri));
+        if (packageName != null) {
+            intent.setPackage(packageName);
+        }
+        context.startActivity(intent);
+    }
+
+    Result getBazaarInstallationState(Context context, boolean showPrompts) {
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = context.getPackageManager().getPackageInfo(Constant.BAZAAR_PACKAGE_NAME, 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (packageInfo == null) {
+            if (showPrompts) {
+                startActionViewIntent(context, Constant.BAZAAR_INSTALL_URL, null);
+            }
+            return new Result(Status.INSTALL_CAFEBAZAAR, "Install cafebazaar to support GameHub!");
+        }
+        if (packageInfo.versionCode < Constant.MINIMUM_BAZAAR_VERSION) {
+            if (showPrompts) {
+                startActionViewIntent(context, Constant.BAZAAR_DETAILS_URL, Constant.BAZAAR_PACKAGE_NAME);
+            }
+            return new Result(Status.UPDATE_CAFEBAZAAR, "Install new version of cafebazaar to support GameHub!");
+        }
+        return new Result(Status.SUCCESS, "");
     }
 
     public void getTournaments(Activity activity, ITournamentsCallback callback) {
         logger.logDebug("Call " + Method.GET_TOURNAMENTS);
 
         // Check one of services is connected
-        Result serviceResult = areServicesAvailable();
-        if (serviceResult.status != Status.SUCCESS) {
-            serviceResult.call(callback);
+        if (areServicesUnavailable()) {
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
         }
 
         // Check player is already logged-in
-        isLogin(activity, false, loginResult -> {
+        getLoginState(loginResult -> {
             if (loginResult.status != Status.SUCCESS) {
                 tournamentsCallback(loginResult, callback);
                 return;
@@ -211,6 +214,7 @@ public class GameHub {
                 });
                 return;
             }
+
             executorService.submit(() -> {
                 final Result result = new Result();
                 try {
@@ -249,14 +253,13 @@ public class GameHub {
         logger.logDebug("Call " + Method.START_TOURNAMENT_MATCH);
 
         // Check one of services is connected
-        Result serviceResult = areServicesAvailable();
-        if (serviceResult.status != Status.SUCCESS) {
-            serviceResult.call(callback);
+        if (areServicesUnavailable()) {
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
         }
 
         // Check player is already logged-in
-        isLogin(activity, false, loginResult -> {
+        getLoginState(loginResult -> {
             if (loginResult.status != Status.SUCCESS) {
                 startTournamentMatchCallback(loginResult, callback, matchId, metadata);
                 return;
@@ -300,9 +303,8 @@ public class GameHub {
         logger.logDebug("Call " + Method.END_TOURNAMENT_MATCH);
 
         // Check one of services is connected
-        Result serviceResult = areServicesAvailable();
-        if (serviceResult.status != Status.SUCCESS) {
-            serviceResult.call(callback);
+        if (areServicesUnavailable()) {
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
         }
 
@@ -350,9 +352,10 @@ public class GameHub {
         }
 
         // Check player is already logged-in
-        isLogin(context, true, loginResult -> {
+        getLoginState(loginResult -> {
             if (loginResult.status != Status.SUCCESS) {
                 callback.onFinish(loginResult.status.getLevelCode(), loginResult.message, loginResult.stackTrace);
+                showLoginPrompt(context);
                 return;
             }
 
@@ -364,7 +367,7 @@ public class GameHub {
                 callback.onFinish(Status.UPDATE_CAFEBAZAAR.getLevelCode(), "Get Ranking-data needs to new version of CafeBazaar!", Arrays.toString(e.getStackTrace()));
                 return;
             }
-            connectionState.call(callback);
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace);
         });
     }
 
@@ -373,14 +376,13 @@ public class GameHub {
         logger.logDebug("Call getTournamentRanking");
 
         // Check one of services is connected
-        Result serviceResult = areServicesAvailable();
-        if (serviceResult.status != Status.SUCCESS) {
-            serviceResult.call(callback);
+        if (areServicesUnavailable()) {
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
             return;
         }
 
         // Check player is already logged-in
-        isLogin(context, false, loginResult -> {
+        getLoginState(loginResult -> {
             if (loginResult.status != Status.SUCCESS) {
                 getTournamentRankingCallback(loginResult, callback);
                 return;
