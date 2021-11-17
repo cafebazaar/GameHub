@@ -1,5 +1,4 @@
 # GameHub
-[![CodeFactor](https://www.codefactor.io/repository/github/cafebazaar/poolakey/badge)](https://www.codefactor.io/repository/github/cafebazaar/poolakey) [![](https://api.bintray.com/packages/cafebazaar/Poolakey/Poolakey/images/download.svg)](https://bintray.com/beta/#/cafebazaar/Poolakey?tab=packages)
 <div align="center">
 </br>
 <img src="images/logo.svg?raw=false"/><br/></br>
