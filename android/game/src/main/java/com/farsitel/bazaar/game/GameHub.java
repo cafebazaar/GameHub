@@ -356,9 +356,8 @@ public class GameHub {
                 return;
             }
 
-            connectionState.message = "Last tournament ranking table shown.";
-            String data = Constant.BAZAAR_TOURNAMENT_URL + context.getPackageName();
-            logger.logInfo(data);
+            result.message = "Last tournament ranking table shown.";
+            String data = Constant.BAZAAR_TOURNAMENT_URL + tournamentId;
             try {
                 startActionViewIntent(context, data, Constant.BAZAAR_PACKAGE_NAME);
             } catch (Exception e) {
