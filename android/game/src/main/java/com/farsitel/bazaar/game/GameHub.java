@@ -44,14 +44,14 @@ public class GameHub {
 
     private final Logger logger;
     private boolean isDisposed = false;
-    private Result connectionState;
     private boolean isBroadcastMode;
     private IGameHub gameHubService;
     private BroadcastService gameHubBroadcast;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ExecutorService executorService;
 
     public GameHub() {
         logger = new Logger();
+        executorService = Executors.newSingleThreadExecutor();
     }
 
     boolean disposed() {
@@ -446,14 +446,15 @@ public class GameHub {
 
     public void dispose() {
         isDisposed = true;
-        connectionState.status = Status.DISCONNECTED;
 
         if (gameHubBroadcast != null) {
             gameHubBroadcast.dispose();
+            gameHubBroadcast = null;
         }
 
         if (executorService != null) {
             executorService.shutdown();
+            executorService = null;
         }
     }
 }
