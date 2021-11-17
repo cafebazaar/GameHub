@@ -94,7 +94,7 @@ public class GameHub {
                 // Check login to cafebazaar
                 getLoginState(result -> {
                     if (result.status == Status.SUCCESS) {
-                        callback.onFinish(result.getLevelCode(), "GameHub service connected.", "");
+                        callback.onFinish(result.status.getLevelCode(), "GameHub service connected.", "");
                     } else {
                         if (showPrompts) {
                             showLoginPrompt(context);
