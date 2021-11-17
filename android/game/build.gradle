@@ -1,25 +1,30 @@
-plugins {
-    id 'com.android.library'
-    id 'maven-publish'
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+ext {
+    gameHubVersion = '1.0.0'
+    gameHubArtifact = 'alpha-3'
+    gameHubArtifactDebug = 'alpha-3-debug'
+    gameHubPackageName = 'com.farsitel.bazaar.gamehub'
+
+    gameHubMinSdk = 16
+    gameHubTargetSdk = 29
+    gameHubVersionCode = 1
+    gameHubCompileSdk = 30
 }
-def gameHubVersion = '1.0.0'
-def gameHubArtifact = 'alpha-3'
-def gameHubArtifactDebug = 'alpha-3-debug'
 
 android {
-    compileSdk 30
-
+    compileSdk gameHubCompileSdk
     defaultConfig {
-        minSdk 16
-        targetSdk 29
-        versionCode 1
-        versionName "1.0"
-
+        minSdk gameHubMinSdk
+        targetSdk gameHubTargetSdk
+        versionCode gameHubVersionCode
+        versionName gameHubVersion
         consumerProguardFiles "consumer-rules.pro"
     }
 
     buildTypes {
-        debug{
+        debug {
             buildConfigField "String", "GAMEHUB_VERSION", '"' + gameHubVersion + '-' + gameHubArtifactDebug + '"'
         }
         release {
@@ -34,9 +39,6 @@ android {
     }
 }
 
-dependencies {
-}
-
 // Because the components are created only during the afterEvaluate phase, you must
 // configure your publications using the afterEvaluate() lifecycle method.
 afterEvaluate {
@@ -48,7 +50,7 @@ afterEvaluate {
                 from components.release
 
                 // You can then customize attributes of the publication as shown below.
-                groupId = 'com.farsitel.bazaar.gamehub'
+                groupId = gameHubPackageName
                 artifactId = gameHubArtifact
                 version = gameHubVersion
             }
@@ -57,7 +59,7 @@ afterEvaluate {
                 // Applies the component for the debug build variant.
                 from components.debug
 
-                groupId = 'com.farsitel.bazaar.gamehub'
+                groupId = gameHubPackageName
                 artifactId = gameHubArtifactDebug
                 version = gameHubVersion
             }
