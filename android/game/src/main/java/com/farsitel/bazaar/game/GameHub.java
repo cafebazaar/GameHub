@@ -67,7 +67,7 @@ public class GameHub {
         context.startActivity(intent);
     }
 
-    Result isCafebazaarInstalled(Context context, boolean showPrompts) {
+    Result getBazaarInstallationState(Context context, boolean showPrompts) {
         PackageInfo packageInfo = null;
         try {
             packageInfo = context.getPackageManager().getPackageInfo(Constant.BAZAAR_PACKAGE_NAME, 0);
@@ -102,9 +102,9 @@ public class GameHub {
 
     public void connect(Context context, boolean showPrompts, IConnectionCallback callback) {
         // Check player has CafeBazaar app or  it`s already updated to the latest version
-        connectionState = isCafebazaarInstalled(context, showPrompts);
-        if (connectionState.status != Status.SUCCESS) {
-            connectionState.call(callback);
+        Result installState = getBazaarInstallationState(context, showPrompts);
+        if (installState.status != Status.SUCCESS) {
+            callback.onFinish(installState.status.getLevelCode(), installState.message, "");
             return;
         }
 
@@ -114,8 +114,7 @@ public class GameHub {
             public void onServiceDisconnected(ComponentName name) {
                 logger.logDebug("GameHub service disconnected.");
                 gameHubService = null;
-                connectionState = new Result(Status.DISCONNECTED, "GameHub service disconnected.", "");
-                connectionState.call(callback);
+                callback.onFinish(Status.DISCONNECTED.getLevelCode(), "GameHub service disconnected.", "");
             }
 
             @Override
@@ -126,10 +125,8 @@ public class GameHub {
                 connectionState.status = Status.SUCCESS;
                 // Check login to cafebazaar
                 isLogin(context, showPrompts, result -> {
-                    connectionState = result;
-                    if (connectionState.status == Status.SUCCESS) {
-                        connectionState.message = "GameHub service connected.";
-                        connectionState.call(callback);
+                    if (result.status == Status.SUCCESS) {
+                        callback.onFinish(result.getLevelCode(), "GameHub service connected.", "");
                     }
                 });
             }
@@ -346,9 +343,9 @@ public class GameHub {
         logger.logDebug("Call showTournamentRanking");
 
         // Check player has CafeBazaar app or  it`s already updated to the latest version
-        connectionState = isCafebazaarInstalled(context, true);
-        if (connectionState.status != Status.SUCCESS) {
-            connectionState.call(callback);
+        Result result = getBazaarInstallationState(context, true);
+        if (result.status != Status.SUCCESS) {
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace);
             return;
         }
 

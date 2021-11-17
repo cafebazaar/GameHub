@@ -40,22 +40,6 @@ public class Result {
         return this;
     }
 
-    public void call(IConnectionCallback callback) {
-        callback.onFinish(status.getLevelCode(), message, stackTrace);
-    }
-
-    public void call(ITournamentsCallback callback) {
-        callback.onFinish(status.getLevelCode(), message, stackTrace, null);
-    }
-
-    public void call(ITournamentMatchCallback callback) {
-        callback.onFinish(status.getLevelCode(), message, stackTrace, null);
-    }
-
-    public void call(IRankingCallback callback) {
-        callback.onFinish(status.getLevelCode(), message, stackTrace, null);
-    }
-
     @Override
     public String toString() {
         StringBuilder log = new StringBuilder("[Result => status:" + status);
