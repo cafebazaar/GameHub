@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
     }
 
     public void connect(View view) {
-        gameHub.connect(this, true, (status, message, stackTrace) -> {
+        gameHub.connect(getApplicationContext(), true, (status, message, stackTrace) -> {
             Log.i(Logger.TAG, String.format("Connect => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
@@ -58,13 +58,13 @@ public class MainActivity extends Activity {
     }
 
     public void showTournamentRanking(View view) {
-        gameHub.showTournamentRanking(this, "-1", (status, message, stackTrace) -> {
+        gameHub.showTournamentRanking(getApplicationContext(), "-1", (status, message, stackTrace) -> {
             Log.i(Logger.TAG, String.format("showTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
 
     public void getTournamentRanking(View view) {
-        gameHub.getTournamentRanking(this, "-1", (status, message, stackTrace, rankItems) -> {
+        gameHub.getTournamentRanking(getApplicationContext(), "-1", (status, message, stackTrace, rankItems) -> {
             Log.i(Logger.TAG, String.format("getTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
         });
     }
