@@ -1,4 +1,8 @@
 # GameHub
+
+[![](https://jitpack.io/v/cafebazaar/GameHub.svg)](https://jitpack.io/#cafebazaar/GameHub)
+[![Made with Unity](https://img.shields.io/badge/Made%20with-Unity-57b9d3.svg?style=flat&logo=unity)](https://unity3d.com)
+
 <div align="center">
 </br>
 <img src="images/logo.svg?raw=false"/><br/></br>
