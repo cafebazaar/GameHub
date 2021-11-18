@@ -57,7 +57,8 @@ public class GameHubExample : MonoBehaviour
     public async void GetLastTournamentRanking()
     {
         var result = await gameHub.GetLastTournamentRanking();
-        Log(result.toString());    }
+        Log(result.toString());
+    }
 
     public void Log(string message)
     {
