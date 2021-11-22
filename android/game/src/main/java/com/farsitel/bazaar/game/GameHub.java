@@ -355,7 +355,9 @@ public class GameHub {
         getLoginState(loginResult -> {
             if (loginResult.status != Status.SUCCESS) {
                 callback.onFinish(loginResult.status.getLevelCode(), loginResult.message, loginResult.stackTrace);
-                showLoginPrompt(context);
+                if (result.status == Status.LOGIN_CAFEBAZAAR) {
+                    showLoginPrompt(context);
+                }
                 return;
             }
 
