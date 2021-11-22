@@ -3,8 +3,8 @@ apply plugin: 'maven-publish'
 
 ext {
     gameHubVersion = '1.0.0'
-    gameHubArtifact = 'alpha-3'
-    gameHubArtifactDebug = 'alpha-3-debug'
+    gameHubArtifact = 'alpha-4'
+    gameHubArtifactDebug = 'alpha-4-debug'
     gameHubPackageName = 'com.farsitel.bazaar.gamehub'
 
     gameHubMinSdk = 16
