@@ -96,6 +96,7 @@ public class GameHub {
                     if (result.status == Status.SUCCESS) {
                         callback.onFinish(result.status.getLevelCode(), "GameHub service connected.", "");
                     } else {
+                        callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace);
                         if (showPrompts) {
                             showLoginPrompt(context);
                         }
@@ -150,9 +151,7 @@ public class GameHub {
                 result.message = e.getMessage();
                 result.stackTrace = Arrays.toString(e.getStackTrace());
             }
-            MainThread.run(() -> {
-                callback.call(result);
-            });
+            MainThread.run(() -> callback.call(result));
         });
     }
 
@@ -209,9 +208,7 @@ public class GameHub {
             }
 
             if (isBroadcastMode) {
-                gameHubBroadcast.getTournamentTimes(tournamentResult -> {
-                    tournamentsCallback(tournamentResult, callback);
-                });
+                gameHubBroadcast.getTournamentTimes(tournamentResult -> tournamentsCallback(tournamentResult, callback));
                 return;
             }
 
@@ -226,9 +223,7 @@ public class GameHub {
                     result.message = e.getMessage();
                     result.stackTrace = Arrays.toString(e.getStackTrace());
                 }
-                MainThread.run(() -> {
-                    tournamentsCallback(result, callback);
-                });
+                MainThread.run(() -> tournamentsCallback(result, callback));
             });
         });
     }
@@ -266,9 +261,7 @@ public class GameHub {
             }
 
             if (isBroadcastMode) {
-                gameHubBroadcast.startTournamentMatch(matchId, metadata, startResult -> {
-                    startTournamentMatchCallback(startResult, callback, matchId, metadata);
-                });
+                gameHubBroadcast.startTournamentMatch(matchId, metadata, startResult -> startTournamentMatchCallback(startResult, callback, matchId, metadata));
                 return;
             }
             executorService.submit(() -> {
@@ -309,9 +302,7 @@ public class GameHub {
         }
 
         if (isBroadcastMode) {
-            gameHubBroadcast.endTournamentMatch(sessionId, score, endResult -> {
-                endTournamentMatchCallback(endResult, callback, sessionId);
-            });
+            gameHubBroadcast.endTournamentMatch(sessionId, score, endResult -> endTournamentMatchCallback(endResult, callback, sessionId));
             return;
         }
         executorService.submit(() -> {
@@ -392,9 +383,7 @@ public class GameHub {
             }
 
             if (isBroadcastMode) {
-                gameHubBroadcast.getCurrentLeaderboard(rankResult -> {
-                    getTournamentRankingCallback(rankResult, callback);
-                });
+                gameHubBroadcast.getCurrentLeaderboard(rankResult -> getTournamentRankingCallback(rankResult, callback));
                 return;
             }
             executorService.submit(() -> {
