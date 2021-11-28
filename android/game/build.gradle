@@ -3,8 +3,8 @@ apply plugin: 'maven-publish'
 
 ext {
     gameHubVersion = '1.0.0'
-    gameHubArtifact = 'alpha-4'
-    gameHubArtifactDebug = 'alpha-4-debug'
+    gameHubArtifact = 'beta'
+    gameHubArtifactDebug = 'beta-debug'
     gameHubPackageName = 'com.farsitel.bazaar.gamehub'
 
     gameHubMinSdk = 16
@@ -34,8 +34,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 

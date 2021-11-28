@@ -91,17 +91,7 @@ public class GameHub {
                 if (disposed()) return;
                 logger.logDebug("GameHub service connected.");
                 gameHubService = IGameHub.Stub.asInterface(service);
-                // Check login to cafebazaar
-                getLoginState(result -> {
-                    if (result.status == Status.SUCCESS) {
-                        callback.onFinish(result.status.getLevelCode(), "GameHub service connected.", "");
-                    } else {
-                        callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace);
-                        if (showPrompts) {
-                            showLoginPrompt(context);
-                        }
-                    }
-                });
+                connectionCallback(context, showPrompts, callback);
             }
         };
 
@@ -116,9 +106,26 @@ public class GameHub {
             isBroadcastMode = !context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
             if (isBroadcastMode) {
                 gameHubBroadcast = new BroadcastService(context, logger);
+                logger.logDebug("GameHub broadcast created.");
+                connectionCallback(context, showPrompts, callback);
             }
         }
     }
+
+    void connectionCallback(Context context, boolean showPrompts, IConnectionCallback callback) {
+        // Check login to cafebazaar
+        getLoginState(loginResult -> {
+            if (loginResult.status == Status.SUCCESS) {
+                callback.onFinish(loginResult.status.getLevelCode(), "GameHub service connected.", "");
+            } else {
+                callback.onFinish(loginResult.status.getLevelCode(), loginResult.message, loginResult.stackTrace);
+                if (showPrompts) {
+                    showLoginPrompt(context);
+                }
+            }
+        });
+    }
+
 
     boolean areServicesUnavailable() {
         return gameHubService != null && gameHubBroadcast != null;
