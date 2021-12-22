@@ -256,7 +256,7 @@ public class GameHub {
 
         // Check one of services is connected
         if (areServicesUnavailable()) {
-            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", "");
             return;
         }
 
@@ -291,7 +291,7 @@ public class GameHub {
         logger.logDebug("Start: " + result.toString());
 
         if (result.status != Status.SUCCESS) {
-            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, "");
             return;
         }
         String sessionId = result.extras.containsKey(Param.SESSION_ID) ? result.extras.getString(Param.SESSION_ID) : Param.SESSION_ID;
@@ -304,7 +304,7 @@ public class GameHub {
 
         // Check one of services is connected
         if (areServicesUnavailable()) {
-            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", "");
             return;
         }
 
@@ -331,7 +331,7 @@ public class GameHub {
         logger.logDebug("End: " + result.toString());
 
         if (result.status != Status.SUCCESS) {
-            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, "");
             return;
         }
         String matchId = result.extras.containsKey(Param.MATCH_ID) ? result.extras.getString(Param.MATCH_ID) : Param.MATCH_ID;
