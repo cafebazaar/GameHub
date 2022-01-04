@@ -30,6 +30,7 @@ import android.os.RemoteException;
 import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
 import com.farsitel.bazaar.game.callbacks.IEventDoneCallback;
+import com.farsitel.bazaar.game.callbacks.IGetEventsCallback;
 import com.farsitel.bazaar.game.callbacks.IRankingCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentsCallback;
@@ -37,6 +38,7 @@ import com.farsitel.bazaar.game.constants.Constant;
 import com.farsitel.bazaar.game.constants.Key;
 import com.farsitel.bazaar.game.constants.Method;
 import com.farsitel.bazaar.game.constants.Param;
+import com.farsitel.bazaar.game.data.Event;
 import com.farsitel.bazaar.game.data.RankItem;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
@@ -403,6 +405,61 @@ public class GameHub {
         });
     }
 
+    public void getEventsByPackageName(
+            Context context,
+            String packageName,
+            IGetEventsCallback callback
+    ) {
+        logger.logDebug("Call eventDoneNotify");
+
+        // Check if one of the services is connected
+        if (areServicesUnavailable()) {
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), CONNECT_TO_SERVICE_FIRST, "", null);
+            return;
+        }
+
+        // Check if Bazaar update is needed
+        Result installationResult = getBazaarInstallationState(context, REQUIRED_BAZAAR_VERSION_FOR_EVENT, true);
+        if (installationResult.status != Status.SUCCESS) {
+            callback.onFinish(
+                    installationResult.status.getLevelCode(),
+                    installationResult.message,
+                    installationResult.stackTrace,
+                    null
+            );
+            return;
+        }
+
+        // Check player is already logged-in
+        getLoginState(loginResult -> {
+            if (loginResult.status != Status.SUCCESS) {
+                getEventsCallback(loginResult, callback);
+                return;
+            }
+
+            if (isBroadcastMode) {
+                gameHubBroadcast.getEventsByPackageName(
+                        packageName, eventsResult -> getEventsCallback(eventsResult, callback)
+                );
+                return;
+            }
+
+            executorService.submit(() -> {
+                final Result result = new Result();
+                try {
+                    Bundle bundle = gameHubService.getEventsByPackageName(packageName);
+                    result.setBundle(bundle);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                    result.status = Status.FAILURE;
+                    result.message = e.getMessage();
+                    result.stackTrace = Arrays.toString(e.getStackTrace());
+                }
+                MainThread.run(() -> getEventsCallback(result, callback));
+            });
+        });
+    }
+
     public void dispose() {
         isDisposed = true;
 
@@ -564,5 +621,36 @@ public class GameHub {
         String eventDoneTime = result.extras.containsKey(Param.EVENT_DONE_TIMESTAMP) ?
                 result.extras.getString(Param.EVENT_DONE_TIMESTAMP) : "";
         callback.onFinish(result.status.getLevelCode(), "Event done notify", "", eventDoneTime);
+    }
+
+    void getEventsCallback(Result result, IGetEventsCallback callback) {
+        logger.logDebug("get events: " + result.toString());
+
+        if (result.status != Status.SUCCESS) {
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
+            return;
+        }
+
+        List<Event> eventList = new ArrayList<>();
+        String jsonString = result.extras.getString(Key.EVENTS);
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            JSONArray events = jsonObject.optJSONArray(Key.EVENTS);
+            int eventsCount = events != null ? events.length() : 0;
+            for (int i = 0; i < eventsCount; i++) {
+                JSONObject obj = events.getJSONObject(i);
+                eventList.add(new Event(
+                        obj.getString(Key.EVENT_ID),
+                        obj.getString(Key.START_TIMESTAMP),
+                        obj.getString(Key.END_TIMESTAMP)
+                ));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            callback.onFinish(Status.FAILURE.getLevelCode(), "Error on events data parsing!", "", null);
+            return;
+        }
+
+        callback.onFinish(result.status.getLevelCode(), "Get events by packageName", "", eventList);
     }
 }
