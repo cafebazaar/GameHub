@@ -1,5 +1,7 @@
 package com.farsitel.bazaar.game;
 
+import static com.farsitel.bazaar.game.constants.Constant.LOGIN_TO_BAZAAR_FIRST;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -57,8 +59,8 @@ public class BroadcastService {
                     Result result = new Result();
                     if (action.equals(getAction(Method.IS_LOGIN))) {
                         boolean isLogin = intent.getBooleanExtra(Method.IS_LOGIN, false);
-                        result.status = isLogin ? Status.SUCCESS : Status.LOGIN_CAFEBAZAAR;
-                        result.message = isLogin ? "" : "Login to Cafebazaar before!";
+                        result.status = isLogin ? Status.SUCCESS : Status.LOGIN_BAZAAR;
+                        result.message = isLogin ? "" : LOGIN_TO_BAZAAR_FIRST;
                         callbacks.get(action).call(result);
                     } else {
                         callbacks.get(action).call(result.setBundle(intent.getExtras()));
