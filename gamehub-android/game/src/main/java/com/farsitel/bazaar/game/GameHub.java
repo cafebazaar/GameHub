@@ -11,6 +11,8 @@ import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_DISCONNECTE
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_STARTED;
 import static com.farsitel.bazaar.game.constants.Constant.TOURNAMENT_RANKING_IS_SHOWN;
 import static com.farsitel.bazaar.game.constants.Constant.UPDATE_BAZAAR;
+import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_EVENT_FOR_TOURNAMENT;
+import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_EVENT;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -27,6 +29,7 @@ import android.os.RemoteException;
 
 import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
+import com.farsitel.bazaar.game.callbacks.IEventDoneCallback;
 import com.farsitel.bazaar.game.callbacks.IRankingCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
 import com.farsitel.bazaar.game.callbacks.ITournamentsCallback;
@@ -79,7 +82,7 @@ public class GameHub {
 
     public void connect(Context context, boolean showPrompts, IConnectionCallback callback) {
         // Check player has CafeBazaar app or  it`s already updated to the latest version
-        Result installState = getBazaarInstallationState(context, showPrompts);
+        Result installState = getBazaarInstallationState(context, REQUIRED_BAZAAR_EVENT_FOR_TOURNAMENT, showPrompts);
         if (installState.status != Status.SUCCESS) {
             callback.onFinish(installState.status.getLevelCode(), installState.message, "");
             return;
@@ -266,7 +269,7 @@ public class GameHub {
         logger.logDebug("Call showTournamentRanking");
 
         // Check player has CafeBazaar app or  it`s already updated to the latest version
-        Result result = getBazaarInstallationState(context, true);
+        Result result = getBazaarInstallationState(context, REQUIRED_BAZAAR_EVENT_FOR_TOURNAMENT, true);
         if (result.status != Status.SUCCESS) {
             callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace);
             return;
@@ -345,6 +348,61 @@ public class GameHub {
         });
     }
 
+    public void eventDoneNotify(
+            Context context,
+            String eventId,
+            IEventDoneCallback callback
+    ) {
+        logger.logDebug("Call eventDoneNotify");
+
+        // Check if one of the services is connected
+        if (areServicesUnavailable()) {
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), CONNECT_TO_SERVICE_FIRST, "", null);
+            return;
+        }
+
+        // Check if Bazaar update is needed
+        Result installationResult = getBazaarInstallationState(context, REQUIRED_BAZAAR_VERSION_FOR_EVENT, true);
+        if (installationResult.status != Status.SUCCESS) {
+            callback.onFinish(
+                    installationResult.status.getLevelCode(),
+                    installationResult.message,
+                    installationResult.stackTrace,
+                    null
+            );
+            return;
+        }
+
+        // Check player is already logged-in
+        getLoginState(loginResult -> {
+            if (loginResult.status != Status.SUCCESS) {
+                eventDoneNotifyCallback(loginResult, callback);
+                return;
+            }
+
+            if (isBroadcastMode) {
+                gameHubBroadcast.eventDoneNotify(
+                        eventId, notifyResult -> eventDoneNotifyCallback(notifyResult, callback)
+                );
+                return;
+            }
+
+            executorService.submit(() -> {
+                final Result result = new Result();
+                try {
+                    Bundle bundle = gameHubService.eventDoneNotify(eventId);
+                    result.setBundle(bundle);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                    result.status = Status.FAILURE;
+                    result.message = e.getMessage();
+                    result.stackTrace = Arrays.toString(e.getStackTrace());
+                }
+                MainThread.run(() -> eventDoneNotifyCallback(result, callback));
+            });
+        });
+    }
+
     public void dispose() {
         isDisposed = true;
 
@@ -391,7 +449,11 @@ public class GameHub {
         context.startActivity(intent);
     }
 
-    Result getBazaarInstallationState(Context context, boolean showPrompts) {
+    Result getBazaarInstallationState(
+            Context context,
+            int requiredBazaarVersion,
+            boolean showPrompts
+    ) {
         PackageInfo packageInfo = null;
         try {
             packageInfo = context.getPackageManager().getPackageInfo(Constant.BAZAAR_PACKAGE_NAME, 0);
@@ -404,7 +466,7 @@ public class GameHub {
             }
             return new Result(Status.INSTALL_CAFEBAZAAR, INSTALL_BAZAAR);
         }
-        if (packageInfo.versionCode < Constant.MINIMUM_BAZAAR_VERSION) {
+        if (packageInfo.versionCode < requiredBazaarVersion) {
             if (showPrompts) {
                 startActionViewIntent(context, Constant.BAZAAR_DETAILS_URL, Constant.BAZAAR_PACKAGE_NAME);
             }
@@ -490,5 +552,17 @@ public class GameHub {
         }
 
         callback.onFinish(result.status.getLevelCode(), "getTournamentRanking", jsonString, rankItems);
+    }
+
+    void eventDoneNotifyCallback(Result result, IEventDoneCallback callback) {
+        logger.logDebug("event done: " + result.toString());
+
+        if (result.status != Status.SUCCESS) {
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
+            return;
+        }
+        String eventDoneTime = result.extras.containsKey(Param.EVENT_DONE_TIMESTAMP) ?
+                result.extras.getString(Param.EVENT_DONE_TIMESTAMP) : "";
+        callback.onFinish(result.status.getLevelCode(), "Event done notify", "", eventDoneTime);
     }
 }

@@ -69,6 +69,12 @@ public class MainActivity extends Activity {
         });
     }
 
+    public void eventDoneNotify(View view) {
+        gameHub.eventDoneNotify(getApplicationContext(), "eventId", (status, message, stackTrace, rankItems) -> {
+            Log.i(Logger.TAG, String.format("eventDoneNotify => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
+        });
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

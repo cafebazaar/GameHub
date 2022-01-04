@@ -13,4 +13,13 @@ interface IGameHub {
     Bundle getLeaderboard(int tournamentId);
 
     Bundle getCurrentLeaderboard(String packageName);
+
+    /**
+     * Notify Bazaar when event id done by user
+     * @params: id of the event
+     * @Return: Bundle with the following data:
+                STATUS
+                EVENT_DONE_TIMESTAMP
+     */
+    Bundle eventDoneNotify(String eventId);
 }
