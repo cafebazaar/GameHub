@@ -79,6 +79,7 @@ public class BroadcastService {
         intentFilter.addAction(getAction(Method.END_TOURNAMENT_MATCH));
         intentFilter.addAction(getAction(Method.GET_CURRENT_LEADERBOARD_DATA));
         intentFilter.addAction(getAction(Method.EVENT_DONE_NOTIFY));
+        intentFilter.addAction(getAction(Method.GET_EVENTS_BY_PACKAGE_NAME));
         context.registerReceiver(receiver, intentFilter);
     }
 
