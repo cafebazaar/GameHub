@@ -75,6 +75,12 @@ public class MainActivity extends Activity {
         });
     }
 
+    public void getEventsByPackageName(View view) {
+        gameHub.getEventsByPackageName(getApplicationContext(), "packageName", (status, message, stackTrace, rankItems) -> {
+            Log.i(Logger.TAG, String.format("getEventsByPackageName => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
+        });
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

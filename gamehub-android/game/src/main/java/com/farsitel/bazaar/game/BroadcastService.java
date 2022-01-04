@@ -132,6 +132,13 @@ public class BroadcastService {
         sendBroadcast(getAction(Method.EVENT_DONE_NOTIFY), extras);
     }
 
+    public void getEventsByPackageName(String packageName, IBroadcastCallback callback) {
+        Bundle extras = new Bundle();
+        extras.putString(Param.PACKAGE_NAME, packageName);
+        callbacks.put(getAction(Method.GET_EVENTS_BY_PACKAGE_NAME), callback);
+        sendBroadcast(getAction(Method.GET_EVENTS_BY_PACKAGE_NAME), extras);
+    }
+
     protected boolean disposed() {
         return mDisposed;
     }

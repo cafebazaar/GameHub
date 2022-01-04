@@ -22,4 +22,13 @@ interface IGameHub {
                 EVENT_DONE_TIMESTAMP
      */
     Bundle eventDoneNotify(String eventId);
+
+    /**
+     *  Get all published events for the target packageName
+     *  @params: package name of the thirdParty application
+     *  @Return: Bundle with the following data:
+             STATUS
+             EVENTS
+    */
+    Bundle getEventsByPackageName(String packageName);
 }
