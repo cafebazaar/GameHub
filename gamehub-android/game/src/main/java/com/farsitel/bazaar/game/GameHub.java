@@ -1,5 +1,17 @@
 package com.farsitel.bazaar.game;
 
+import static com.farsitel.bazaar.game.constants.Constant.BAZAAR_GAME_PACKAGE_NAME;
+import static com.farsitel.bazaar.game.constants.Constant.BROADCAST_IS_CREATED;
+import static com.farsitel.bazaar.game.constants.Constant.CONNECT_TO_SERVICE_FIRST;
+import static com.farsitel.bazaar.game.constants.Constant.GET_RANKING_NEEDS_UPDATE_BAZAAR;
+import static com.farsitel.bazaar.game.constants.Constant.INSTALL_BAZAAR;
+import static com.farsitel.bazaar.game.constants.Constant.LOGIN_TO_BAZAAR_FIRST;
+import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_CONNECTED;
+import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_DISCONNECTED;
+import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_STARTED;
+import static com.farsitel.bazaar.game.constants.Constant.TOURNAMENT_RANKING_IS_SHOWN;
+import static com.farsitel.bazaar.game.constants.Constant.UPDATE_BAZAAR;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -54,10 +66,6 @@ public class GameHub {
         executorService = Executors.newSingleThreadExecutor();
     }
 
-    boolean disposed() {
-        return isDisposed;
-    }
-
     public static GameHub getInstance() {
         if (instance == null) {
             instance = new GameHub();
@@ -77,26 +85,26 @@ public class GameHub {
             return;
         }
 
-        logger.logDebug("GameHub service started.");
+        logger.logDebug(SERVICE_IS_STARTED);
         ServiceConnection gameHubConnection = new ServiceConnection() {
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                logger.logDebug("GameHub service disconnected.");
+                logger.logDebug(SERVICE_IS_DISCONNECTED);
                 gameHubService = null;
-                callback.onFinish(Status.DISCONNECTED.getLevelCode(), "GameHub service disconnected.", "");
+                callback.onFinish(Status.DISCONNECTED.getLevelCode(), SERVICE_IS_DISCONNECTED, "");
             }
 
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                if (disposed()) return;
-                logger.logDebug("GameHub service connected.");
+                if (isDisposed) return;
+                logger.logDebug(SERVICE_IS_DISCONNECTED);
                 gameHubService = IGameHub.Stub.asInterface(service);
                 connectionCallback(context, showPrompts, callback);
             }
         };
 
         // Bind to bazaar game hub
-        Intent serviceIntent = new Intent("com.farsitel.bazaar.Game.BIND");
+        Intent serviceIntent = new Intent(BAZAAR_GAME_PACKAGE_NAME);
         serviceIntent.setPackage(Constant.BAZAAR_PACKAGE_NAME);
 
         PackageManager pm = context.getPackageManager();
@@ -106,36 +114,17 @@ public class GameHub {
             isBroadcastMode = !context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
             if (isBroadcastMode) {
                 gameHubBroadcast = new BroadcastService(context, logger);
-                logger.logDebug("GameHub broadcast created.");
+                logger.logDebug(BROADCAST_IS_CREATED);
                 connectionCallback(context, showPrompts, callback);
             }
         }
-    }
-
-    void connectionCallback(Context context, boolean showPrompts, IConnectionCallback callback) {
-        // Check login to cafebazaar
-        getLoginState(loginResult -> {
-            if (loginResult.status == Status.SUCCESS) {
-                callback.onFinish(loginResult.status.getLevelCode(), "GameHub service connected.", "");
-            } else {
-                callback.onFinish(loginResult.status.getLevelCode(), loginResult.message, loginResult.stackTrace);
-                if (showPrompts) {
-                    showLoginPrompt(context);
-                }
-            }
-        });
-    }
-
-
-    boolean areServicesUnavailable() {
-        return gameHubService != null && gameHubBroadcast != null;
     }
 
     public void getLoginState(IBroadcastCallback callback) {
         final Result result = new Result(Status.SUCCESS, "");
         if (gameHubService == null && gameHubBroadcast == null) {
             result.status = Status.DISCONNECTED;
-            result.message = "Connect to service before!";
+            result.message = CONNECT_TO_SERVICE_FIRST;
             callback.call(result);
             return;
         }
@@ -151,7 +140,7 @@ public class GameHub {
                     return;
                 }
                 result.status = Status.LOGIN_CAFEBAZAAR;
-                result.message = "Login to Cafebazaar before!";
+                result.message = LOGIN_TO_BAZAAR_FIRST;
             } catch (Exception e) {
                 e.printStackTrace();
                 result.status = Status.FAILURE;
@@ -162,48 +151,12 @@ public class GameHub {
         });
     }
 
-    void showLoginPrompt(Context context) {
-        startActionViewIntent(context, Constant.BAZAAR_LOGIN_URL, Constant.BAZAAR_PACKAGE_NAME);
-    }
-
-    void startActionViewIntent(Context context, String uri, String packageName) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setData(Uri.parse(uri));
-        if (packageName != null) {
-            intent.setPackage(packageName);
-        }
-        context.startActivity(intent);
-    }
-
-    Result getBazaarInstallationState(Context context, boolean showPrompts) {
-        PackageInfo packageInfo = null;
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(Constant.BAZAAR_PACKAGE_NAME, 0);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (packageInfo == null) {
-            if (showPrompts) {
-                startActionViewIntent(context, Constant.BAZAAR_INSTALL_URL, null);
-            }
-            return new Result(Status.INSTALL_CAFEBAZAAR, "Install cafebazaar to support GameHub!");
-        }
-        if (packageInfo.versionCode < Constant.MINIMUM_BAZAAR_VERSION) {
-            if (showPrompts) {
-                startActionViewIntent(context, Constant.BAZAAR_DETAILS_URL, Constant.BAZAAR_PACKAGE_NAME);
-            }
-            return new Result(Status.UPDATE_CAFEBAZAAR, "Install new version of cafebazaar to support GameHub!");
-        }
-        return new Result(Status.SUCCESS, "");
-    }
-
     public void getTournaments(Activity activity, ITournamentsCallback callback) {
         logger.logDebug("Call " + Method.GET_TOURNAMENTS);
 
         // Check one of services is connected
         if (areServicesUnavailable()) {
-            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), CONNECT_TO_SERVICE_FIRST, "", null);
             return;
         }
 
@@ -235,28 +188,17 @@ public class GameHub {
         });
     }
 
-    void tournamentsCallback(Result result, ITournamentsCallback callback) {
-        logger.logDebug("Tournaments: " + result.toString());
-
-        if (result.status != Status.SUCCESS) {
-            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
-            return;
-        }
-
-        long startAt = result.extras.containsKey(Param.START_TIMESTAMP) ? result.extras.getLong(Param.START_TIMESTAMP) : 0;
-        long endAt = result.extras.containsKey(Param.END_TIMESTAMP) ? result.extras.getLong(Param.END_TIMESTAMP) : 0;
-        List<Tournament> tournaments = new ArrayList<>();
-        tournaments.add(new Tournament(startAt, endAt));
-        callback.onFinish(Status.SUCCESS.getLevelCode(), "Get Tournaments", "", tournaments);
-    }
-
-    public void startTournamentMatch(Activity activity, ITournamentMatchCallback
-            callback, String matchId, String metadata) {
+    public void startTournamentMatch(
+            Activity activity,
+            ITournamentMatchCallback callback,
+            String matchId,
+            String metadata
+    ) {
         logger.logDebug("Call " + Method.START_TOURNAMENT_MATCH);
 
         // Check one of services is connected
         if (areServicesUnavailable()) {
-            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", "");
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), CONNECT_TO_SERVICE_FIRST, "", "");
             return;
         }
 
@@ -268,7 +210,9 @@ public class GameHub {
             }
 
             if (isBroadcastMode) {
-                gameHubBroadcast.startTournamentMatch(matchId, metadata, startResult -> startTournamentMatchCallback(startResult, callback, matchId, metadata));
+                gameHubBroadcast.startTournamentMatch(matchId, metadata, startResult ->
+                        startTournamentMatchCallback(startResult, callback, matchId, metadata)
+                );
                 return;
             }
             executorService.submit(() -> {
@@ -287,29 +231,20 @@ public class GameHub {
         });
     }
 
-    void startTournamentMatchCallback(Result result, ITournamentMatchCallback callback, String matchId, String metadata) {
-        logger.logDebug("Start: " + result.toString());
-
-        if (result.status != Status.SUCCESS) {
-            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, "");
-            return;
-        }
-        String sessionId = result.extras.containsKey(Param.SESSION_ID) ? result.extras.getString(Param.SESSION_ID) : Param.SESSION_ID;
-        callback.onFinish(result.status.getLevelCode(), sessionId, matchId, metadata);
-    }
-
     public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId,
                                    float score) {
         logger.logDebug("Call " + Method.END_TOURNAMENT_MATCH);
 
         // Check one of services is connected
         if (areServicesUnavailable()) {
-            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", "");
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), CONNECT_TO_SERVICE_FIRST, "", "");
             return;
         }
 
         if (isBroadcastMode) {
-            gameHubBroadcast.endTournamentMatch(sessionId, score, endResult -> endTournamentMatchCallback(endResult, callback, sessionId));
+            gameHubBroadcast.endTournamentMatch(sessionId, score, endResult ->
+                    endTournamentMatchCallback(endResult, callback, sessionId)
+            );
             return;
         }
         executorService.submit(() -> {
@@ -327,18 +262,6 @@ public class GameHub {
         });
     }
 
-    void endTournamentMatchCallback(Result result, ITournamentMatchCallback callback, String sessionId) {
-        logger.logDebug("End: " + result.toString());
-
-        if (result.status != Status.SUCCESS) {
-            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, "");
-            return;
-        }
-        String matchId = result.extras.containsKey(Param.MATCH_ID) ? result.extras.getString(Param.MATCH_ID) : Param.MATCH_ID;
-        String metaData = result.extras.containsKey(Param.META_DATA) ? result.extras.getString(Param.META_DATA) : Param.META_DATA;
-        callback.onFinish(result.status.getLevelCode(), sessionId, matchId, metaData);
-    }
-
     public void showTournamentRanking(Context context, String tournamentId, IConnectionCallback callback) {
         logger.logDebug("Call showTournamentRanking");
 
@@ -352,33 +275,44 @@ public class GameHub {
         // Check player is already logged-in
         getLoginState(loginResult -> {
             if (loginResult.status != Status.SUCCESS) {
-                callback.onFinish(loginResult.status.getLevelCode(), loginResult.message, loginResult.stackTrace);
+                callback.onFinish(
+                        loginResult.status.getLevelCode(),
+                        loginResult.message,
+                        loginResult.stackTrace
+                );
                 if (result.status == Status.LOGIN_CAFEBAZAAR) {
                     showLoginPrompt(context);
                 }
                 return;
             }
 
-            result.message = "Last tournament ranking table shown.";
+            result.message = TOURNAMENT_RANKING_IS_SHOWN;
             String data = Constant.BAZAAR_TOURNAMENT_URL + context.getPackageName();
             logger.logDebug(data);
             try {
                 startActionViewIntent(context, data, Constant.BAZAAR_PACKAGE_NAME);
             } catch (Exception e) {
-                callback.onFinish(Status.UPDATE_CAFEBAZAAR.getLevelCode(), "Get Ranking-data needs to new version of CafeBazaar!", Arrays.toString(e.getStackTrace()));
+                callback.onFinish(
+                        Status.UPDATE_CAFEBAZAAR.getLevelCode(),
+                        GET_RANKING_NEEDS_UPDATE_BAZAAR,
+                        Arrays.toString(e.getStackTrace())
+                );
                 return;
             }
             callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace);
         });
     }
 
-    public void getTournamentRanking(Context context, String tournamentId, IRankingCallback
-            callback) {
+    public void getTournamentRanking(
+            Context context,
+            String tournamentId,
+            IRankingCallback callback
+    ) {
         logger.logDebug("Call getTournamentRanking");
 
         // Check one of services is connected
         if (areServicesUnavailable()) {
-            callback.onFinish(Status.DISCONNECTED.getLevelCode(), "Connect to service before!", "", null);
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), CONNECT_TO_SERVICE_FIRST, "", null);
             return;
         }
 
@@ -390,7 +324,9 @@ public class GameHub {
             }
 
             if (isBroadcastMode) {
-                gameHubBroadcast.getCurrentLeaderboard(rankResult -> getTournamentRankingCallback(rankResult, callback));
+                gameHubBroadcast.getCurrentLeaderboard(rankResult ->
+                        getTournamentRankingCallback(rankResult, callback)
+                );
                 return;
             }
             executorService.submit(() -> {
@@ -407,6 +343,121 @@ public class GameHub {
                 MainThread.run(() -> getTournamentRankingCallback(result, callback));
             });
         });
+    }
+
+    public void dispose() {
+        isDisposed = true;
+
+        if (gameHubBroadcast != null) {
+            gameHubBroadcast.dispose();
+            gameHubBroadcast = null;
+        }
+
+        if (executorService != null) {
+            executorService.shutdown();
+            executorService = null;
+        }
+    }
+
+    void connectionCallback(Context context, boolean showPrompts, IConnectionCallback callback) {
+        // Check login to cafebazaar
+        getLoginState(loginResult -> {
+            if (loginResult.status == Status.SUCCESS) {
+                callback.onFinish(loginResult.status.getLevelCode(), SERVICE_IS_CONNECTED, "");
+            } else {
+                callback.onFinish(loginResult.status.getLevelCode(), loginResult.message, loginResult.stackTrace);
+                if (showPrompts) {
+                    showLoginPrompt(context);
+                }
+            }
+        });
+    }
+
+    boolean areServicesUnavailable() {
+        return gameHubService != null && gameHubBroadcast != null;
+    }
+
+    void showLoginPrompt(Context context) {
+        startActionViewIntent(context, Constant.BAZAAR_LOGIN_URL, Constant.BAZAAR_PACKAGE_NAME);
+    }
+
+    void startActionViewIntent(Context context, String uri, String packageName) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setData(Uri.parse(uri));
+        if (packageName != null) {
+            intent.setPackage(packageName);
+        }
+        context.startActivity(intent);
+    }
+
+    Result getBazaarInstallationState(Context context, boolean showPrompts) {
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = context.getPackageManager().getPackageInfo(Constant.BAZAAR_PACKAGE_NAME, 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (packageInfo == null) {
+            if (showPrompts) {
+                startActionViewIntent(context, Constant.BAZAAR_INSTALL_URL, null);
+            }
+            return new Result(Status.INSTALL_CAFEBAZAAR, INSTALL_BAZAAR);
+        }
+        if (packageInfo.versionCode < Constant.MINIMUM_BAZAAR_VERSION) {
+            if (showPrompts) {
+                startActionViewIntent(context, Constant.BAZAAR_DETAILS_URL, Constant.BAZAAR_PACKAGE_NAME);
+            }
+            return new Result(Status.UPDATE_CAFEBAZAAR, UPDATE_BAZAAR);
+        }
+        return new Result(Status.SUCCESS, "");
+    }
+
+    void tournamentsCallback(Result result, ITournamentsCallback callback) {
+        logger.logDebug("Tournaments: " + result.toString());
+
+        if (result.status != Status.SUCCESS) {
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
+            return;
+        }
+
+        long startAt = result.extras.containsKey(Param.START_TIMESTAMP) ? result.extras.getLong(Param.START_TIMESTAMP) : 0;
+        long endAt = result.extras.containsKey(Param.END_TIMESTAMP) ? result.extras.getLong(Param.END_TIMESTAMP) : 0;
+        List<Tournament> tournaments = new ArrayList<>();
+        tournaments.add(new Tournament(startAt, endAt));
+        callback.onFinish(Status.SUCCESS.getLevelCode(), "Get Tournaments", "", tournaments);
+    }
+
+    void startTournamentMatchCallback(
+            Result result,
+            ITournamentMatchCallback callback,
+            String matchId,
+            String metadata
+    ) {
+        logger.logDebug("Start: " + result.toString());
+
+        if (result.status != Status.SUCCESS) {
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
+            return;
+        }
+        String sessionId = result.extras.containsKey(Param.SESSION_ID) ? result.extras.getString(Param.SESSION_ID) : Param.SESSION_ID;
+        callback.onFinish(result.status.getLevelCode(), sessionId, matchId, metadata);
+    }
+
+    void endTournamentMatchCallback(
+            Result result,
+            ITournamentMatchCallback callback,
+            String sessionId
+    ) {
+        logger.logDebug("End: " + result.toString());
+
+        if (result.status != Status.SUCCESS) {
+            callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, null);
+            return;
+        }
+        String matchId = result.extras.containsKey(Param.MATCH_ID) ? result.extras.getString(Param.MATCH_ID) : Param.MATCH_ID;
+        String metaData = result.extras.containsKey(Param.META_DATA) ? result.extras.getString(Param.META_DATA) : Param.META_DATA;
+        callback.onFinish(result.status.getLevelCode(), sessionId, matchId, metaData);
     }
 
     void getTournamentRankingCallback(Result result, IRankingCallback callback) {
@@ -439,19 +490,5 @@ public class GameHub {
         }
 
         callback.onFinish(result.status.getLevelCode(), "getTournamentRanking", jsonString, rankItems);
-    }
-
-    public void dispose() {
-        isDisposed = true;
-
-        if (gameHubBroadcast != null) {
-            gameHubBroadcast.dispose();
-            gameHubBroadcast = null;
-        }
-
-        if (executorService != null) {
-            executorService.shutdown();
-            executorService = null;
-        }
     }
 }
