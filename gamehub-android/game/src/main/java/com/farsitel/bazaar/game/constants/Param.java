@@ -10,5 +10,6 @@ public class Param {
     public static final String PACKAGE_NAME = "packageName";
     public static final String END_TIMESTAMP = "endTimestamp";
     public static final String START_TIMESTAMP = "startTimestamp";
-
+    public static final String EVENT_ID = "eventId";
+    public static final String EVENT_DONE_TIMESTAMP = "eventDoneTimestamp";
 }

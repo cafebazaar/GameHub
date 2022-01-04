@@ -76,6 +76,7 @@ public class BroadcastService {
         intentFilter.addAction(getAction(Method.START_TOURNAMENT_MATCH));
         intentFilter.addAction(getAction(Method.END_TOURNAMENT_MATCH));
         intentFilter.addAction(getAction(Method.GET_CURRENT_LEADERBOARD_DATA));
+        intentFilter.addAction(getAction(Method.EVENT_DONE_NOTIFY));
         context.registerReceiver(receiver, intentFilter);
     }
 
@@ -122,6 +123,13 @@ public class BroadcastService {
     public void getCurrentLeaderboard(IBroadcastCallback callback) {
         callbacks.put(getAction(Method.GET_CURRENT_LEADERBOARD_DATA), callback);
         sendBroadcast(getAction(Method.GET_CURRENT_LEADERBOARD_DATA));
+    }
+
+    public void eventDoneNotify(String eventId, IBroadcastCallback callback) {
+        Bundle extras = new Bundle();
+        extras.putString(Param.EVENT_ID, eventId);
+        callbacks.put(getAction(Method.EVENT_DONE_NOTIFY), callback);
+        sendBroadcast(getAction(Method.EVENT_DONE_NOTIFY), extras);
     }
 
     protected boolean disposed() {
