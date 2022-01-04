@@ -15,9 +15,9 @@ public class Constant {
     public static final String SERVICE_IS_DISCONNECTED = "GameHub service is disconnected.";
     public static final String SERVICE_IS_STARTED = "GameHub service is started.";
     public static final String BROADCAST_IS_CREATED = "GameHub broadcast is created.";
-    public static final String GET_RANKING_NEEDS_UPDATE_BAZAAR = "Getting Ranking-data needs updating to last version of CafeBazaar!";
-    public static final String INSTALL_BAZAAR = "Install CafeBazaar to support GameHub!";
-    public static final String UPDATE_BAZAAR = "Install new version of CafeBazaar to support GameHub!";
+    public static final String GET_RANKING_NEEDS_UPDATE_BAZAAR = "Getting Ranking-data needs updating to last version of Bazaar!";
+    public static final String INSTALL_BAZAAR = "Install Bazaar to support GameHub!";
+    public static final String UPDATE_BAZAAR = "Install new version of Bazaar to support GameHub!";
     public static final String TOURNAMENT_RANKING_IS_SHOWN = "The last tournament ranking table is shown";
-    public static final String LOGIN_TO_BAZAAR_FIRST = "Login to CafeBazaar first!";
+    public static final String LOGIN_TO_BAZAAR_FIRST = "Login to Bazaar first!";
 }

@@ -83,7 +83,7 @@ public class GameHub {
     }
 
     public void connect(Context context, boolean showPrompts, IConnectionCallback callback) {
-        // Check player has CafeBazaar app or  it`s already updated to the latest version
+        // Check player has Bazaar app or  it`s already updated to the latest version
         Result installState = getBazaarInstallationState(context, REQUIRED_BAZAAR_EVENT_FOR_TOURNAMENT, showPrompts);
         if (installState.status != Status.SUCCESS) {
             callback.onFinish(installState.status.getLevelCode(), installState.message, "");
@@ -144,7 +144,7 @@ public class GameHub {
                     callback.call(result);
                     return;
                 }
-                result.status = Status.LOGIN_CAFEBAZAAR;
+                result.status = Status.LOGIN_BAZAAR;
                 result.message = LOGIN_TO_BAZAAR_FIRST;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -270,7 +270,7 @@ public class GameHub {
     public void showTournamentRanking(Context context, String tournamentId, IConnectionCallback callback) {
         logger.logDebug("Call showTournamentRanking");
 
-        // Check player has CafeBazaar app or  it`s already updated to the latest version
+        // Check player has Bazaar app or  it`s already updated to the latest version
         Result result = getBazaarInstallationState(context, REQUIRED_BAZAAR_EVENT_FOR_TOURNAMENT, true);
         if (result.status != Status.SUCCESS) {
             callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace);
@@ -285,7 +285,7 @@ public class GameHub {
                         loginResult.message,
                         loginResult.stackTrace
                 );
-                if (result.status == Status.LOGIN_CAFEBAZAAR) {
+                if (result.status == Status.LOGIN_BAZAAR) {
                     showLoginPrompt(context);
                 }
                 return;
@@ -298,7 +298,7 @@ public class GameHub {
                 startActionViewIntent(context, data, Constant.BAZAAR_PACKAGE_NAME);
             } catch (Exception e) {
                 callback.onFinish(
-                        Status.UPDATE_CAFEBAZAAR.getLevelCode(),
+                        Status.UPDATE_BAZAAR.getLevelCode(),
                         GET_RANKING_NEEDS_UPDATE_BAZAAR,
                         Arrays.toString(e.getStackTrace())
                 );
@@ -475,7 +475,7 @@ public class GameHub {
     }
 
     void connectionCallback(Context context, boolean showPrompts, IConnectionCallback callback) {
-        // Check login to cafebazaar
+        // Check login to Bazaar
         getLoginState(loginResult -> {
             if (loginResult.status == Status.SUCCESS) {
                 callback.onFinish(loginResult.status.getLevelCode(), SERVICE_IS_CONNECTED, "");
@@ -521,13 +521,13 @@ public class GameHub {
             if (showPrompts) {
                 startActionViewIntent(context, Constant.BAZAAR_INSTALL_URL, null);
             }
-            return new Result(Status.INSTALL_CAFEBAZAAR, INSTALL_BAZAAR);
+            return new Result(Status.INSTALL_BAZAAR, INSTALL_BAZAAR);
         }
         if (packageInfo.versionCode < requiredBazaarVersion) {
             if (showPrompts) {
                 startActionViewIntent(context, Constant.BAZAAR_DETAILS_URL, Constant.BAZAAR_PACKAGE_NAME);
             }
-            return new Result(Status.UPDATE_CAFEBAZAAR, UPDATE_BAZAAR);
+            return new Result(Status.UPDATE_BAZAAR, UPDATE_BAZAAR);
         }
         return new Result(Status.SUCCESS, "");
     }
