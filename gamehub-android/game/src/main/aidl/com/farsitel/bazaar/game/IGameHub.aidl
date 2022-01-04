@@ -4,13 +4,13 @@ interface IGameHub {
 
     boolean isLogin();
 
-    Bundle getTournamentTimes(String packagename);
+    Bundle getTournamentTimes(String packageName);
 
-    Bundle startTournamentMatch(String packagename, String matchId, String metaData);
+    Bundle startTournamentMatch(String packageName, String matchId, String metaData);
 
     Bundle endTournamentMatch(String sessionId, float score);
 
     Bundle getLeaderboard(int tournamentId);
 
-    Bundle getCurrentLeaderboard(String packagename);
+    Bundle getCurrentLeaderboard(String packageName);
 }
