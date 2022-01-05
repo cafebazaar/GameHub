@@ -60,6 +60,6 @@
         android:id="@+id/getEventsByPackageNameButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="getEventsByPackageName"
-        android:text="Get events by packageName" />
+        android:onClick="getEvents"
+        android:text="Get events" />
 </LinearLayout>

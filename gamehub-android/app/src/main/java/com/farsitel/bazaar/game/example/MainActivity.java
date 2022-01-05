@@ -71,9 +71,9 @@ public class MainActivity extends Activity {
                 Log.i(Logger.TAG, String.format("eventDoneNotify => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
-    public void getEventsByPackageName(View view) {
-        gameHub.getEventsByPackageName(getApplicationContext(), "packageName", (status, message, stackTrace, events) ->
-                Log.i(Logger.TAG, String.format("getEventsByPackageName => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
+    public void getEvents(View view) {
+        gameHub.getEvents(getApplicationContext(), (status, message, stackTrace, events) ->
+                Log.i(Logger.TAG, String.format("getEvents => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
     @Override

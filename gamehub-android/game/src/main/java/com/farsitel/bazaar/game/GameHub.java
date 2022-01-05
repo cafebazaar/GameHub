@@ -406,12 +406,11 @@ public class GameHub {
         });
     }
 
-    public void getEventsByPackageName(
+    public void getEvents(
             Context context,
-            String packageName,
             IGetEventsCallback callback
     ) {
-        logger.logDebug("Call eventDoneNotify");
+        logger.logDebug("Call getEvents");
 
         // Check if one of the services is connected
         if (areServicesUnavailable()) {
@@ -430,7 +429,7 @@ public class GameHub {
             );
             return;
         }
-
+        String packageName = context.getPackageName();
         // Check player is already logged-in
         getLoginState(loginResult -> {
             if (loginResult.status != Status.SUCCESS) {
