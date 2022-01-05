@@ -34,8 +34,8 @@ public class MainActivity extends Activity {
     }
 
     public void startTournamentMatch(View view) {
-        ITournamentMatchCallback callback = (status, sessionId, matchId, metaData) -> {
-            Log.i(Logger.TAG, String.format("Start => Status: %d, SessionId: %s, MatchId: %s, MetaData: %s", status, sessionId, matchId, metaData));
+        ITournamentMatchCallback callback = (status, message, stackTrace, match) -> {
+            Log.i(Logger.TAG, String.format("Start => Status: %d, SessionId: %s, MatchId: %s", status, message, stackTrace));
             if (status == Status.SUCCESS.getLevelCode()) {
                 reservedSessionId = sessionId;
             }
@@ -48,9 +48,8 @@ public class MainActivity extends Activity {
             Log.e(Logger.TAG, "Call startTournamentMatch before!");
             return;
         }
-        ITournamentMatchCallback callback = (status, sessionId, matchId, metaData) -> {
-            Log.i(Logger.TAG, String.format("End => Status: %d, SessionId: %s, MatchId: %s, MetaData: %s", status, sessionId, matchId, metaData));
-            reservedSessionId = null;
+        ITournamentMatchCallback callback = (status, message, stackTrace, match) -> {
+            Log.i(Logger.TAG, String.format("End => Status: %d, SessionId: %s, MatchId: %s", status, message, stackTrace));
         };
         gameHub.endTournamentMatch(callback, reservedSessionId, 0.5f);
     }

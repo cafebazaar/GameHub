@@ -16,8 +16,8 @@ namespace Bazaar.GameHub
         {
             var result = Result<bool>.GetDefault();
             if (isAndroid)
-        {
-            var callback = new ConnectionCallbackProxy();
+            {
+                var callback = new ConnectionCallbackProxy();
                 bridge.Call("connect", UnityActivity.GetCurrentActivity(), showPrompts, callback);
                 result = await callback.WaitForResult();
             }
@@ -33,8 +33,8 @@ namespace Bazaar.GameHub
         {
             var result = Result<List<Tournament>>.GetDefault();
             if (isAndroid)
-        {
-            var callback = new TournamentsCallbackProxy();
+            {
+                var callback = new TournamentsCallbackProxy();
                 bridge.Call("getTournaments", UnityActivity.GetCurrentActivity(), callback);
                 result = await callback.WaitForResult();
             }
@@ -50,8 +50,8 @@ namespace Bazaar.GameHub
         {
             var result = Result<Match>.GetDefault();
             if (isAndroid)
-        {
-            var callback = new TournamentMatchCallbackProxy();
+            {
+                var callback = new TournamentMatchCallbackProxy();
                 bridge.Call("startTournamentMatch", UnityActivity.GetCurrentActivity(), callback, matchId, metaData);
                 result = await callback.WaitForResult();
             }
@@ -67,8 +67,8 @@ namespace Bazaar.GameHub
         {
             var result = Result<Match>.GetDefault();
             if (isAndroid)
-        {
-            var callback = new TournamentMatchCallbackProxy();
+            {
+                var callback = new TournamentMatchCallbackProxy();
                 bridge.Call("endTournamentMatch", callback, sessionId, score);
                 result = await callback.WaitForResult();
             }
@@ -84,8 +84,8 @@ namespace Bazaar.GameHub
         {
             var result = Result<bool>.GetDefault();
             if (isAndroid)
-        {
-            var callback = new ConnectionCallbackProxy();
+            {
+                var callback = new ConnectionCallbackProxy();
                 bridge.Call("showTournamentRanking", UnityActivity.GetCurrentActivity(), tournamentId, callback);
                 result = await callback.WaitForResult();
             }
@@ -106,8 +106,8 @@ namespace Bazaar.GameHub
         {
             var result = Result<List<RankItem>>.GetDefault();
             if (isAndroid)
-        {
-            var callback = new RankingCallbackProxy();
+            {
+                var callback = new RankingCallbackProxy();
                 bridge.Call("getTournamentRanking", UnityActivity.GetCurrentActivity(), "-1", callback);
                 result = await callback.WaitForResult();
             }

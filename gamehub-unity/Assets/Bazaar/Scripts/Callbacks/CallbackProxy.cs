@@ -11,7 +11,7 @@ namespace Bazaar.Callbacks
 
         public async Task<Result<T>> WaitForResult()
         {
-            while (result == null || result.data == null)
+            while (result == null)
                 await Task.Delay(100);
             return (Result<T>)result;
         }

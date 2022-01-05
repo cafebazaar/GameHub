@@ -39,6 +39,7 @@ import com.farsitel.bazaar.game.constants.Key;
 import com.farsitel.bazaar.game.constants.Method;
 import com.farsitel.bazaar.game.constants.Param;
 import com.farsitel.bazaar.game.data.Event;
+import com.farsitel.bazaar.game.data.Match;
 import com.farsitel.bazaar.game.data.RankItem;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
@@ -203,7 +204,7 @@ public class GameHub {
 
         // Check one of services is connected
         if (areServicesUnavailable()) {
-            callback.onFinish(Status.DISCONNECTED.getLevelCode(), CONNECT_TO_SERVICE_FIRST, "", "");
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), CONNECT_TO_SERVICE_FIRST, "", null);
             return;
         }
 
@@ -242,7 +243,7 @@ public class GameHub {
 
         // Check one of services is connected
         if (areServicesUnavailable()) {
-            callback.onFinish(Status.DISCONNECTED.getLevelCode(), CONNECT_TO_SERVICE_FIRST, "", "");
+            callback.onFinish(Status.DISCONNECTED.getLevelCode(), CONNECT_TO_SERVICE_FIRST, "", null);
             return;
         }
 
@@ -560,7 +561,7 @@ public class GameHub {
             return;
         }
         String sessionId = result.extras.containsKey(Param.SESSION_ID) ? result.extras.getString(Param.SESSION_ID) : Param.SESSION_ID;
-        callback.onFinish(result.status.getLevelCode(), sessionId, matchId, metadata);
+        callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, new Match(matchId, sessionId, metadata));
     }
 
     void endTournamentMatchCallback(
@@ -576,7 +577,7 @@ public class GameHub {
         }
         String matchId = result.extras.containsKey(Param.MATCH_ID) ? result.extras.getString(Param.MATCH_ID) : Param.MATCH_ID;
         String metaData = result.extras.containsKey(Param.META_DATA) ? result.extras.getString(Param.META_DATA) : Param.META_DATA;
-        callback.onFinish(result.status.getLevelCode(), sessionId, matchId, metaData);
+        callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace, new Match(matchId, sessionId, metaData));
     }
 
     void getTournamentRankingCallback(Result result, IRankingCallback callback) {

@@ -51,7 +51,7 @@ public class GameHubExample : MonoBehaviour
             Log("Call `StartTournamentMatch` before!");
             return;
         }
-        var result = await gameHub.EndTournamentMatch(reservedMatch.id, 0.4f);
+        var result = await gameHub.EndTournamentMatch(reservedMatch.id, 0.5f);
         Log(result.ToString());
         reservedMatch = null;
     }
