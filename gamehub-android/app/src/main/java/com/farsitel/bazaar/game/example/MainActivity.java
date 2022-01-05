@@ -7,13 +7,14 @@ import android.view.View;
 
 import com.farsitel.bazaar.game.GameHub;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
+import com.farsitel.bazaar.game.data.Match;
 import com.farsitel.bazaar.game.data.Status;
 import com.farsitel.bazaar.game.utils.Logger;
 
 public class MainActivity extends Activity {
 
     private GameHub gameHub;
-    private String reservedSessionId;
+    private Match reservedMatch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,21 +38,22 @@ public class MainActivity extends Activity {
         ITournamentMatchCallback callback = (status, message, stackTrace, match) -> {
             Log.i(Logger.TAG, String.format("Start => Status: %d, SessionId: %s, MatchId: %s", status, message, stackTrace));
             if (status == Status.SUCCESS.getLevelCode()) {
-                reservedSessionId = sessionId;
+                reservedMatch = match;
             }
         };
         gameHub.startTournamentMatch(this, callback, "OgMSbLOC", "extra");
     }
 
     public void endTournamentMatch(View view) {
-        if (reservedSessionId == null) {
+        if (reservedMatch == null) {
             Log.e(Logger.TAG, "Call startTournamentMatch before!");
             return;
         }
         ITournamentMatchCallback callback = (status, message, stackTrace, match) -> {
             Log.i(Logger.TAG, String.format("End => Status: %d, SessionId: %s, MatchId: %s", status, message, stackTrace));
+            reservedMatch = null;
         };
-        gameHub.endTournamentMatch(callback, reservedSessionId, 0.5f);
+        gameHub.endTournamentMatch(callback, reservedMatch.id, 0.5f);
     }
 
     public void showTournamentRanking(View view) {
