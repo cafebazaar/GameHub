@@ -12,22 +12,36 @@ namespace Bazaar.GameHub
 
         public GameHub():base("com.farsitel.bazaar.game.GameHub"){}
 
-
-        public async Task<Result> Connect(bool showPrompts = true, Action<Result> onComplete = null)
+        public async Task<Result<bool>> Connect(bool showPrompts = true, Action<Result<bool>> onComplete = null)
+        {
+            var result = Result<bool>.GetDefault();
+            if (isAndroid)
         {
             var callback = new ConnectionCallbackProxy();
-            gameHubClass.Call("connect", UnityActivity.GetCurrentActivity(), showPrompts, callback);
-            var result = await callback.WaitForResult();
+                bridge.Call("connect", UnityActivity.GetCurrentActivity(), showPrompts, callback);
+                result = await callback.WaitForResult();
+            }
+            else
+            {
+                await Task.Delay(1);
+            }
             onComplete?.Invoke(result);
             return result;
         }
 
-        public async Task<TournamentsResult> GetTournaments(Action<TournamentsResult> onComplete = null)
+        public async Task<Result<List<Tournament>>> GetTournaments(Action<Result<List<Tournament>>> onComplete = null)
+        {
+            var result = Result<List<Tournament>>.GetDefault();
+            if (isAndroid)
         {
             var callback = new TournamentsCallbackProxy();
-            gameHubClass.Call("getTournaments", UnityActivity.GetCurrentActivity(), callback);
-            var data = await callback.WaitForResult();
-            var result = (TournamentsResult)data;
+                bridge.Call("getTournaments", UnityActivity.GetCurrentActivity(), callback);
+                result = await callback.WaitForResult();
+            }
+            else
+            {
+                await Task.Delay(1);
+            }
             onComplete?.Invoke(result);
             return result;
         }
