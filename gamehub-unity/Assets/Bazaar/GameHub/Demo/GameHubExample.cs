@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using Bazaar.Data;
 using Bazaar.GameHub;
@@ -8,7 +8,7 @@ public class GameHubExample : MonoBehaviour
 {
     [SerializeField] private Text consoleText;
     [SerializeField] private GameObject menu;
-
+    
     private GameHub gameHub;
     private Match reservedMatch;
 
@@ -71,6 +71,20 @@ public class GameHubExample : MonoBehaviour
         Log(result.ToString());
     }
 
+    
+    public async void EventDoneNotify()
+    {
+        var result = await gameHub.EventDoneNotify("eventId");
+        Log(result.ToString());
+    }
+
+    public async void GetEvents()
+    {
+        var result = await gameHub.GetEvents();
+        if (result.status != Status.Success)
+        {
+            Log(result.ToString());
+        }
     }
 
     public void Log(string message)

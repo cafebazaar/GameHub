@@ -7,10 +7,10 @@ using Bazaar.GameHub.Callbacks;
 
 namespace Bazaar.GameHub
 {
-    public class GameHub:Bridge
+    public class GameHub : Bridge
     {
 
-        public GameHub():base("com.farsitel.bazaar.game.GameHub"){}
+        public GameHub() : base("com.farsitel.bazaar.game.GameHub") { }
 
         public async Task<Result<bool>> Connect(bool showPrompts = true, Action<Result<bool>> onComplete = null)
         {
@@ -109,6 +109,41 @@ namespace Bazaar.GameHub
             {
                 var callback = new RankingCallbackProxy();
                 bridge.Call("getTournamentRanking", UnityActivity.GetCurrentActivity(), "-1", callback);
+                result = await callback.WaitForResult();
+            }
+            else
+            {
+                await Task.Delay(1);
+            }
+            onComplete?.Invoke(result);
+            return result;
+        }
+
+        public async Task<Result<string>> EventDoneNotify(string eventId, Action<Result<string>> onComplete = null)
+        {
+            var result = Result<string>.GetDefault();
+            if (isAndroid)
+            {
+                var callback = new EventDoneCallbackProxy();
+                bridge.Call("eventDoneNotify", UnityActivity.GetCurrentActivity(), eventId, callback);
+                result = await callback.WaitForResult();
+            }
+            else
+            {
+                await Task.Delay(1);
+            }
+            onComplete?.Invoke(result);
+            return result;
+        }
+
+        
+        public async Task<Result<List<Event>>> GetEvents(Action<Result<List<Event>>> onComplete = null)
+        {
+            var result = Result<List<Event>>.GetDefault();
+            if (isAndroid)
+            {
+                var callback = new EvenListCallbackProxy();
+                bridge.Call("getEvents", UnityActivity.GetCurrentActivity(), callback);
                 result = await callback.WaitForResult();
             }
             else

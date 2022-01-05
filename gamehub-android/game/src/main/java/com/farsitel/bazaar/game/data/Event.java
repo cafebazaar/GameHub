@@ -1,10 +1,10 @@
 package com.farsitel.bazaar.game.data;
 
 public class Event {
-    String eventId, startTimestamp, endTimestamp;
+    String id, startTimestamp, endTimestamp;
 
-    public Event(String eventId, String startTimestamp, String endTimestamp) {
-        this.eventId = eventId;
+    public Event(String id, String startTimestamp, String endTimestamp) {
+        this.id = id;
         this.startTimestamp = startTimestamp;
         this.endTimestamp = endTimestamp;
     }
