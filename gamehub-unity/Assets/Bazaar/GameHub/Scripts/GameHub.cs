@@ -46,21 +46,36 @@ namespace Bazaar.GameHub
             return result;
         }
 
-        public async Task<TournamentMatchResult> StartTournamentMatch(string matchId, string metaData = "", Action<TournamentMatchResult> onComplete = null)
+        public async Task<Result<Match>> StartTournamentMatch(string matchId, string metaData = "", Action<Result<Match>> onComplete = null)
+        {
+            var result = Result<Match>.GetDefault();
+            if (isAndroid)
         {
             var callback = new TournamentMatchCallbackProxy();
-            gameHubClass.Call("startTournamentMatch", UnityActivity.GetCurrentActivity(), callback, matchId, metaData);
-            var data = await callback.WaitForResult();
-            var result = (TournamentMatchResult)data;
+                bridge.Call("startTournamentMatch", UnityActivity.GetCurrentActivity(), callback, matchId, metaData);
+                result = await callback.WaitForResult();
+            }
+            else
+            {
+                await Task.Delay(1);
+            }
             onComplete?.Invoke(result);
             return result;
         }
 
-        public async Task<Result> EndTournamentMatch(string sessionId, float score, Action<Result> onComplete = null)
+        public async Task<Result<Match>> EndTournamentMatch(string sessionId, float score, Action<Result<Match>> onComplete = null)
+        {
+            var result = Result<Match>.GetDefault();
+            if (isAndroid)
         {
             var callback = new TournamentMatchCallbackProxy();
-            gameHubClass.Call("endTournamentMatch", callback, sessionId, score);
-            var result = await callback.WaitForResult();
+                bridge.Call("endTournamentMatch", callback, sessionId, score);
+                result = await callback.WaitForResult();
+            }
+            else
+            {
+                await Task.Delay(1);
+            }
             onComplete?.Invoke(result);
             return result;
         }

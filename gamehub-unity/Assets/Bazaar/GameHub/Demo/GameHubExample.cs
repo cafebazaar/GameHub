@@ -31,28 +31,29 @@ public class GameHubExample : MonoBehaviour
     public async void GetTournaments()
     {
         var result = await gameHub.GetTournaments();
-        Log(result.toString());
+        Log(result.ToString());
     }
 
     public async void StartTournamentMatch()
     {
         var result = await gameHub.StartTournamentMatch("OgMSbLOC", "metadata");
-        if (result.status == Result.Status.Success)
+        if (result.status == Status.Success)
         {
-            reservedSessionId = result.sessionId;
+            reservedMatch = result.data;
         }
-        Log(result.toString());
+        Log(result.ToString());
     }
 
     public async void EndTournamentMatch()
     {
-        if (reservedSessionId == null)
+        if (reservedMatch == null)
         {
             Log("Call `StartTournamentMatch` before!");
             return;
         }
-        var result = await gameHub.EndTournamentMatch(reservedSessionId, 0.4f);
-        Log(result.toString());
+        var result = await gameHub.EndTournamentMatch(reservedMatch.id, 0.4f);
+        Log(result.ToString());
+        reservedMatch = null;
     }
 
     public async void ShowLastTournamentRanking()

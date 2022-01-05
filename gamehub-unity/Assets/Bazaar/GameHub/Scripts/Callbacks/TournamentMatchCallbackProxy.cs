@@ -1,20 +1,20 @@
+using Bazaar.Callbacks;
+using Bazaar.Data;
 using Bazaar.GameHub.Data;
 
 namespace Bazaar.GameHub.Callbacks
 {
-    public class TournamentMatchCallbackProxy : BaseCallbackProxy
+    public class TournamentMatchCallbackProxy : CallbackProxy<Match>
     {
         public TournamentMatchCallbackProxy() : base("com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback") { }
 
-
-        void onFinish(int status, string arg1, string arg2, string arg3)
+        void onFinish(int status, string message, string stackTrace, string data)
         {
-            if (status != (int)Result.Status.Success)
+            result = new Result<Match>((Status)status, message, stackTrace);
+            if (result.status == Status.Success)
             {
-                result = new TournamentMatchResult(status) { message = arg1, stackTrace = arg2 };
-                return;
+                result.data = new Match { sessionId = message, id = stackTrace, metadata = data };
             }
-            result = new TournamentMatchResult(status) { sessionId = arg1, matchId = arg2, metadata = arg3 };
         }
     }
 }
