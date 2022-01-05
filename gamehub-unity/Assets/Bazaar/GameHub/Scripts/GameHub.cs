@@ -1,29 +1,17 @@
-using UnityEngine;
-using System.Threading.Tasks;
 using System;
-using Bazaar.GameHub.Callbacks;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Bazaar.Data;
 using Bazaar.GameHub.Data;
+using Bazaar.GameHub.Callbacks;
 
 namespace Bazaar.GameHub
 {
-    public class GameHub
+    public class GameHub:Bridge
     {
-        private AndroidJavaObject gameHubClass;
 
-        public GameHub()
-        {
-            using (var pluginClass = new AndroidJavaClass("com.farsitel.bazaar.game.GameHub"))
-            {
-                if (pluginClass != null)
-                {
-                    gameHubClass = pluginClass.CallStatic<AndroidJavaObject>("getInstance");
-                }
-            }
-        }
-        public string version
-        {
-            get { return gameHubClass.Call<String>("getVersion"); }
-        }
+        public GameHub():base("com.farsitel.bazaar.game.GameHub"){}
+
 
         public async Task<Result> Connect(bool showPrompts = true, Action<Result> onComplete = null)
         {
