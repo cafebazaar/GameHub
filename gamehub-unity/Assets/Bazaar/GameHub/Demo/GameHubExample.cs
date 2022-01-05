@@ -1,14 +1,16 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
+using Bazaar.Data;
 using Bazaar.GameHub;
 using Bazaar.GameHub.Data;
 
 public class GameHubExample : MonoBehaviour
 {
-    public Text ConsoleText;
+    [SerializeField] private Text consoleText;
+    [SerializeField] private GameObject menu;
 
     private GameHub gameHub;
-    private string reservedSessionId;
+    private Match reservedMatch;
 
     void Start()
     {
@@ -19,7 +21,11 @@ public class GameHubExample : MonoBehaviour
     public async void Connect()
     {
         var result = await gameHub.Connect();
-        Log(result.toString());
+        Log(result.ToString());
+        if (result.status == Status.Success)
+        {
+            menu.SetActive(true);
+        }
     }
 
     public async void GetTournaments()

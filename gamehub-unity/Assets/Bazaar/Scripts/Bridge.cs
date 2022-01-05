@@ -21,7 +21,7 @@ namespace Bazaar
         }
         public string version
         {
-            get { return bridge.Call<string>("getVersion"); }
+            get { return isAndroid ? bridge.Call<string>("getVersion") : ""; }
         }
     }
 }
