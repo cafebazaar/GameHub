@@ -80,26 +80,41 @@ namespace Bazaar.GameHub
             return result;
         }
 
-        public async Task<Result> ShowTournamentRanking(String tournamentId, Action<Result> onComplete = null)
+        public async Task<Result<bool>> ShowTournamentRanking(String tournamentId, Action<Result<bool>> onComplete = null)
+        {
+            var result = Result<bool>.GetDefault();
+            if (isAndroid)
         {
             var callback = new ConnectionCallbackProxy();
-            gameHubClass.Call("showTournamentRanking", UnityActivity.GetCurrentActivity(), tournamentId, callback);
-            var result = await callback.WaitForResult();
+                bridge.Call("showTournamentRanking", UnityActivity.GetCurrentActivity(), tournamentId, callback);
+                result = await callback.WaitForResult();
+            }
+            else
+            {
+                await Task.Delay(1);
+            }
             onComplete?.Invoke(result);
             return result;
         }
 
-        public async Task<Result> ShowLastTournamentRanking(Action<Result> onComplete = null)
+        public async Task<Result<bool>> ShowLastTournamentRanking(Action<Result<bool>> onComplete = null)
         {
             return await ShowTournamentRanking("-1", onComplete);
         }
 
-        public async Task<RankingResult> GetLastTournamentRanking(Action<RankingResult> onComplete = null)
+        public async Task<Result<List<RankItem>>> GetLastTournamentRanking(Action<Result<List<RankItem>>> onComplete = null)
+        {
+            var result = Result<List<RankItem>>.GetDefault();
+            if (isAndroid)
         {
             var callback = new RankingCallbackProxy();
-            gameHubClass.Call("getTournamentRanking", UnityActivity.GetCurrentActivity(), "-1", callback);
-            var data = await callback.WaitForResult();
-            var result = (RankingResult)data;
+                bridge.Call("getTournamentRanking", UnityActivity.GetCurrentActivity(), "-1", callback);
+                result = await callback.WaitForResult();
+            }
+            else
+            {
+                await Task.Delay(1);
+            }
             onComplete?.Invoke(result);
             return result;
         }

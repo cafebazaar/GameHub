@@ -59,20 +59,22 @@ public class GameHubExample : MonoBehaviour
     public async void ShowLastTournamentRanking()
     {
         var result = await gameHub.ShowLastTournamentRanking();
-        if (result.status != Result.Status.Success)
+        if (result.status != Status.Success)
         {
-            Log(result.toString());
+            Log(result.ToString());
         }
     }
 
     public async void GetLastTournamentRanking()
     {
         var result = await gameHub.GetLastTournamentRanking();
-        Log(result.toString());
+        Log(result.ToString());
+    }
+
     }
 
     public void Log(string message)
     {
-        ConsoleText.text += message + "\n";
+        consoleText.text += message + "\n";
     }
 }
