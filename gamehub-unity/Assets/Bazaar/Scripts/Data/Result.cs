@@ -2,7 +2,19 @@ using System.Collections;
 
 namespace Bazaar.Data
 {
-    public enum Status { Success, Start, Cancel, Disconnect, Failure, Unknown }
+    public enum Status
+    {
+        Unknown = -10,
+        Canceled = -2,
+        Failure = -1,
+
+        Success = 0,
+        Disconnected = 1,
+        LoginBazaar = 3,
+        UpdateBazaar = 4,
+        InstallBazaar = 5,
+    }
+    
     public class Result<T>
     {
         public Status status;
@@ -37,7 +49,7 @@ namespace Bazaar.Data
             {
                 return str;
             }
-            
+
             str += $", data: [ ";
             if (data is IList)
             {
