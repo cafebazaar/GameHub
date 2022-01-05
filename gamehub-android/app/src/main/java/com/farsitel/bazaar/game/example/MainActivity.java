@@ -24,15 +24,13 @@ public class MainActivity extends Activity {
     }
 
     public void connect(View view) {
-        gameHub.connect(getApplicationContext(), true, (status, message, stackTrace) -> {
-            Log.i(Logger.TAG, String.format("Connect => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
-        });
+        gameHub.connect(getApplicationContext(), true, (status, message, stackTrace) ->
+                Log.i(Logger.TAG, String.format("Connect => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
     public void getTournaments(View view) {
-        gameHub.getTournaments(this, (status, message, stackTrace, tournaments) -> {
-            Log.i(Logger.TAG, String.format("Tournaments => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
-        });
+        gameHub.getTournaments(this, (status, message, stackTrace, tournaments) ->
+                Log.i(Logger.TAG, String.format("Tournaments => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
     public void startTournamentMatch(View view) {
@@ -58,27 +56,23 @@ public class MainActivity extends Activity {
     }
 
     public void showTournamentRanking(View view) {
-        gameHub.showTournamentRanking(getApplicationContext(), "-1", (status, message, stackTrace) -> {
-            Log.i(Logger.TAG, String.format("showTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
-        });
+        gameHub.showTournamentRanking(getApplicationContext(), "-1", (status, message, stackTrace) ->
+                Log.i(Logger.TAG, String.format("showTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
     public void getTournamentRanking(View view) {
-        gameHub.getTournamentRanking(getApplicationContext(), "-1", (status, message, stackTrace, rankItems) -> {
-            Log.i(Logger.TAG, String.format("getTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
-        });
+        gameHub.getTournamentRanking(getApplicationContext(), "-1", (status, message, stackTrace, rankItems) ->
+                Log.i(Logger.TAG, String.format("getTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
     public void eventDoneNotify(View view) {
-        gameHub.eventDoneNotify(getApplicationContext(), "eventId", (status, message, stackTrace, rankItems) -> {
-            Log.i(Logger.TAG, String.format("eventDoneNotify => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
-        });
+        gameHub.eventDoneNotify(getApplicationContext(), "eventId", (status, message, stackTrace, effectiveDoneTime) ->
+                Log.i(Logger.TAG, String.format("eventDoneNotify => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
     public void getEventsByPackageName(View view) {
-        gameHub.getEventsByPackageName(getApplicationContext(), "packageName", (status, message, stackTrace, rankItems) -> {
-            Log.i(Logger.TAG, String.format("getEventsByPackageName => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
-        });
+        gameHub.getEventsByPackageName(getApplicationContext(), "packageName", (status, message, stackTrace, events) ->
+                Log.i(Logger.TAG, String.format("getEventsByPackageName => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
     @Override
