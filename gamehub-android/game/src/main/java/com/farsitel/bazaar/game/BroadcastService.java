@@ -57,13 +57,17 @@ public class BroadcastService {
 
                 if (callbacks.containsKey(action)) {
                     Result result = new Result();
+                    IBroadcastCallback callback = callbacks.get(action);
+                    if (callback == null) {
+                        return;
+                    }
                     if (action.equals(getAction(Method.IS_LOGIN))) {
                         boolean isLogin = intent.getBooleanExtra(Method.IS_LOGIN, false);
                         result.status = isLogin ? Status.SUCCESS : Status.LOGIN_BAZAAR;
                         result.message = isLogin ? "" : LOGIN_TO_BAZAAR_FIRST;
-                        callbacks.get(action).call(result);
+                        callback.call(result);
                     } else {
-                        callbacks.get(action).call(result.setBundle(intent.getExtras()));
+                        callback.call(result.setBundle(intent.getExtras()));
                     }
                     callbacks.remove(action);
                 }
