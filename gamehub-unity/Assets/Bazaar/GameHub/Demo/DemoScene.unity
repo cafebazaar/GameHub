@@ -312,7 +312,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.16981131, b: 0.13853027, a: 1}
+  m_Color: {r: 0.3984514, g: 0.6981132, b: 0.6423621, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -826,7 +826,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 288.09943, y: -324}
-  m_SizeDelta: {x: 300, y: 100}
+  m_SizeDelta: {x: 240, y: 80}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &805942542
 MonoBehaviour:
@@ -951,7 +951,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 288.09943, y: -756}
-  m_SizeDelta: {x: 300, y: 100}
+  m_SizeDelta: {x: 240, y: 80}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &959084575
 MonoBehaviour:
@@ -1230,7 +1230,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 268.09943, y: -270}
-  m_SizeDelta: {x: 320, y: 100}
+  m_SizeDelta: {x: 240, y: 80}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1228172676
 MonoBehaviour:
@@ -1386,7 +1386,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Get Events By PackageName
+  m_Text: Get Events
 --- !u!222 &1243999233
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1479,7 +1479,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.7688679, b: 0.7688679, a: 1}
+  m_Color: {r: 0.33333334, g: 0.58431375, b: 0.5372549, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -1524,8 +1524,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.75444996, g: 0.9245283, b: 0.90857846, a: 1}
-  m_RaycastTarget: 1
+  m_Color: {r: 0.10394246, g: 0, b: 0.4811321, a: 1}
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1566,9 +1566,9 @@ RectTransform:
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 20, y: -15}
-  m_SizeDelta: {x: 626.0005, y: -70}
+  m_SizeDelta: {x: -300, y: -70}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!1 &1447557343
 GameObject:
@@ -1761,7 +1761,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 268.09943, y: -810}
-  m_SizeDelta: {x: 320, y: 100}
+  m_SizeDelta: {x: 240, y: 80}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1539743841
 MonoBehaviour:
@@ -2239,7 +2239,7 @@ GameObject:
   - component: {fileID: 1867812517}
   - component: {fileID: 1867812516}
   m_Layer: 0
-  m_Name: GetEventsByPackageName
+  m_Name: GetEvents
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2263,7 +2263,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -222.5}
-  m_SizeDelta: {x: 300, y: 100}
+  m_SizeDelta: {x: 240, y: 80}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1867812516
 MonoBehaviour:
@@ -2306,7 +2306,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 538287354}
-        m_MethodName: GetLastTournamentRanking
+        m_MethodName: GetEvents
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2388,7 +2388,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: -20, y: 0}
-  m_SizeDelta: {x: 300, y: 100}
+  m_SizeDelta: {x: 240, y: 80}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1917025445
 MonoBehaviour:
@@ -2612,7 +2612,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 288.09943, y: -540}
-  m_SizeDelta: {x: 300, y: 100}
+  m_SizeDelta: {x: 240, y: 80}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1956062870
 MonoBehaviour:
@@ -2737,7 +2737,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 288.09943, y: -108}
-  m_SizeDelta: {x: 300, y: 100}
+  m_SizeDelta: {x: 240, y: 80}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1961972692
 MonoBehaviour:
@@ -2862,7 +2862,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 288.09943, y: -972}
-  m_SizeDelta: {x: 300, y: 100}
+  m_SizeDelta: {x: 240, y: 80}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1991245988
 MonoBehaviour:
@@ -3133,7 +3133,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -50}
-  m_SizeDelta: {x: 300, y: 100}
+  m_SizeDelta: {x: 240, y: 80}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1999652192
 MonoBehaviour:
@@ -3176,7 +3176,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 538287354}
-        m_MethodName: ShowLastTournamentRanking
+        m_MethodName: EventDoneNotify
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
