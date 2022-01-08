@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
 
     public void endTournamentMatch(View view) {
         if (reservedMatch == null) {
-            Log.e(Logger.TAG, "Call startTournamentMatch before!");
+            Log.e(Logger.TAG, "Call startTournamentMatch first!");
             return;
         }
         ITournamentMatchCallback callback = (status, message, stackTrace, match) -> {
