@@ -5,6 +5,17 @@
     <queries>
         <package android:name="com.farsitel.bazaar" />
     </queries>
-    <uses-permission android:name="com.farsitel.bazaar.GAME_HUB_PERMISSION"/>
+    <uses-permission android:name="com.farsitel.bazaar.GAME_HUB_PERMISSION" />
 
+    <application>
+
+        <activity
+            android:name=".view.LoginResultActivity"
+            android:theme="@style/Transparent">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
 </manifest>

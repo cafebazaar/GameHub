@@ -20,7 +20,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        gameHub = new GameHub();
+        gameHub = GameHub.getInstance();
         Log.i(Logger.TAG, String.format("Version => %s", gameHub.getVersion()));
     }
 

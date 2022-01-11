@@ -3,16 +3,20 @@ package com.farsitel.bazaar.game;
 import static com.farsitel.bazaar.game.constants.Constant.BAZAAR_GAME_PACKAGE_NAME;
 import static com.farsitel.bazaar.game.constants.Constant.BROADCAST_IS_CREATED;
 import static com.farsitel.bazaar.game.constants.Constant.CONNECT_TO_SERVICE_FIRST;
+import static com.farsitel.bazaar.game.constants.Constant.EVENT_DONE_NOTIFY_REQUEST_CODE;
 import static com.farsitel.bazaar.game.constants.Constant.GET_RANKING_NEEDS_UPDATE_BAZAAR;
 import static com.farsitel.bazaar.game.constants.Constant.INSTALL_BAZAAR;
+import static com.farsitel.bazaar.game.constants.Constant.KEY_LOGIN_REQUEST_CODE;
 import static com.farsitel.bazaar.game.constants.Constant.LOGIN_TO_BAZAAR_FIRST;
+import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_EVENT;
+import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT;
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_CONNECTED;
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_DISCONNECTED;
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_STARTED;
 import static com.farsitel.bazaar.game.constants.Constant.TOURNAMENT_RANKING_IS_SHOWN;
 import static com.farsitel.bazaar.game.constants.Constant.UPDATE_BAZAAR;
-import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT;
-import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_EVENT;
+import static com.farsitel.bazaar.game.constants.Key.CALLBACK;
+import static com.farsitel.bazaar.game.constants.Key.EVENT_ID;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -46,6 +50,7 @@ import com.farsitel.bazaar.game.data.Status;
 import com.farsitel.bazaar.game.data.Tournament;
 import com.farsitel.bazaar.game.utils.Logger;
 import com.farsitel.bazaar.game.utils.MainThread;
+import com.farsitel.bazaar.game.view.LoginResultActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -67,7 +72,7 @@ public class GameHub {
     private BroadcastService gameHubBroadcast;
     private ExecutorService executorService;
 
-    public GameHub() {
+    private GameHub() {
         logger = new Logger();
         executorService = Executors.newSingleThreadExecutor();
     }
@@ -378,6 +383,11 @@ public class GameHub {
 
         // Check player is already logged-in
         getLoginState(loginResult -> {
+            if (loginResult.status == Status.LOGIN_BAZAAR) {
+                startLoginForEventDoneNotify(context, eventId, callback);
+                return;
+            }
+
             if (loginResult.status != Status.SUCCESS) {
                 eventDoneNotifyCallback(loginResult, callback);
                 return;
@@ -640,7 +650,7 @@ public class GameHub {
             for (int i = 0; i < eventsCount; i++) {
                 JSONObject obj = events.getJSONObject(i);
                 eventList.add(new Event(
-                        obj.getString(Key.EVENT_ID),
+                        obj.getString(EVENT_ID),
                         obj.getString(Key.START_TIMESTAMP),
                         obj.getString(Key.END_TIMESTAMP)
                 ));
@@ -652,5 +662,17 @@ public class GameHub {
         }
 
         callback.onFinish(result.status.getLevelCode(), "Get events by packageName", "", eventList);
+    }
+
+    private void startLoginForEventDoneNotify(
+            Context context,
+            String eventId,
+            IEventDoneCallback callback
+    ) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(KEY_LOGIN_REQUEST_CODE, EVENT_DONE_NOTIFY_REQUEST_CODE);
+        bundle.putString(EVENT_ID, eventId);
+        bundle.putSerializable(CALLBACK, callback);
+        LoginResultActivity.startLoginResultActivity(context, bundle);
     }
 }

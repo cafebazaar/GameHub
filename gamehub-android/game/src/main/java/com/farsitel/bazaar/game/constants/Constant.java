@@ -20,4 +20,8 @@ public class Constant {
     public static final String UPDATE_BAZAAR = "Install new version of Bazaar to support GameHub!";
     public static final String TOURNAMENT_RANKING_IS_SHOWN = "The last tournament ranking table is shown";
     public static final String LOGIN_TO_BAZAAR_FIRST = "Login to Bazaar first!";
+
+    //    login
+    public static final String KEY_LOGIN_REQUEST_CODE = "loginRequestCode";
+    public static final int EVENT_DONE_NOTIFY_REQUEST_CODE = 100;
 }
