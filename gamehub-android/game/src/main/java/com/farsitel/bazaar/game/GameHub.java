@@ -11,7 +11,7 @@ import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_DISCONNECTE
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_STARTED;
 import static com.farsitel.bazaar.game.constants.Constant.TOURNAMENT_RANKING_IS_SHOWN;
 import static com.farsitel.bazaar.game.constants.Constant.UPDATE_BAZAAR;
-import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_EVENT_FOR_TOURNAMENT;
+import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT;
 import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_EVENT;
 
 import android.app.Activity;
@@ -85,7 +85,7 @@ public class GameHub {
 
     public void connect(Context context, boolean showPrompts, IConnectionCallback callback) {
         // Check player has Bazaar app or  it`s already updated to the latest version
-        Result installState = getBazaarInstallationState(context, REQUIRED_BAZAAR_EVENT_FOR_TOURNAMENT, showPrompts);
+        Result installState = getBazaarInstallationState(context, REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT, showPrompts);
         if (installState.status != Status.SUCCESS) {
             callback.onFinish(installState.status.getLevelCode(), installState.message, "");
             return;
@@ -272,7 +272,7 @@ public class GameHub {
         logger.logDebug("Call showTournamentRanking");
 
         // Check player has Bazaar app or  it`s already updated to the latest version
-        Result result = getBazaarInstallationState(context, REQUIRED_BAZAAR_EVENT_FOR_TOURNAMENT, true);
+        Result result = getBazaarInstallationState(context, REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT, true);
         if (result.status != Status.SUCCESS) {
             callback.onFinish(result.status.getLevelCode(), result.message, result.stackTrace);
             return;
