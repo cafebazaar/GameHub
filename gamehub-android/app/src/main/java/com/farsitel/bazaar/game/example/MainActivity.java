@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
             Log.i(Logger.TAG, String.format("End => Status: %d, SessionId: %s, MatchId: %s", status, message, stackTrace));
             reservedMatch = null;
         };
-        gameHub.endTournamentMatch(callback, reservedMatch.id, 0.5f);
+        gameHub.endTournamentMatch(callback, reservedMatch.sessionId, 0.5f);
     }
 
     public void showTournamentRanking(View view) {
