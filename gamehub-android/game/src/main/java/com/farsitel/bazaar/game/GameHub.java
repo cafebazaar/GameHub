@@ -662,6 +662,7 @@ public class GameHub {
         eventDoneNotifyLoginLauncher = activity.registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> handleEventDoneNotifyLoginResult(result, activity));
+        logger.logDebug("initActivityResultLauncher");
     }
 
     void handleEventDoneNotifyLoginResult(ActivityResult result, AppCompatActivity activity) {
