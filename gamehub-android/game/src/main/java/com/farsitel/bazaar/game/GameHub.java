@@ -1,12 +1,11 @@
 package com.farsitel.bazaar.game;
 
+import static android.app.Activity.RESULT_CANCELED;
 import static com.farsitel.bazaar.game.constants.Constant.BAZAAR_GAME_PACKAGE_NAME;
 import static com.farsitel.bazaar.game.constants.Constant.BROADCAST_IS_CREATED;
 import static com.farsitel.bazaar.game.constants.Constant.CONNECT_TO_SERVICE_FIRST;
-import static com.farsitel.bazaar.game.constants.Constant.EVENT_DONE_NOTIFY_REQUEST_CODE;
 import static com.farsitel.bazaar.game.constants.Constant.GET_RANKING_NEEDS_UPDATE_BAZAAR;
 import static com.farsitel.bazaar.game.constants.Constant.INSTALL_BAZAAR;
-import static com.farsitel.bazaar.game.constants.Constant.KEY_LOGIN_REQUEST_CODE;
 import static com.farsitel.bazaar.game.constants.Constant.LOGIN_TO_BAZAAR_FIRST;
 import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_EVENT;
 import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT;
@@ -15,8 +14,10 @@ import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_DISCONNECTE
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_STARTED;
 import static com.farsitel.bazaar.game.constants.Constant.TOURNAMENT_RANKING_IS_SHOWN;
 import static com.farsitel.bazaar.game.constants.Constant.UPDATE_BAZAAR;
-import static com.farsitel.bazaar.game.constants.Key.CALLBACK;
 import static com.farsitel.bazaar.game.constants.Key.EVENT_ID;
+import static com.farsitel.bazaar.game.utils.IntentHelper.getEventDoneNotifyLoginIntent;
+import static com.farsitel.bazaar.game.utils.IntentHelper.showLoginPrompt;
+import static com.farsitel.bazaar.game.utils.IntentHelper.startActionViewIntent;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -26,10 +27,15 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Pair;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
@@ -48,9 +54,9 @@ import com.farsitel.bazaar.game.data.RankItem;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
 import com.farsitel.bazaar.game.data.Tournament;
+import com.farsitel.bazaar.game.utils.IntentHelper;
 import com.farsitel.bazaar.game.utils.Logger;
 import com.farsitel.bazaar.game.utils.MainThread;
-import com.farsitel.bazaar.game.view.LoginResultActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -71,15 +77,17 @@ public class GameHub {
     private IGameHub gameHubService;
     private BroadcastService gameHubBroadcast;
     private ExecutorService executorService;
+    private ActivityResultLauncher<Intent> eventDoneNotifyLoginLauncher;
 
-    private GameHub() {
+    private GameHub(AppCompatActivity activity) {
         logger = new Logger();
+        initActivityResultLauncher(activity);
         executorService = Executors.newSingleThreadExecutor();
     }
 
-    public static GameHub getInstance() {
+    public static GameHub getInstance(AppCompatActivity activity) {
         if (instance == null) {
-            instance = new GameHub();
+            instance = new GameHub(activity);
         }
         return instance;
     }
@@ -384,7 +392,7 @@ public class GameHub {
         // Check player is already logged-in
         getLoginState(loginResult -> {
             if (loginResult.status == Status.LOGIN_BAZAAR) {
-                startLoginForEventDoneNotify(context, eventId, callback);
+                eventDoneNotifyLoginLauncher.launch(getEventDoneNotifyLoginIntent(eventId, callback));
                 return;
             }
 
@@ -500,20 +508,6 @@ public class GameHub {
 
     boolean areServicesUnavailable() {
         return gameHubService != null && gameHubBroadcast != null;
-    }
-
-    void showLoginPrompt(Context context) {
-        startActionViewIntent(context, Constant.BAZAAR_LOGIN_URL, Constant.BAZAAR_PACKAGE_NAME);
-    }
-
-    void startActionViewIntent(Context context, String uri, String packageName) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setData(Uri.parse(uri));
-        if (packageName != null) {
-            intent.setPackage(packageName);
-        }
-        context.startActivity(intent);
     }
 
     Result getBazaarInstallationState(
@@ -664,15 +658,20 @@ public class GameHub {
         callback.onFinish(result.status.getLevelCode(), "Get events by packageName", "", eventList);
     }
 
-    private void startLoginForEventDoneNotify(
-            Context context,
-            String eventId,
-            IEventDoneCallback callback
-    ) {
-        Bundle bundle = new Bundle();
-        bundle.putInt(KEY_LOGIN_REQUEST_CODE, EVENT_DONE_NOTIFY_REQUEST_CODE);
-        bundle.putString(EVENT_ID, eventId);
-        bundle.putSerializable(CALLBACK, callback);
-        LoginResultActivity.startLoginResultActivity(context, bundle);
+    void initActivityResultLauncher(AppCompatActivity activity) {
+        eventDoneNotifyLoginLauncher = activity.registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> handleEventDoneNotifyLoginResult(result, activity));
+    }
+
+    void handleEventDoneNotifyLoginResult(ActivityResult result, AppCompatActivity activity) {
+        if (result.getResultCode() == RESULT_CANCELED) {
+            return;
+        }
+
+        Pair<String, IEventDoneCallback> pair = IntentHelper.getNotifyEventParams();
+        if (pair != null) {
+            eventDoneNotify(activity, pair.first, pair.second);
+        }
     }
 }
