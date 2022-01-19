@@ -1,18 +1,23 @@
 package com.farsitel.bazaar.game;
 
+import static android.app.Activity.RESULT_CANCELED;
 import static com.farsitel.bazaar.game.constants.Constant.BAZAAR_GAME_PACKAGE_NAME;
 import static com.farsitel.bazaar.game.constants.Constant.BROADCAST_IS_CREATED;
 import static com.farsitel.bazaar.game.constants.Constant.CONNECT_TO_SERVICE_FIRST;
 import static com.farsitel.bazaar.game.constants.Constant.GET_RANKING_NEEDS_UPDATE_BAZAAR;
 import static com.farsitel.bazaar.game.constants.Constant.INSTALL_BAZAAR;
 import static com.farsitel.bazaar.game.constants.Constant.LOGIN_TO_BAZAAR_FIRST;
+import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_EVENT;
+import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT;
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_CONNECTED;
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_DISCONNECTED;
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_STARTED;
 import static com.farsitel.bazaar.game.constants.Constant.TOURNAMENT_RANKING_IS_SHOWN;
 import static com.farsitel.bazaar.game.constants.Constant.UPDATE_BAZAAR;
-import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT;
-import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_EVENT;
+import static com.farsitel.bazaar.game.constants.Key.EVENT_ID;
+import static com.farsitel.bazaar.game.utils.IntentHelper.getEventDoneNotifyLoginIntent;
+import static com.farsitel.bazaar.game.utils.IntentHelper.showLoginPrompt;
+import static com.farsitel.bazaar.game.utils.IntentHelper.startActionViewIntent;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -22,10 +27,15 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Pair;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
 import com.farsitel.bazaar.game.callbacks.IConnectionCallback;
@@ -44,6 +54,7 @@ import com.farsitel.bazaar.game.data.RankItem;
 import com.farsitel.bazaar.game.data.Result;
 import com.farsitel.bazaar.game.data.Status;
 import com.farsitel.bazaar.game.data.Tournament;
+import com.farsitel.bazaar.game.utils.IntentHelper;
 import com.farsitel.bazaar.game.utils.Logger;
 import com.farsitel.bazaar.game.utils.MainThread;
 
@@ -66,15 +77,17 @@ public class GameHub {
     private IGameHub gameHubService;
     private BroadcastService gameHubBroadcast;
     private ExecutorService executorService;
+    private ActivityResultLauncher<Intent> eventDoneNotifyLoginLauncher;
 
-    public GameHub() {
+    private GameHub(AppCompatActivity activity) {
         logger = new Logger();
+        initActivityResultLauncher(activity);
         executorService = Executors.newSingleThreadExecutor();
     }
 
-    public static GameHub getInstance() {
+    public static GameHub getInstance(AppCompatActivity activity) {
         if (instance == null) {
-            instance = new GameHub();
+            instance = new GameHub(activity);
         }
         return instance;
     }
@@ -378,6 +391,11 @@ public class GameHub {
 
         // Check player is already logged-in
         getLoginState(loginResult -> {
+            if (loginResult.status == Status.LOGIN_BAZAAR) {
+                eventDoneNotifyLoginLauncher.launch(getEventDoneNotifyLoginIntent(eventId, callback));
+                return;
+            }
+
             if (loginResult.status != Status.SUCCESS) {
                 eventDoneNotifyCallback(loginResult, callback);
                 return;
@@ -490,20 +508,6 @@ public class GameHub {
 
     boolean areServicesUnavailable() {
         return gameHubService != null && gameHubBroadcast != null;
-    }
-
-    void showLoginPrompt(Context context) {
-        startActionViewIntent(context, Constant.BAZAAR_LOGIN_URL, Constant.BAZAAR_PACKAGE_NAME);
-    }
-
-    void startActionViewIntent(Context context, String uri, String packageName) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setData(Uri.parse(uri));
-        if (packageName != null) {
-            intent.setPackage(packageName);
-        }
-        context.startActivity(intent);
     }
 
     Result getBazaarInstallationState(
@@ -640,7 +644,7 @@ public class GameHub {
             for (int i = 0; i < eventsCount; i++) {
                 JSONObject obj = events.getJSONObject(i);
                 eventList.add(new Event(
-                        obj.getString(Key.EVENT_ID),
+                        obj.getString(EVENT_ID),
                         obj.getString(Key.START_TIMESTAMP),
                         obj.getString(Key.END_TIMESTAMP)
                 ));
@@ -652,5 +656,23 @@ public class GameHub {
         }
 
         callback.onFinish(result.status.getLevelCode(), "Get events by packageName", "", eventList);
+    }
+
+    void initActivityResultLauncher(AppCompatActivity activity) {
+        eventDoneNotifyLoginLauncher = activity.registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> handleEventDoneNotifyLoginResult(result, activity));
+        logger.logDebug("initActivityResultLauncher");
+    }
+
+    void handleEventDoneNotifyLoginResult(ActivityResult result, AppCompatActivity activity) {
+        if (result.getResultCode() == RESULT_CANCELED) {
+            return;
+        }
+
+        Pair<String, IEventDoneCallback> pair = IntentHelper.getNotifyEventParams();
+        if (pair != null) {
+            eventDoneNotify(activity, pair.first, pair.second);
+        }
     }
 }

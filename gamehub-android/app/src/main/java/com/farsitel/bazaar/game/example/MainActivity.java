@@ -1,9 +1,10 @@
 package com.farsitel.bazaar.game.example;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.farsitel.bazaar.game.GameHub;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
@@ -11,16 +12,15 @@ import com.farsitel.bazaar.game.data.Match;
 import com.farsitel.bazaar.game.data.Status;
 import com.farsitel.bazaar.game.utils.Logger;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
-    private GameHub gameHub;
+    private final GameHub gameHub = GameHub.getInstance(this);
     private Match reservedMatch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        gameHub = new GameHub();
         Log.i(Logger.TAG, String.format("Version => %s", gameHub.getVersion()));
     }
 

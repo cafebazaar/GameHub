@@ -1,6 +1,8 @@
 package com.farsitel.bazaar.game.callbacks;
 
-public interface IEventDoneCallback {
+import java.io.Serializable;
+
+public interface IEventDoneCallback extends Serializable {
 
     void onFinish(int status, String message, String stackTrace, String effectiveDoneTime);
 }
