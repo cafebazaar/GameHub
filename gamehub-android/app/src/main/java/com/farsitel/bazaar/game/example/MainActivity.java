@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
     }
 
     public void eventDoneNotify(View view) {
-        gameHub.eventDoneNotify(getApplicationContext(), "eventId", (status, message, stackTrace, effectiveDoneTime) ->
+        gameHub.eventDoneNotify(getApplicationContext(), "1", (status, message, stackTrace, effectiveDoneTime) ->
                 Log.i(Logger.TAG, String.format("eventDoneNotify => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
