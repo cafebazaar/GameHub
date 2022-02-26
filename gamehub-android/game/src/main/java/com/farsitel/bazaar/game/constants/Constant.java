@@ -1,8 +1,8 @@
 package com.farsitel.bazaar.game.constants;
 
 public class Constant {
-    public static final int REQUIRED_BAZAAR_EVENT_FOR_TOURNAMENT = 1700000;
-    public static final int REQUIRED_BAZAAR_VERSION_FOR_EVENT = 1700000; // todo: update this to the released version
+    public static final int REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT = 1700000;
+    public static final int REQUIRED_BAZAAR_VERSION_FOR_EVENT = 1800500; // todo: update this to the released version
 
     public static final String BAZAAR_PACKAGE_NAME = "com.farsitel.bazaar";
     public static final String BAZAAR_GAME_PACKAGE_NAME = "com.farsitel.bazaar.Game.BIND";
