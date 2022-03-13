@@ -8,7 +8,7 @@ public class GameHubExample : MonoBehaviour
 {
     [SerializeField] private Text consoleText;
     [SerializeField] private GameObject menu;
-    
+
     private GameHub gameHub;
     private Match reservedMatch;
 
@@ -71,20 +71,17 @@ public class GameHubExample : MonoBehaviour
         Log(result.ToString());
     }
 
-    
+
     public async void EventDoneNotify()
     {
-        var result = await gameHub.EventDoneNotify("eventId");
+        var result = await gameHub.EventDoneNotify("1");
         Log(result.ToString());
     }
 
     public async void GetEvents()
     {
         var result = await gameHub.GetEvents();
-        if (result.status != Status.Success)
-        {
-            Log(result.ToString());
-        }
+        Log(result.ToString());
     }
 
     public void Log(string message)
