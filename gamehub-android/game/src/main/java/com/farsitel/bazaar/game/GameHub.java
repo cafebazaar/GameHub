@@ -6,13 +6,13 @@ import static com.farsitel.bazaar.game.constants.Constant.CONNECT_TO_SERVICE_FIR
 import static com.farsitel.bazaar.game.constants.Constant.GET_RANKING_NEEDS_UPDATE_BAZAAR;
 import static com.farsitel.bazaar.game.constants.Constant.INSTALL_BAZAAR;
 import static com.farsitel.bazaar.game.constants.Constant.LOGIN_TO_BAZAAR_FIRST;
+import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_EVENT;
+import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT;
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_CONNECTED;
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_DISCONNECTED;
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_STARTED;
 import static com.farsitel.bazaar.game.constants.Constant.TOURNAMENT_RANKING_IS_SHOWN;
 import static com.farsitel.bazaar.game.constants.Constant.UPDATE_BAZAAR;
-import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT;
-import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_EVENT;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -117,9 +117,14 @@ public class GameHub {
         List<ResolveInfo> intentServices = pm.queryIntentServices(serviceIntent, 0);
         if (!intentServices.isEmpty()) {
             // service available to handle that Intent
-            isBroadcastMode = !context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
+            try {
+                isBroadcastMode = !context.bindService(serviceIntent, gameHubConnection, Context.BIND_AUTO_CREATE);
+
+            } catch (Throwable ignore) {
+                isBroadcastMode = true;
+            }
             if (isBroadcastMode) {
-                gameHubBroadcast = new BroadcastService(context, logger);
+                gameHubBroadcast = new BroadcastService(context);
                 logger.logDebug(BROADCAST_IS_CREATED);
                 connectionCallback(context, showPrompts, callback);
             }
