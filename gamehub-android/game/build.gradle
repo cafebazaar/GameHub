@@ -3,8 +3,8 @@ apply plugin: 'maven-publish'
 
 ext {
     gameHubVersion = '1.0.0'
-    gameHubArtifact = 'beta'
-    gameHubArtifactDebug = 'beta-debug'
+    gameHubArtifact = ''
+    gameHubArtifactDebug = '-debug'
     gameHubPackageName = 'com.farsitel.bazaar.gamehub'
 
     gameHubMinSdk = 16
@@ -25,11 +25,11 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "GAMEHUB_VERSION", '"' + gameHubVersion + '-' + gameHubArtifactDebug + '"'
+            buildConfigField "String", "GAMEHUB_VERSION", '"' + gameHubVersion + gameHubArtifactDebug + '"'
         }
         release {
             minifyEnabled false
-            buildConfigField "String", "GAMEHUB_VERSION", '"' + gameHubVersion + '-' + gameHubArtifact + '"'
+            buildConfigField "String", "GAMEHUB_VERSION", '"' + gameHubVersion + gameHubArtifact + '"'
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
