@@ -9,8 +9,8 @@ android {
         applicationId "com.farsitel.bazaar.game.example"
         minSdk 16
         targetSdk 29
-        versionCode 1
-        versionName "1.0"
+        versionCode 10000
+        versionName "1.0.0"
     }
 
     buildTypes {
@@ -28,5 +28,5 @@ android {
 }
 
 dependencies {
-  implementation 'com.github.cafebazaar:GameHub:v1.0.0-beta'
+  implementation 'com.github.cafebazaar:GameHub:1.0.0'
 }
