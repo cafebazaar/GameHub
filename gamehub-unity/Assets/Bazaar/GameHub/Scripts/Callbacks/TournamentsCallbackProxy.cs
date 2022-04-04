@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Bazaar.Callbacks;
 using Bazaar.Data;
 using Bazaar.GameHub.Data;
@@ -8,12 +9,16 @@ namespace Bazaar.GameHub.Callbacks
 {
     public class TournamentsCallbackProxy : CallbackProxy<List<Tournament>>
     {
-        public TournamentsCallbackProxy() : base("com.farsitel.bazaar.game.callbacks.ITournamentsCallback") { }
+        public TournamentsCallbackProxy() : base("com.farsitel.bazaar.game.callbacks.ITournamentsCallback")
+        {
+            taskCompletionSource = new TaskCompletionSource<Result<List<Tournament>>>();
+        }
 
         void onFinish(int status, string message, string stackTrace, AndroidJavaObject tournaments)
         {
-            result = new Result<List<Tournament>>((Status)status, message, stackTrace);
-            if (result.status == Status.Success)
+            var _status = (Status)status;
+            var data = new List<Tournament>();
+            if (_status == Status.Success)
             {
                 var list = new List<Tournament>();
                 var size = tournaments.Call<int>("size");
@@ -21,8 +26,8 @@ namespace Bazaar.GameHub.Callbacks
                 {
                     list.Add(new Tournament(tournaments.Call<AndroidJavaObject>("get", index)));
                 }
-                result.data = list;
             }
+            taskCompletionSource.SetResult(new Result<List<Tournament>>(_status, message, stackTrace) { data = data });
         }
     }
 }

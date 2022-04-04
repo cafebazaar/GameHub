@@ -19,7 +19,7 @@ namespace Bazaar.GameHub
             {
                 var callback = new ConnectionCallbackProxy();
                 bridge.Call("connect", UnityActivity.GetCurrentActivity(), showPrompts, callback);
-                result = await callback.WaitForResult();
+                result = await callback.taskCompletionSource.Task;
             }
             else
             {
@@ -36,7 +36,7 @@ namespace Bazaar.GameHub
             {
                 var callback = new TournamentsCallbackProxy();
                 bridge.Call("getTournaments", UnityActivity.GetCurrentActivity(), callback);
-                result = await callback.WaitForResult();
+                result = await callback.taskCompletionSource.Task;
             }
             else
             {
@@ -53,7 +53,7 @@ namespace Bazaar.GameHub
             {
                 var callback = new TournamentMatchCallbackProxy();
                 bridge.Call("startTournamentMatch", UnityActivity.GetCurrentActivity(), callback, matchId, metaData);
-                result = await callback.WaitForResult();
+                result = await callback.taskCompletionSource.Task;
             }
             else
             {
@@ -70,7 +70,7 @@ namespace Bazaar.GameHub
             {
                 var callback = new TournamentMatchCallbackProxy();
                 bridge.Call("endTournamentMatch", callback, sessionId, score);
-                result = await callback.WaitForResult();
+                result = await callback.taskCompletionSource.Task;
             }
             else
             {
@@ -87,7 +87,7 @@ namespace Bazaar.GameHub
             {
                 var callback = new ConnectionCallbackProxy();
                 bridge.Call("showTournamentRanking", UnityActivity.GetCurrentActivity(), tournamentId, callback);
-                result = await callback.WaitForResult();
+                result = await callback.taskCompletionSource.Task;
             }
             else
             {
@@ -109,7 +109,7 @@ namespace Bazaar.GameHub
             {
                 var callback = new RankingCallbackProxy();
                 bridge.Call("getTournamentRanking", UnityActivity.GetCurrentActivity(), "-1", callback);
-                result = await callback.WaitForResult();
+                result = await callback.taskCompletionSource.Task;
             }
             else
             {
@@ -126,7 +126,7 @@ namespace Bazaar.GameHub
             {
                 var callback = new EventDoneCallbackProxy();
                 bridge.Call("eventDoneNotify", UnityActivity.GetCurrentActivity(), eventId, callback);
-                result = await callback.WaitForResult();
+                result = await callback.taskCompletionSource.Task;
             }
             else
             {
@@ -144,7 +144,7 @@ namespace Bazaar.GameHub
             {
                 var callback = new EvenListCallbackProxy();
                 bridge.Call("getEvents", UnityActivity.GetCurrentActivity(), callback);
-                result = await callback.WaitForResult();
+                result = await callback.taskCompletionSource.Task;
             }
             else
             {
