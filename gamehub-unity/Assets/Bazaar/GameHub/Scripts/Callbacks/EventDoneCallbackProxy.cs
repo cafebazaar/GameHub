@@ -13,7 +13,7 @@ namespace Bazaar.GameHub.Callbacks
 
         void onFinish(int status, string message, string stackTrace, string effectiveDoneTime)
         {
-            taskCompletionSource.SetResult(new Result<string>((Status)status, message, stackTrace) { data = effectiveDoneTime });}
+            taskCompletionSource.SetResult(new Result<string>((Status)status, message, stackTrace) { data = effectiveDoneTime });
         }
     }
 }
