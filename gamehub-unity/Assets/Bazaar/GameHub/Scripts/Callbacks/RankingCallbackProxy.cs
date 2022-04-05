@@ -1,27 +1,32 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Bazaar.Callbacks;
+using Bazaar.Data;
 using Bazaar.GameHub.Data;
 using UnityEngine;
 
 namespace Bazaar.GameHub.Callbacks
 {
-    public class RankingCallbackProxy : BaseCallbackProxy
+    public class RankingCallbackProxy : CallbackProxy<List<RankItem>>
     {
-        public RankingCallbackProxy() : base("com.farsitel.bazaar.game.callbacks.IRankingCallback") { }
+        public RankingCallbackProxy() : base("com.farsitel.bazaar.game.callbacks.IRankingCallback")
+        {
+            taskCompletionSource = new TaskCompletionSource<Result<List<RankItem>>>();
+        }
 
         void onFinish(int status, string message, string stackTrace, AndroidJavaObject tournaments)
         {
-            if (status != (int)Result.Status.Success)
+            var _status = (Status)status;
+            var data = new List<RankItem>();
+            if (_status == Status.Success)
             {
-                result = new RankingResult(status, null) { message = message, stackTrace = stackTrace };
-                return;
+                var size = tournaments.Call<int>("size");
+                for (int index = 0; index < size; index++)
+                {
+                    data.Add(new RankItem(tournaments.Call<AndroidJavaObject>("get", index)));
+                }
             }
-            var list = new List<RankItem>();
-            var size = tournaments.Call<int>("size");
-            for (int index = 0; index < size; index++)
-            {
-                list.Add(new RankItem(tournaments.Call<AndroidJavaObject>("get", index)));
-            }
-            result = new RankingResult(status, list) { message = "Fetch Ranking completed.", stackTrace = stackTrace };
+            taskCompletionSource.SetResult(new Result<List<RankItem>>(_status, message, stackTrace) { data = data });
         }
     }
 }

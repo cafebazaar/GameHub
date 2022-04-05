@@ -1,14 +1,20 @@
-using Bazaar.GameHub.Data;
+using Bazaar.Data;
+using Bazaar.Callbacks;
+using System.Threading.Tasks;
 
 namespace Bazaar.GameHub.Callbacks
 {
-    public class ConnectionCallbackProxy : BaseCallbackProxy
+    public class ConnectionCallbackProxy : CallbackProxy<bool>
     {
-        public ConnectionCallbackProxy() : base("com.farsitel.bazaar.game.callbacks.IConnectionCallback") { }
+        public ConnectionCallbackProxy() : base("com.farsitel.bazaar.game.callbacks.IConnectionCallback")
+        {
+            taskCompletionSource = new TaskCompletionSource<Result<bool>>();
+        }
 
         void onFinish(int status, string message, string stackTrace)
         {
-            result = new Result(status){message = message, stackTrace =stackTrace};
+            var _status = (Status)status;
+            taskCompletionSource.SetResult(new Result<bool>(_status, message, stackTrace) { data = _status == Status.Success });
         }
     }
 }

@@ -5,9 +5,9 @@ public enum Status {
 
     SUCCESS(0),
     DISCONNECTED(1),
-    LOGIN_CAFEBAZAAR(3),
-    UPDATE_CAFEBAZAAR(4),
-    INSTALL_CAFEBAZAAR(5),
+    LOGIN_BAZAAR(3),
+    UPDATE_BAZAAR(4),
+    INSTALL_BAZAAR(5),
     UNKNOWN(10);
 
     private final int levelCode;
@@ -25,11 +25,11 @@ public enum Status {
             case 1:
                 return DISCONNECTED;
             case 3:
-                return LOGIN_CAFEBAZAAR;
+                return LOGIN_BAZAAR;
             case 4:
-                return UPDATE_CAFEBAZAAR;
+                return UPDATE_BAZAAR;
             case 5:
-                return INSTALL_CAFEBAZAAR;
+                return INSTALL_BAZAAR;
             default:
                 return UNKNOWN;
         }

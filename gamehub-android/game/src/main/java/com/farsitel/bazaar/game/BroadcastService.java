@@ -1,6 +1,7 @@
 package com.farsitel.bazaar.game;
 
-import android.content.BroadcastReceiver;
+import static com.farsitel.bazaar.game.receiver.GameHubBroadcastReceiver.getAction;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -10,63 +11,16 @@ import com.farsitel.bazaar.game.callbacks.IBroadcastCallback;
 import com.farsitel.bazaar.game.constants.Constant;
 import com.farsitel.bazaar.game.constants.Method;
 import com.farsitel.bazaar.game.constants.Param;
-import com.farsitel.bazaar.game.data.Result;
-import com.farsitel.bazaar.game.data.Status;
-import com.farsitel.bazaar.game.utils.Logger;
-
-import java.util.Map;
-import java.util.WeakHashMap;
+import com.farsitel.bazaar.game.receiver.GameHubBroadcastReceiver;
 
 public class BroadcastService {
 
-    private final Logger logger;
     private final Context context;
-    private final Map<String, IBroadcastCallback> callbacks = new WeakHashMap<>();
+    private final GameHubBroadcastReceiver receiver = new GameHubBroadcastReceiver();
 
-    private static String getAction(String methodName) {
-        return Constant.BAZAAR_PACKAGE_NAME + "." + methodName;
-    }
-
-    private boolean mDisposed;
-    private BroadcastReceiver receiver;
-
-    BroadcastService(Context context, Logger logger) {
+    BroadcastService(Context context) {
         this.context = context;
-        this.logger = logger;
-        createReceiver();
         registerBroadcast(context);
-    }
-
-    private void createReceiver() {
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                logger.logDebug(intent.toUri(0));
-                String action = intent.getAction();
-                if (action == null) {
-                    logger.logError("action is null.");
-                    return;
-                }
-
-                if (disposed()) {
-                    logger.logError("Broadcast already disposed.");
-                    return;
-                }
-
-                if (callbacks.containsKey(action)) {
-                    Result result = new Result();
-                    if (action.equals(getAction(Method.IS_LOGIN))) {
-                        boolean isLogin = intent.getBooleanExtra(Method.IS_LOGIN, false);
-                        result.status = isLogin ? Status.SUCCESS : Status.LOGIN_CAFEBAZAAR;
-                        result.message = isLogin ? "" : "Login to Cafebazaar before!";
-                        callbacks.get(action).call(result);
-                    } else {
-                        callbacks.get(action).call(result.setBundle(intent.getExtras()));
-                    }
-                    callbacks.remove(action);
-                }
-            }
-        };
     }
 
     private void registerBroadcast(Context context) {
@@ -76,6 +30,8 @@ public class BroadcastService {
         intentFilter.addAction(getAction(Method.START_TOURNAMENT_MATCH));
         intentFilter.addAction(getAction(Method.END_TOURNAMENT_MATCH));
         intentFilter.addAction(getAction(Method.GET_CURRENT_LEADERBOARD_DATA));
+        intentFilter.addAction(getAction(Method.EVENT_DONE_NOTIFY));
+        intentFilter.addAction(getAction(Method.GET_EVENTS_BY_PACKAGE_NAME));
         context.registerReceiver(receiver, intentFilter);
     }
 
@@ -94,12 +50,12 @@ public class BroadcastService {
     }
 
     public void isLogin(IBroadcastCallback callback) {
-        callbacks.put(getAction(Method.IS_LOGIN), callback);
+        receiver.callbacks.put(getAction(Method.IS_LOGIN), callback);
         sendBroadcast(getAction(Method.IS_LOGIN));
     }
 
     public void getTournamentTimes(IBroadcastCallback callback) {
-        callbacks.put(getAction(Method.GET_TOURNAMENTS), callback);
+        receiver.callbacks.put(getAction(Method.GET_TOURNAMENTS), callback);
         sendBroadcast(getAction(Method.GET_TOURNAMENTS));
     }
 
@@ -107,7 +63,7 @@ public class BroadcastService {
         Bundle extras = new Bundle();
         extras.putString(Param.MATCH_ID, matchId);
         extras.putString(Param.META_DATA, metadata);
-        callbacks.put(getAction(Method.START_TOURNAMENT_MATCH), callback);
+        receiver.callbacks.put(getAction(Method.START_TOURNAMENT_MATCH), callback);
         sendBroadcast(getAction(Method.START_TOURNAMENT_MATCH), extras);
     }
 
@@ -115,21 +71,30 @@ public class BroadcastService {
         Bundle extras = new Bundle();
         extras.putString(Param.SESSION_ID, sessionId);
         extras.putFloat(Param.SCORE, score);
-        callbacks.put(getAction(Method.END_TOURNAMENT_MATCH), callback);
+        receiver.callbacks.put(getAction(Method.END_TOURNAMENT_MATCH), callback);
         sendBroadcast(getAction(Method.END_TOURNAMENT_MATCH), extras);
     }
 
     public void getCurrentLeaderboard(IBroadcastCallback callback) {
-        callbacks.put(getAction(Method.GET_CURRENT_LEADERBOARD_DATA), callback);
+        receiver.callbacks.put(getAction(Method.GET_CURRENT_LEADERBOARD_DATA), callback);
         sendBroadcast(getAction(Method.GET_CURRENT_LEADERBOARD_DATA));
     }
 
-    protected boolean disposed() {
-        return mDisposed;
+    public void eventDoneNotify(String eventId, IBroadcastCallback callback) {
+        Bundle extras = new Bundle();
+        extras.putString(Param.EVENT_ID, eventId);
+        receiver.callbacks.put(getAction(Method.EVENT_DONE_NOTIFY), callback);
+        sendBroadcast(getAction(Method.EVENT_DONE_NOTIFY), extras);
+    }
+
+    public void getEventsByPackageName(String packageName, IBroadcastCallback callback) {
+        Bundle extras = new Bundle();
+        extras.putString(Param.PACKAGE_NAME, packageName);
+        receiver.callbacks.put(getAction(Method.GET_EVENTS_BY_PACKAGE_NAME), callback);
+        sendBroadcast(getAction(Method.GET_EVENTS_BY_PACKAGE_NAME), extras);
     }
 
     void dispose() {
-        callbacks.clear();
-        mDisposed = true;
+        receiver.dispose();
     }
 }

@@ -7,13 +7,14 @@ import android.view.View;
 
 import com.farsitel.bazaar.game.GameHub;
 import com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback;
+import com.farsitel.bazaar.game.data.Match;
 import com.farsitel.bazaar.game.data.Status;
 import com.farsitel.bazaar.game.utils.Logger;
 
 public class MainActivity extends Activity {
 
     private GameHub gameHub;
-    private String reservedSessionId;
+    private Match reservedMatch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,49 +25,55 @@ public class MainActivity extends Activity {
     }
 
     public void connect(View view) {
-        gameHub.connect(getApplicationContext(), true, (status, message, stackTrace) -> {
-            Log.i(Logger.TAG, String.format("Connect => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
-        });
+        gameHub.connect(getApplicationContext(), true, (status, message, stackTrace) ->
+                Log.i(Logger.TAG, String.format("Connect => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
     public void getTournaments(View view) {
-        gameHub.getTournaments(this, (status, message, stackTrace, tournaments) -> {
-            Log.i(Logger.TAG, String.format("Tournaments => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
-        });
+        gameHub.getTournaments(this, (status, message, stackTrace, tournaments) ->
+                Log.i(Logger.TAG, String.format("Tournaments => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
     public void startTournamentMatch(View view) {
-        ITournamentMatchCallback callback = (status, sessionId, matchId, metaData) -> {
-            Log.i(Logger.TAG, String.format("Start => Status: %d, SessionId: %s, MatchId: %s, MetaData: %s", status, sessionId, matchId, metaData));
+        ITournamentMatchCallback callback = (status, message, stackTrace, match) -> {
+            Log.i(Logger.TAG, String.format("Start => Status: %d, SessionId: %s, MatchId: %s", status, message, stackTrace));
             if (status == Status.SUCCESS.getLevelCode()) {
-                reservedSessionId = sessionId;
+                reservedMatch = match;
             }
         };
         gameHub.startTournamentMatch(this, callback, "OgMSbLOC", "extra");
     }
 
     public void endTournamentMatch(View view) {
-        if (reservedSessionId == null) {
-            Log.e(Logger.TAG, "Call startTournamentMatch before!");
+        if (reservedMatch == null) {
+            Log.e(Logger.TAG, "Call startTournamentMatch first!");
             return;
         }
-        ITournamentMatchCallback callback = (status, sessionId, matchId, metaData) -> {
-            Log.i(Logger.TAG, String.format("End => Status: %d, SessionId: %s, MatchId: %s, MetaData: %s", status, sessionId, matchId, metaData));
-            reservedSessionId = null;
+        ITournamentMatchCallback callback = (status, message, stackTrace, match) -> {
+            Log.i(Logger.TAG, String.format("End => Status: %d, SessionId: %s, MatchId: %s", status, message, stackTrace));
+            reservedMatch = null;
         };
-        gameHub.endTournamentMatch(callback, reservedSessionId, 0.5f);
+        gameHub.endTournamentMatch(callback, reservedMatch.sessionId, 0.5f);
     }
 
     public void showTournamentRanking(View view) {
-        gameHub.showTournamentRanking(getApplicationContext(), "-1", (status, message, stackTrace) -> {
-            Log.i(Logger.TAG, String.format("showTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
-        });
+        gameHub.showTournamentRanking(getApplicationContext(), "-1", (status, message, stackTrace) ->
+                Log.i(Logger.TAG, String.format("showTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
     public void getTournamentRanking(View view) {
-        gameHub.getTournamentRanking(getApplicationContext(), "-1", (status, message, stackTrace, rankItems) -> {
-            Log.i(Logger.TAG, String.format("getTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace));
-        });
+        gameHub.getTournamentRanking(getApplicationContext(), "-1", (status, message, stackTrace, rankItems) ->
+                Log.i(Logger.TAG, String.format("getTournamentRanking => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
+    }
+
+    public void eventDoneNotify(View view) {
+        gameHub.eventDoneNotify(getApplicationContext(), "1", (status, message, stackTrace, effectiveDoneTime) ->
+                Log.i(Logger.TAG, String.format("eventDoneNotify => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
+    }
+
+    public void getEvents(View view) {
+        gameHub.getEvents(getApplicationContext(), (status, message, stackTrace, events) ->
+                Log.i(Logger.TAG, String.format("getEvents => Status: %d, Message: %s, StackTrace: %s", status, message, stackTrace)));
     }
 
     @Override

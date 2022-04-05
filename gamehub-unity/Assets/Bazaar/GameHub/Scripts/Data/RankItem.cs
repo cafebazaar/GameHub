@@ -20,5 +20,7 @@ namespace Bazaar.GameHub.Data
             this.isCurrentUser = entity.Get<bool>("isCurrentUser");
             this.isWinner = entity.Get<bool>("isWinner");
         }
+
+        override public string ToString() => $"nickname: {nickname}, score: {score}";
     }
 }

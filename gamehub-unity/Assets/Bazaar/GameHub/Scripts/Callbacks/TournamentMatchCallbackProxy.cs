@@ -1,20 +1,26 @@
+using System.Threading.Tasks;
+using Bazaar.Callbacks;
+using Bazaar.Data;
 using Bazaar.GameHub.Data;
 
 namespace Bazaar.GameHub.Callbacks
 {
-    public class TournamentMatchCallbackProxy : BaseCallbackProxy
+    public class TournamentMatchCallbackProxy : CallbackProxy<Match>
     {
-        public TournamentMatchCallbackProxy() : base("com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback") { }
-
-
-        void onFinish(int status, string arg1, string arg2, string arg3)
+        public TournamentMatchCallbackProxy() : base("com.farsitel.bazaar.game.callbacks.ITournamentMatchCallback")
         {
-            if (status != (int)Result.Status.Success)
+            taskCompletionSource = new TaskCompletionSource<Result<Match>>();
+        }
+
+        void onFinish(int status, string message, string stackTrace, UnityEngine.AndroidJavaObject match)
+        {
+            var _status = (Status)status;
+            Match data = null;
+            if (_status == Status.Success)
             {
-                result = new TournamentMatchResult(status) { message = arg1, stackTrace = arg2 };
-                return;
+                data = new Match(match);
             }
-            result = new TournamentMatchResult(status) { sessionId = arg1, matchId = arg2, metadata = arg3 };
+            taskCompletionSource.SetResult(new Result<Match>(_status, message, stackTrace) { data = data });
         }
     }
 }

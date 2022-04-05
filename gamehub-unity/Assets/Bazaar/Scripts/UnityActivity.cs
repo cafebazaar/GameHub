@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Bazaar.GameHub
+namespace Bazaar
 {
     class UnityActivity
     {
@@ -11,7 +11,7 @@ namespace Bazaar.GameHub
             return new AndroidJavaClass(k_AndroidClassName);
         }
 
-        internal static AndroidJavaObject GetCurrentActivity()
+        public static AndroidJavaObject GetCurrentActivity()
         {
             return GetUnityPlayerClass().GetStatic<AndroidJavaObject>("currentActivity");
         }

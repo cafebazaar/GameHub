@@ -1,14 +1,16 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
+using Bazaar.Data;
 using Bazaar.GameHub;
 using Bazaar.GameHub.Data;
 
 public class GameHubExample : MonoBehaviour
 {
-    public Text ConsoleText;
+    [SerializeField] private Text consoleText;
+    [SerializeField] private GameObject menu;
 
     private GameHub gameHub;
-    private string reservedSessionId;
+    private Match reservedMatch;
 
     void Start()
     {
@@ -19,53 +21,71 @@ public class GameHubExample : MonoBehaviour
     public async void Connect()
     {
         var result = await gameHub.Connect();
-        Log(result.toString());
+        Log(result.ToString());
+        if (result.status == Status.Success)
+        {
+            menu.SetActive(true);
+        }
     }
 
     public async void GetTournaments()
     {
         var result = await gameHub.GetTournaments();
-        Log(result.toString());
+        Log(result.ToString());
     }
 
     public async void StartTournamentMatch()
     {
         var result = await gameHub.StartTournamentMatch("OgMSbLOC", "metadata");
-        if (result.status == Result.Status.Success)
+        if (result.status == Status.Success)
         {
-            reservedSessionId = result.sessionId;
+            reservedMatch = result.data;
         }
-        Log(result.toString());
+        Log(result.ToString());
     }
 
     public async void EndTournamentMatch()
     {
-        if (reservedSessionId == null)
+        if (reservedMatch == null)
         {
             Log("Call `StartTournamentMatch` before!");
             return;
         }
-        var result = await gameHub.EndTournamentMatch(reservedSessionId, 0.4f);
-        Log(result.toString());
+        var result = await gameHub.EndTournamentMatch(reservedMatch.sessionId, 0.5f);
+        Log(result.ToString());
+        reservedMatch = null;
     }
 
     public async void ShowLastTournamentRanking()
     {
         var result = await gameHub.ShowLastTournamentRanking();
-        if (result.status != Result.Status.Success)
+        if (result.status != Status.Success)
         {
-            Log(result.toString());
+            Log(result.ToString());
         }
     }
 
     public async void GetLastTournamentRanking()
     {
         var result = await gameHub.GetLastTournamentRanking();
-        Log(result.toString());
+        Log(result.ToString());
+    }
+
+
+    public async void EventDoneNotify()
+    {
+        var result = await gameHub.EventDoneNotify("1");
+        Log(result.ToString());
+    }
+
+    public async void GetEvents()
+    {
+        var result = await gameHub.GetEvents();
+        Log(result.ToString());
     }
 
     public void Log(string message)
     {
-        ConsoleText.text += message + "\n";
+        consoleText.text += message + "\n";
     }
 }
