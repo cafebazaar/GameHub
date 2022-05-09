@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
 ext {
-    gameHubVersion = '1.0.0'
+    gameHubVersion = '1.0.1'
     gameHubArtifact = ''
     gameHubArtifactDebug = '-debug'
     gameHubPackageName = 'com.farsitel.bazaar.gamehub'
