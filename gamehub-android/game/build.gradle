@@ -1,0 +1,68 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+ext {
+    gameHubVersion = '1.1.0'
+    gameHubArtifact = ''
+    gameHubArtifactDebug = '-debug'
+    gameHubPackageName = 'com.farsitel.bazaar.gamehub'
+
+    gameHubMinSdk = 16
+    gameHubTargetSdk = 29
+    gameHubVersionCode = 1
+    gameHubCompileSdk = 30
+}
+
+android {
+    compileSdk gameHubCompileSdk
+    defaultConfig {
+        minSdk gameHubMinSdk
+        targetSdk gameHubTargetSdk
+        versionCode gameHubVersionCode
+        versionName gameHubVersion
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField "String", "GAMEHUB_VERSION", '"' + gameHubVersion + gameHubArtifactDebug + '"'
+        }
+        release {
+            minifyEnabled false
+            buildConfigField "String", "GAMEHUB_VERSION", '"' + gameHubVersion + gameHubArtifact + '"'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+// Because the components are created only during the afterEvaluate phase, you must
+// configure your publications using the afterEvaluate() lifecycle method.
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                // Applies the component for the release build variant.
+                from components.release
+
+                // You can then customize attributes of the publication as shown below.
+                groupId = gameHubPackageName
+                artifactId = gameHubArtifact
+                version = gameHubVersion
+            }
+            // Creates a Maven publication called “debug”.
+            debug(MavenPublication) {
+                // Applies the component for the debug build variant.
+                from components.debug
+
+                groupId = gameHubPackageName
+                artifactId = gameHubArtifactDebug
+                version = gameHubVersion
+            }
+        }
+    }
+}

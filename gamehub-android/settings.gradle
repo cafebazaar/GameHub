@@ -1,0 +1,3 @@
+rootProject.name = "GameHub"
+include ':app'
+include ':game'

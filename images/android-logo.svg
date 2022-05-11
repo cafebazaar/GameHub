@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 33.867 33.867">
+   <g transform="translate(0 -263.133)">
+      <rect width="32.808" height="32.808" x=".529" y="263.663" ry="1.587" fill="#fff" fill-opacity=".267" stroke="#000"
+         stroke-width=".873" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".608" /><text
+         style="line-height:0;-inkscape-font-specification:Quicksand;text-align:center" x="17.095" y="292.901"
+         font-weight="400" font-size="6.984" font-family="Quicksand" letter-spacing="0" word-spacing="0"
+         text-anchor="middle" stroke-width=".873">
+         <tspan x="17.095" y="292.901" font-size="7.056">android</tspan>
+      </text>
+      <path
+         d="M9.362 268.8a.572.572 0 00-.426.856l1.896 3.284c-5.438 2.973-5.928 9.447-5.928 9.447l24.17.054s-.557-6.538-5.888-9.517l1.855-3.214a.572.572 0 10-.992-.573l-1.896 3.284c-1.385-.585-3.04-.946-5.028-.946-2.088 0-3.818.369-5.257.967l-1.94-3.36a.571.571 0 00-.566-.282zm2.004 8.377a.873.873 0 01.876.867v.007a.873.873 0 01-.871.873.873.873 0 01-.875-.87.873.873 0 01.87-.876zm11.075 0a.873.873 0 01.877.867v.007a.873.873 0 01-.872.873.873.873 0 01-.874-.87.873.873 0 01.87-.876z"
+         fill="#00df7f" />
+   </g>
+</svg>
