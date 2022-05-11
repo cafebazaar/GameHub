@@ -7,6 +7,7 @@ import static com.farsitel.bazaar.game.constants.Constant.GET_RANKING_NEEDS_UPDA
 import static com.farsitel.bazaar.game.constants.Constant.INSTALL_BAZAAR;
 import static com.farsitel.bazaar.game.constants.Constant.LOGIN_TO_BAZAAR_FIRST;
 import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_EVENT;
+import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_GAMEHUB;
 import static com.farsitel.bazaar.game.constants.Constant.REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT;
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_CONNECTED;
 import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_DISCONNECTED;
@@ -14,7 +15,6 @@ import static com.farsitel.bazaar.game.constants.Constant.SERVICE_IS_STARTED;
 import static com.farsitel.bazaar.game.constants.Constant.TOURNAMENT_RANKING_IS_SHOWN;
 import static com.farsitel.bazaar.game.constants.Constant.UPDATE_BAZAAR;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -85,7 +85,7 @@ public class GameHub {
 
     public void connect(Context context, boolean showPrompts, IConnectionCallback callback) {
         // Check player has Bazaar app or  it`s already updated to the latest version
-        Result installState = getBazaarInstallationState(context, REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT, showPrompts);
+        Result installState = getBazaarInstallationState(context, REQUIRED_BAZAAR_VERSION_FOR_GAMEHUB, showPrompts);
         if (installState.status != Status.SUCCESS) {
             callback.onFinish(installState.status.getLevelCode(), installState.message, "");
             return;
@@ -162,8 +162,15 @@ public class GameHub {
         });
     }
 
-    public void getTournaments(Activity activity, ITournamentsCallback callback) {
+    public void getTournaments(Context context, ITournamentsCallback callback) {
         logger.logDebug("Call " + Method.GET_TOURNAMENTS);
+
+        // Check if the CafeBazaar version matches minimum required version
+        Result installationState = getBazaarInstallationState(context, REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT, true);
+        if (installationState.status != Status.SUCCESS) {
+            callback.onFinish(installationState.status.getLevelCode(), installationState.message, installationState.stackTrace, null);
+            return;
+        }
 
         // Check one of services is connected
         if (areServicesUnavailable()) {
@@ -186,7 +193,7 @@ public class GameHub {
             executorService.submit(() -> {
                 final Result result = new Result();
                 try {
-                    Bundle bundle = gameHubService.getTournamentTimes(activity.getPackageName());
+                    Bundle bundle = gameHubService.getTournamentTimes(context.getPackageName());
                     result.setBundle(bundle);
                 } catch (RemoteException e) {
                     e.printStackTrace();
@@ -200,12 +207,19 @@ public class GameHub {
     }
 
     public void startTournamentMatch(
-            Activity activity,
+            Context context,
             ITournamentMatchCallback callback,
             String matchId,
             String metadata
     ) {
         logger.logDebug("Call " + Method.START_TOURNAMENT_MATCH);
+
+        // Check if the CafeBazaar version matches minimum required version
+        Result installationState = getBazaarInstallationState(context, REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT, true);
+        if (installationState.status != Status.SUCCESS) {
+            callback.onFinish(installationState.status.getLevelCode(), installationState.message, installationState.stackTrace, null);
+            return;
+        }
 
         // Check one of services is connected
         if (areServicesUnavailable()) {
@@ -229,7 +243,7 @@ public class GameHub {
             executorService.submit(() -> {
                 final Result result = new Result();
                 try {
-                    Bundle bundle = gameHubService.startTournamentMatch(activity.getPackageName(), matchId, metadata);
+                    Bundle bundle = gameHubService.startTournamentMatch(context.getPackageName(), matchId, metadata);
                     result.setBundle(bundle);
                 } catch (RemoteException e) {
                     e.printStackTrace();
@@ -242,9 +256,20 @@ public class GameHub {
         });
     }
 
-    public void endTournamentMatch(ITournamentMatchCallback callback, String sessionId,
-                                   float score) {
+    public void endTournamentMatch(
+            Context context,
+            ITournamentMatchCallback callback,
+            String sessionId,
+            float score
+    ) {
         logger.logDebug("Call " + Method.END_TOURNAMENT_MATCH);
+
+        // Check if the CafeBazaar version matches minimum required version
+        Result installationState = getBazaarInstallationState(context, REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT, true);
+        if (installationState.status != Status.SUCCESS) {
+            callback.onFinish(installationState.status.getLevelCode(), installationState.message, installationState.stackTrace, null);
+            return;
+        }
 
         // Check one of services is connected
         if (areServicesUnavailable()) {
@@ -320,6 +345,13 @@ public class GameHub {
             IRankingCallback callback
     ) {
         logger.logDebug("Call getTournamentRanking");
+
+        // Check if the CafeBazaar version matches minimum required version
+        Result installationState = getBazaarInstallationState(context, REQUIRED_BAZAAR_VERSION_FOR_TOURNAMENT, true);
+        if (installationState.status != Status.SUCCESS) {
+            callback.onFinish(installationState.status.getLevelCode(), installationState.message, installationState.stackTrace, null);
+            return;
+        }
 
         // Check one of services is connected
         if (areServicesUnavailable()) {
